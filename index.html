@@ -38,7 +38,7 @@ body { background:#FFFFFF; color:var(--cg-gray-800); font-family:'Avenir Next LT
 .nav-sep { width:1px; height:22px; background:var(--cg-gray-200); margin:0 6px; }
 
 /* ── Slides ── */
-.slide { display:none; padding:110px 40px 40px; min-height:100vh; max-width:1440px; margin:0 auto; }
+.slide { display:none; padding:40px 40px 40px; min-height:100vh; max-width:1440px; margin:0 auto; }
 .slide.active { display:block; }
 .slide-title { color:var(--cg-prem-900); font-size:32px; font-weight:700; margin-bottom:6px; letter-spacing:-0.5px; }
 .slide-subtitle { color:var(--cg-gray-600); font-size:15px; margin-bottom:28px; line-height:1.5; }
@@ -1716,6 +1716,14 @@ document.querySelectorAll('.card').forEach(card => {
     }
   }
 });
+
+// ── Dynamic slide padding to clear nav ──
+function adjustSlidePadding() {
+  const navH = document.getElementById('nav').offsetHeight;
+  document.querySelectorAll('.slide').forEach(s => s.style.paddingTop = (navH + 20) + 'px');
+}
+adjustSlidePadding();
+window.addEventListener('resize', adjustSlidePadding);
 
 // ── Init first slide ──
 initChartsForSlide(0);
