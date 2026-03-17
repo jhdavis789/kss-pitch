@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KSS: Buy Thesis</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+/* Capital Group Design System Colors */
+:root {
+  --cg-sapphire-100: #DEF5FF; --cg-sapphire-200: #B6EAFF; --cg-sapphire-300: #70D5FF;
+  --cg-sapphire-400: #0DB9FF; --cg-sapphire-500: #009CDC; --cg-sapphire-600: #0075B5;
+  --cg-sapphire-700: #005F9E; --cg-sapphire-800: #003A66; --cg-sapphire-900: #00294B;
+  --cg-turquoise-400: #00C1BC; --cg-turquoise-500: #00A499; --cg-turquoise-600: #007E6C;
+  --cg-turquoise-700: #00675C;
+  --cg-raspberry-400: #E992C2; --cg-raspberry-500: #E06AAA; --cg-raspberry-600: #CB2A82;
+  --cg-raspberry-700: #A6256E;
+  --cg-copper-400: #C6A796; --cg-copper-500: #B58976; --cg-copper-600: #976253;
+  --cg-green-500: #3EA561; --cg-green-600: #038049; --cg-green-700: #026A3B;
+  --cg-red-500: #F45F7C; --cg-red-600: #DA1944; --cg-red-700: #B61336;
+  --cg-warn-300: #FFB860; --cg-warn-500: #BD8845; --cg-warn-600: #906735;
+  --cg-gray-50: #F7F7F7; --cg-gray-100: #F1F1F1; --cg-gray-200: #E2E2E2;
+  --cg-gray-400: #ADADAD; --cg-gray-600: #6F6F6F; --cg-gray-800: #383838;
+  --cg-cream-100: #F4F3F0; --cg-cream-200: #E4E2D9; --cg-cream-800: #393836;
+  --cg-prem-800: #153A5A; --cg-prem-900: #00294B; --cg-prem-1000: #001A30;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#FFFFFF; color:var(--cg-gray-800); font-family:'Avenir Next LT Com','SF Pro Display','Inter',-apple-system,BlinkMacSystemFont,sans-serif; font-size:14px; }
+
+/* ── Nav ── */
+.nav { position:fixed; top:0; left:0; right:0; z-index:100; background:#FFFFFF; border-bottom:1px solid var(--cg-gray-200); padding:8px 16px; display:flex; flex-wrap:wrap; gap:3px; align-items:center; }
+.nav-section { color:var(--cg-sapphire-700); font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1.2px; padding:4px 8px; margin-right:2px; }
+.nav-btn { background:var(--cg-gray-50); border:1px solid var(--cg-gray-200); color:var(--cg-gray-600); padding:5px 12px; border-radius:4px; cursor:pointer; font-family:inherit; font-size:11px; font-weight:500; transition:all 0.15s; white-space:nowrap; }
+.nav-btn:hover { background:var(--cg-sapphire-100); color:var(--cg-sapphire-700); border-color:var(--cg-sapphire-300); }
+.nav-btn.active { background:var(--cg-sapphire-600); border-color:var(--cg-sapphire-700); color:#FFFFFF; }
+.nav-sep { width:1px; height:22px; background:var(--cg-gray-200); margin:0 6px; }
+
+/* ── Slides ── */
+.slide { display:none; padding:80px 40px 40px; min-height:100vh; max-width:1440px; margin:0 auto; }
+.slide.active { display:block; }
+.slide-title { color:var(--cg-prem-900); font-size:32px; font-weight:700; margin-bottom:6px; letter-spacing:-0.5px; }
+.slide-subtitle { color:var(--cg-gray-600); font-size:15px; margin-bottom:28px; line-height:1.5; }
+
+/* ── Layout ── */
+.row { display:flex; gap:20px; margin-bottom:20px; }
+.row > .col { flex:1; min-width:0; }
+.card { background:#FFFFFF; border:1px solid var(--cg-gray-200); border-radius:10px; padding:22px; }
+.card h3 { color:var(--cg-sapphire-700); font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:14px; }
+canvas { max-height:380px; }
+.callout { background:var(--cg-sapphire-100); border:1px solid var(--cg-sapphire-300); border-left:4px solid var(--cg-sapphire-600); border-radius:8px; padding:16px 20px; margin-top:18px; color:var(--cg-sapphire-800); font-size:13px; line-height:1.6; }
+.callout-gold { border-left-color:var(--cg-copper-500); color:var(--cg-copper-600); background:rgba(198,167,150,0.12); border-color:var(--cg-copper-400); }
+.callout-green { border-left-color:var(--cg-green-600); color:var(--cg-green-700); background:rgba(62,165,97,0.08); border-color:var(--cg-green-500); }
+
+/* ── Metrics Row ── */
+.metrics { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:24px; }
+.metric { background:var(--cg-gray-50); border:1px solid var(--cg-gray-200); border-radius:8px; padding:16px 20px; flex:1; min-width:160px; }
+.metric .label { color:var(--cg-gray-600); font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1px; }
+.metric .value { color:var(--cg-gray-800); font-size:26px; font-weight:700; margin-top:4px; }
+.metric .value.green { color:var(--cg-green-600); }
+.metric .value.red { color:var(--cg-red-600); }
+.metric .value.blue { color:var(--cg-sapphire-600); }
+.metric .value.gold { color:var(--cg-copper-600); }
+.metric .detail { color:var(--cg-gray-600); font-size:11px; margin-top:3px; }
+
+/* ── Tables ── */
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th { background:var(--cg-gray-50); color:var(--cg-sapphire-700); text-align:left; padding:10px 12px; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; border-bottom:2px solid var(--cg-gray-200); }
+td { padding:9px 12px; border-bottom:1px solid var(--cg-gray-100); color:var(--cg-gray-800); }
+tr:hover { background:var(--cg-sapphire-100); }
+.r { text-align:right; }
+td.green { color:var(--cg-green-600); }
+td.red { color:var(--cg-red-600); }
+td.gold { color:var(--cg-copper-600); }
+td.blue { color:var(--cg-sapphire-600); }
+
+/* ── Map ── */
+#store-map { height:520px; border-radius:10px; border:1px solid var(--cg-gray-200); }
+
+/* ── Footer nav ── */
+.slide-footer { display:flex; justify-content:space-between; margin-top:32px; padding-top:16px; border-top:1px solid var(--cg-gray-200); }
+.slide-footer button { background:var(--cg-gray-50); border:1px solid var(--cg-gray-200); color:var(--cg-gray-600); padding:8px 20px; border-radius:4px; cursor:pointer; font-family:inherit; font-size:12px; }
+.slide-footer button:hover { background:var(--cg-sapphire-100); color:var(--cg-sapphire-700); }
+
+/* ── Keyboard hint ── */
+.kb-hint { position:fixed; bottom:12px; right:16px; color:var(--cg-gray-400); font-size:10px; z-index:100; }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<div class="nav" id="nav">
+  <span class="nav-section">INTRO</span>
+  <button class="nav-btn active" onclick="goSlide(0)">Kohl's Customer</button>
+  <button class="nav-btn" onclick="goSlide(1)">Stores Across Americ</button>
+  <button class="nav-btn" onclick="goSlide(2)">Across Six Categorie</button>
+  <button class="nav-btn" onclick="goSlide(3)">SURVIVE the Decline</button>
+  <div class="nav-sep"></div>
+  <span class="nav-section">REAL ESTATE</span>
+  <button class="nav-btn" onclick="goSlide(4)">in Hidden Real Estat</button>
+  <button class="nav-btn" onclick="goSlide(5)">Public REITs</button>
+  <button class="nav-btn" onclick="goSlide(6)">When Debt Rolls Off </button>
+  <button class="nav-btn" onclick="goSlide(7)">KSS Pays vs Market R</button>
+  <button class="nav-btn" onclick="goSlide(8)">P/B Gap</button>
+  <div class="nav-sep"></div>
+  <span class="nav-section">AI DISCOVERY</span>
+  <button class="nav-btn" onclick="goSlide(9)">PRICE CHECK</button>
+  <button class="nav-btn" onclick="goSlide(10)">Private Label Margin</button>
+  <button class="nav-btn" onclick="goSlide(11)">Dollar Store Poverty</button>
+  <button class="nav-btn" onclick="goSlide(12)">Value with AI Shoppi</button>
+  <div class="nav-sep"></div>
+  <span class="nav-section">CONSUMER</span>
+  <button class="nav-btn" onclick="goSlide(13)">KSS Customer</button>
+  <button class="nav-btn" onclick="goSlide(14)">Performance</button>
+  <button class="nav-btn" onclick="goSlide(15)">the Resilient Consum</button>
+  <button class="nav-btn" onclick="goSlide(16)">Collar, PROTECT Blue</button>
+  <button class="nav-btn" onclick="goSlide(17)">Unit Economics</button>
+  <div class="nav-sep"></div>
+  <span class="nav-section">APPENDIX</span>
+  <button class="nav-btn" onclick="goSlide(18)">RISK</button>
+  <button class="nav-btn" onclick="goSlide(19)">FORTIFY</button>
+  <button class="nav-btn" onclick="goSlide(20)">Store Trajectories</button>
+  <div class="nav-sep"></div>
+  <span class="nav-section">SIDE THESES</span>
+  <button class="nav-btn" onclick="goSlide(21)">Sephora Relationship</button>
+  <button class="nav-btn" onclick="goSlide(22)">to Last-Mile Fulfill</button>
+  <div class="nav-sep"></div>
+  <span class="nav-section">WORST CASE</span>
+  <button class="nav-btn" onclick="goSlide(23)">STRESS TEST</button>
+</div>
+
+<div class="kb-hint">← → to navigate</div>
+
+
+<div class="slide active" id="intro-customer">
+  <div class="slide-title">MEET the Kohl's Customer</div>
+  <div class="slide-subtitle">1,148 off-mall stores in 49 states serving the lower-middle-class suburban shopper</div>
+
+  <div class="metrics">
+    <div class="metric"><div class="label">Stores</div><div class="value">1,148</div><div class="detail">49 states</div></div>
+    <div class="metric"><div class="label">Selling SqFt</div><div class="value">82M</div><div class="detail">Avg 69,787/store</div></div>
+    <div class="metric"><div class="label">Employees</div><div class="value">87K</div><div class="detail">33K FT / 54K PT</div></div>
+    <div class="metric"><div class="label">Loyalty Members</div><div class="value green">30M+</div><div class="detail">Data + media monetization</div></div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>Store Format (FY2024)</h3>
+        <canvas id="chart-format"></canvas>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>Ownership Structure (FY2024)</h3>
+        <canvas id="chart-ownership"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="callout">NOT a mall retailer. 81% strip centers, 14% freestanding. Kohl's owns or ground-leases 56% of its stores — the real estate is the hidden asset.</div>
+</div>
+
+<div class="slide" id="intro-map">
+  <div class="slide-title">MAP 1,078 Stores Across America</div>
+  <div class="slide-subtitle">Strip centers and freestanding boxes — not enclosed malls</div>
+  <div id="store-map"></div>
+  <div class="callout" style="margin-top:12px">Top states: CA (116), TX (89), IL (66), OH (60), FL (52), PA (51), NY (50), MI (46), WI (42), IN (42)</div>
+</div>
+
+<div class="slide" id="intro-product">
+  <div class="slide-title">SELL $14.8B Across Six Categories</div>
+  <div class="slide-subtitle">Revenue by category FY2025 — Accessories/Sephora is the growth engine</div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>Revenue by Category ($M) — FY2024</h3>
+        <canvas id="chart-rev-cat"></canvas>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>FY2023 → FY2024 Category Shift</h3>
+        <canvas id="chart-cat-compare"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="callout">Accessories/Sephora grew +$247M (+9%) while all other categories declined. Sephora is now &gt;$2B/yr revenue — 14% of total sales.</div>
+</div>
+
+<div class="slide" id="intro-financials">
+  <div class="slide-title">SURVIVE the Decline</div>
+  <div class="slide-subtitle">EBITDA stabilized at $1.3B while the stock collapsed 85% from PE bid — comp REITs are ALL up since then</div>
+
+  <div class="metrics">
+    <div class="metric"><div class="label">Market Cap</div><div class="value">$919M</div><div class="detail">$8.06/share</div></div>
+    <div class="metric"><div class="label">P/E (FY2025)</div><div class="value green">3.4x</div><div class="detail">EPS $2.38</div></div>
+    <div class="metric"><div class="label">P/B</div><div class="value green">0.23x</div><div class="detail">Book $35.51/sh</div></div>
+    <div class="metric"><div class="label">Stock vs PE Bid</div><div class="value red">-85%</div><div class="detail">$8 vs $64 offer</div></div>
+  </div>
+
+  <div class="row">
+    <div class="col" style="flex:2">
+      <div class="card">
+        <h3>EBITDA ($B) vs KSS Stock Price ($)</h3>
+        <canvas id="chart-ebitda-stock"></canvas>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>% Change Since Jan 2022</h3>
+        <canvas id="chart-stock-pctchg"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="callout-gold callout">Every REIT that owns Kohl's properties has gone UP since the 2022 PE bid. KSS stock is down 85%. The real estate underneath the stores has appreciated while the stock has collapsed. That is the opportunity.</div>
+</div>
+
+<div class="slide" id="re-hidden">
+  <div class="slide-title">OWN $5B in Hidden Real Estate</div>
+  <div class="slide-subtitle">602 controlled properties valued at 5.4x market cap</div>
+
+  <div class="metrics">
+    <div class="metric"><div class="label">Blended RE Value</div><div class="value green">$5.0B</div><div class="detail">602 owned + ground-leased</div></div>
+    <div class="metric"><div class="label">vs Market Cap</div><div class="value green">5.4x</div><div class="detail">Mkt cap $0.9B</div></div>
+    <div class="metric"><div class="label">SLB Net Proceeds</div><div class="value gold">$4.8B</div><div class="detail">After 3% transaction costs</div></div>
+    <div class="metric"><div class="label">RE / Share</div><div class="value green">$43.64</div><div class="detail">vs stock $8.06</div></div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>Valuation Comparison ($B)</h3>
+        <canvas id="chart-re-waterfall"></canvas>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>RE Value by Method ($B)</h3>
+        <canvas id="chart-re-methods"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" id="re-benchmark">
+  <div class="slide-title">BENCHMARK Against Public REITs</div>
+  <div class="slide-subtitle">Calibrated per-store using BRX, KIM, KRG, REG, NNN as comps</div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>REIT ABR/SF vs KSS Imputed Rent ($)</h3>
+        <canvas id="chart-reit-abr"></canvas>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>Top 20 States — RE Value ($M)</h3>
+        <canvas id="chart-state-re"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="callout">Base discount: 38% to REIT rent | Cap rate: 8.25% | Ground lease haircut: 30%. Even at steep discounts, the RE far exceeds market cap.</div>
+</div>
+
+<div class="slide" id="re-unlock">
+  <div class="slide-title">UNLOCK Value When Debt Rolls Off in 2030</div>
+  <div class="slide-subtitle">10% secured notes ($360M) mature Jun 2030 — releases DC collateral covenants</div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>Debt Maturity Schedule ($M)</h3>
+        <canvas id="chart-debt-maturity"></canvas>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>SLB Waterfall: Proceeds to Shareholders</h3>
+        <canvas id="chart-slb-waterfall"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="callout-gold callout">After 2030: $360M secured notes gone, DC collateral released. After 2031: $500M notes gone. Remaining debt: ~$640M of long-dated bonds. Free to execute SLB or REIT spin-off. Potential special dividend: ~$42.37/share vs $8.06 stock.</div>
+</div>
+
+<div class="slide" id="re-lease">
+  <div class="slide-title">COMPARE What KSS Pays vs Market Rents</div>
+  <div class="slide-subtitle">CMBS-verified anchor rents — KSS pays 60-80% below inline tenant rates</div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>CMBS-Verified KSS Rent PSF vs Property</h3>
+        <canvas id="chart-cmbs-rent"></canvas>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>KSS $9.18/SF vs REIT Portfolio Rents</h3>
+        <canvas id="chart-rent-compare"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="callout">Newport Centre: KSS pays $5.58/SF while H&amp;M pays $52.66/SF and Sephora pays $80.87/SF at the same property. Anchor tenants get structural discounts. Low P/B = low effective occupancy cost.</div>
+</div>
+
+<div class="slide" id="re-pb">
+  <div class="slide-title">EXPLOIT the P/B Gap</div>
+  <div class="slide-subtitle">$8.06 stock on $35.51/share book — PE bid $64 in 2022</div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>Per-Share Value Comparison</h3>
+        <canvas id="chart-per-share"></canvas>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>2022 PE Offer vs REIT Performance Since</h3>
+        <table>
+          <tr><th>Metric / Ticker</th><th class="r">Jan 2022</th><th class="r">Now</th><th class="r">Change</th></tr>
+          <tr><td><strong>KSS Stock</strong></td><td class="r">$46.84</td><td class="r">$8.06</td><td class="r red">-83%</td></tr>
+          <tr><td>PE Bid (Acacia/Starboard)</td><td class="r">$64/sh</td><td class="r" colspan="2">Rejected</td></tr>
+          <tr><td>PE Bid (Franchise Group)</td><td class="r">$53/sh</td><td class="r" colspan="2">Terminated Jul 2022</td></tr>
+          <tr style="border-top:2px solid var(--cg-gray-200)"><td>KIM (Kimco REIT)</td><td class="r">$19.98</td><td class="r">$23.19</td><td class="r green">+16%</td></tr>
+          <tr><td>BRX (Brixmor REIT)</td><td class="r">$20.92</td><td class="r">$29.97</td><td class="r green">+43%</td></tr>
+          <tr><td>NNN (NNN REIT)</td><td class="r">$35.31</td><td class="r">$45.23</td><td class="r green">+28%</td></tr>
+          <tr><td>REG (Regency REIT)</td><td class="r">$60.30</td><td class="r">$77.39</td><td class="r green">+28%</td></tr>
+          <tr><td>SPG (Simon Property)</td><td class="r">$116.53</td><td class="r">$189.33</td><td class="r green">+63%</td></tr>
+        </table>
+        <div style="color:var(--cg-gray-600);font-size:11px;margin-top:8px">Source: Yahoo Finance. Franchise Group planned to sell KSS RE for $7B to finance deal; Oak Street later offered only $1.5-2B.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" id="ai-price">
+  <div class="slide-title">PRICE CHECK: KSS Beats on Real Goods</div>
+  <div class="slide-subtitle">Verified prices across 54 products vs Amazon, Walmart, Target</div>
+
+  <div class="metrics">
+    <div class="metric"><div class="label">KSS Cheapest</div><div class="value green">9%</div><div class="detail">At sticker price</div></div>
+    <div class="metric"><div class="label">Within 5%</div><div class="value blue">13%</div><div class="detail">Competitive range</div></div>
+    <div class="metric"><div class="label">With 15% Coupon</div><div class="value green">31%</div><div class="detail">KSS cheapest</div></div>
+    <div class="metric"><div class="label">Median Premium</div><div class="value">+37.0%</div><div class="detail">vs +20.2% Target</div></div>
+  </div>
+
+  <div class="row">
+    <div class="col" style="flex:2">
+      <div class="card">
+        <h3>Selected Product Price Comparison ($)</h3>
+        <canvas id="chart-prices"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="callout">The 30% off coupon STILL leaves 25-30% product margin. AI shopping agents will tell consumers: "That KitchenAid is $50 cheaper at Kohl's with your coupon."</div>
+</div>
+
+<div class="slide" id="ai-brand">
+  <div class="slide-title">BUILD the Private Label Margin Engine</div>
+  <div class="slide-subtitle">Private brands at 33% of sales and climbing — 1,000-1,500bps gross margin premium over national brands</div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>Private Label Penetration (% of Net Sales)</h3>
+        <canvas id="chart-pl-mix"></canvas>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>GM Impact: Each 1pp PL Shift</h3>
+        <canvas id="chart-gm-impact"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="callout-gold callout">Proprietary brands (Sonoma, FLX, Croft &amp; Barrow, LC Lauren Conrad): 1,000-1,500bps higher gross margin. From 28% (FY2019) to 33% (FY2025) = ~62bps of cumulative GM lift. Target: 43% by FY2031 = another ~125bps.</div>
+</div>
+
+<div class="slide" id="ai-poverty">
+  <div class="slide-title">EXPOSE the Dollar Store Poverty Premium</div>
+  <div class="slide-subtitle">Dollar General charges 26-71% more per unit than Walmart — a Bank of America study found a 33-item basket costs 7.3% more at DG</div>
+
+  <div class="metrics">
+    <div class="metric"><div class="label">DG Basket Premium</div><div class="value red">+7.3%</div><div class="detail">vs Walmart (33 items, BofA)</div></div>
+    <div class="metric"><div class="label">DG Chicken / lb</div><div class="value red">$4.25</div><div class="detail">vs Walmart $2.49 (+71%)</div></div>
+    <div class="metric"><div class="label">DG Gross Margin</div><div class="value red">30.4%</div><div class="detail">vs Walmart 24.9% — the premium</div></div>
+    <div class="metric"><div class="label">Price Violations</div><div class="value red">4,300+</div><div class="detail">Failed inspections in 23 states</div></div>
+  </div>
+
+  <div class="row">
+    <div class="col" style="flex:2">
+      <div class="card">
+        <h3>DG Per-Unit Premium vs Walmart (%)</h3>
+        <canvas id="chart-dg-premium"></canvas>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>Why This Matters for KSS</h3>
+        <table>
+          <tr><td>DG sells smaller packages at higher per-unit cost</td></tr>
+          <tr><td>DG chicken costs the same as Whole Foods</td></tr>
+          <tr><td>AI agents will compute per-unit pricing instantly</td></tr>
+          <tr><td>KSS sells the SAME brands as competitors at competitive prices</td></tr>
+          <tr><td class="green">KSS benefits as "fake value" brands are exposed</td></tr>
+          <tr><td class="green">KSS offers real branded goods (Nike, KitchenAid, Dyson) — not smaller packages</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="callout-gold callout">DG's 30.4% gross margin vs Walmart's 24.9% is funded by the "poverty premium" — higher per-unit prices in smaller packages sold to consumers without easy access to alternatives. AI shopping assistants will expose this instantly. KSS sells identical branded products to Amazon/Target and benefits from transparency.</div>
+</div>
+
+<div class="slide" id="ai-disrupt">
+  <div class="slide-title">DISRUPT Fake Value with AI Shopping</div>
+  <div class="slide-subtitle">Y-axis: actual median price premium (our 54-product dataset). X-axis: deal perception composite (ACSI, YouGov, Market Force surveys)</div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>Deal Perception vs Actual Value</h3>
+        <canvas id="chart-perception"></canvas>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>AI Agent Inventory Visibility Ranking</h3>
+        <table>
+          <tr><th>Retailer</th><th>Stack</th><th>RFID</th><th>AI Visibility</th></tr>
+          <tr><td>WMT</td><td>Custom + Public API</td><td class="green">Item-level (14+ depts)</td><td class="green">HIGHEST</td></tr>
+          <tr><td>AMZN</td><td>Custom (Aurora) + SP-API</td><td>Computer vision</td><td class="green">HIGHEST</td></tr>
+          <tr><td class="blue"><strong>KSS</strong></td><td class="blue"><strong>Oracle + BigQuery</strong></td><td class="blue"><strong>Item-level apparel</strong></td><td class="blue"><strong>HIGH</strong></td></tr>
+          <tr><td>TGT</td><td>Custom + Avery RFID</td><td class="green">Nationwide since 2016</td><td class="green">HIGH</td></tr>
+          <tr><td>M</td><td>SAP + Google Cloud</td><td>Since 2011</td><td class="gold">MED-HIGH</td></tr>
+          <tr><td>DG</td><td>Blue Yonder</td><td class="red">None</td><td class="red">LOW</td></tr>
+          <tr><td>TJX</td><td>Oracle Cloud</td><td class="red">None (by design)</td><td class="red">VERY LOW</td></tr>
+          <tr><td>ROST</td><td>PeopleSoft</td><td class="red">None, no e-comm</td><td class="red">VERY LOW</td></tr>
+          <tr><td>FIVE</td><td>Just adopted Invent.ai</td><td class="red">None</td><td class="red">VERY LOW</td></tr>
+        </table>
+        <div style="color:var(--cg-sapphire-700);font-size:11px;margin-top:8px">KSS BigQuery platform is the most AI-native data foundation among department store peers. Off-price (TJX/ROST) are permanently invisible to AI agents by design.</div>
+      </div>
+    </div>
+  </div>
+  <div class="callout">KSS ranks LAST in deal perception (45/100) despite a median price premium of only +37.0% vs competitors. With a 15% coupon, KSS becomes the cheapest 31% of the time. AI shopping agents will close this perception gap by showing consumers the actual math.</div>
+</div>
+
+<div class="slide" id="con-demographics">
+  <div class="slide-title">PROFILE the KSS Customer</div>
+  <div class="slide-subtitle">Median HHI ~$95K — suburban strip-mall shopper positioned between Walmart and Nordstrom</div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>Median Household Income by Retailer</h3>
+        <canvas id="chart-demo-hhi"></canvas>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>KSS Customer Profile</h3>
+        <table>
+          <tr><th>Attribute</th><th>KSS Customer</th></tr>
+          <tr><td>Median HHI</td><td class="blue">~$95,000</td></tr>
+          <tr><td>Gender</td><td>70% female</td></tr>
+          <tr><td>Age</td><td>Skews Gen X / Boomer</td></tr>
+          <tr><td>Location</td><td>90% suburban strip malls</td></tr>
+          <tr><td>Proximity</td><td>80% live within 15 miles</td></tr>
+          <tr><td>Loyalty</td><td>30M+ members, coupon-driven</td></tr>
+          <tr><td>Geography</td><td>1/3 of stores in Midwest</td></tr>
+        </table>
+        <div style="color:var(--cg-gray-600);font-size:11px;margin-top:12px">Source: Placer.ai, Kohl's investor filings, ScrapeHero analysis</div>
+      </div>
+    </div>
+  </div>
+  <div class="callout">KSS serves the American suburban middle class — above Walmart/DG on income, below Nordstrom. This is the customer most likely to benefit from trade-down as white-collar wages compress.</div>
+</div>
+
+<div class="slide" id="con-recession">
+  <div class="slide-title">MEASURE Recession Performance</div>
+  <div class="slide-subtitle">Comp store sales during GFC (FY2008-09) and COVID (FY2020) vs peers — scripted from 10-K data</div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>GFC: Comp Store Sales (FY2007-FY2010)</h3>
+        <canvas id="chart-gfc-sss"></canvas>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>COVID: Comp Store Sales (FY2019-FY2021)</h3>
+        <canvas id="chart-covid-sss"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="callout">KSS fell -6.9% in GFC (FY2008) vs TJX +1%, DG +9%, WMT +3.5%. But KSS was NOT the worst — JWN fell -8.4%. The key insight: in recessions, consumers trade DOWN. KSS is the beneficiary of trade-down from department stores, but loses share to off-price (TJX) and value (WMT/DG). With AI pushing consumers toward real deals, KSS should capture MORE of the trade-down next time.</div>
+</div>
+
+<div class="slide" id="con-anchor">
+  <div class="slide-title">ANCHOR to the Resilient Consumer</div>
+  <div class="slide-subtitle">Lower-middle class demand doesn't vanish in downturns — KSS benefits from trade-down</div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>Revenue ($B) — FY2014 to FY2025</h3>
+        <canvas id="chart-rev-resilience"></canvas>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>Operating Cash Flow ($B)</h3>
+        <canvas id="chart-cfo-resilience"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="callout">COVID FY2021: Revenue fell 20% but CFO stayed positive. FY2025: Revenue still declining but CFO surged to $1.4B. The business generates cash even under stress.</div>
+</div>
+
+<div class="slide" id="con-compress">
+  <div class="slide-title">COMPRESS White Collar, PROTECT Blue Collar</div>
+  <div class="slide-subtitle">AI displaces high-income knowledge workers; KSS serves the stable middle</div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>5-Year Wage Growth by Occupation (BLS ECI, 2020-2025)</h3>
+        <canvas id="chart-wage-growth"></canvas>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>AI Exposure &amp; Wage Compression</h3>
+        <table>
+          <tr><th>Finding</th><th>Source</th></tr>
+          <tr><td class="red">Higher-paid workers face 4-5x more AI exposure</td><td>Brookings</td></tr>
+          <tr><td class="red">80% of workforce has 10%+ task exposure; high-income MORE</td><td>OpenAI/Penn</td></tr>
+          <tr><td class="green">AI boosts low-skilled productivity +34%</td><td>NBER</td></tr>
+          <tr><td class="green">Blue collar wages outpacing white collar: +26% vs +22%</td><td>BLS ECI</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>Political Insulation: Both Parties Protect the Lower-Middle Class</h3>
+        <table>
+          <tr><th>Red State Populism</th><th>Blue State Populism</th></tr>
+          <tr><td>Trump tax cuts (2017 TCJA) — doubled standard deduction</td><td>$15+ minimum wage laws (CA, NY, WA, IL)</td></tr>
+          <tr><td>Tariffs on imports — protects domestic manufacturing jobs</td><td>Expanded Medicaid in 40 states</td></tr>
+          <tr><td>CHIPS Act — bipartisan reshoring of factory jobs</td><td>Child tax credit expansions</td></tr>
+          <tr><td>Anti-immigration enforcement — tightens labor supply</td><td>Rent control / tenant protections</td></tr>
+          <tr><td>Energy deregulation — lowers utility costs</td><td>Student loan forgiveness attempts</td></tr>
+        </table>
+        <div style="color:var(--cg-green-700);font-size:12px;margin-top:10px;font-weight:600">Neither party can afford to let the lower-middle class fall. This customer has a political floor that luxury/upper-middle consumers do not.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" id="con-unit">
+  <div class="slide-title">DISSECT the Unit Economics</div>
+  <div class="slide-subtitle">Where does $1 of KSS revenue go? Incremental sales have ~50% operating margin</div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>FY2025: Where $1 of Net Sales Goes</h3>
+        <canvas id="chart-waterfall-unit"></canvas>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>Incremental Dollar Analysis</h3>
+        <table>
+          <tr><th>Component</th><th class="r">Avg $1</th><th class="r">Incremental $1</th></tr>
+          <tr><td>COGS</td><td class="r red">-62.5¢</td><td class="r red">-62.5¢</td></tr>
+          <tr><td>= Gross Profit</td><td class="r green">37.5¢</td><td class="r green">37.5¢</td></tr>
+          <tr><td>SGA (variable only)</td><td class="r red">-34.4¢</td><td class="r">-8¢</td></tr>
+          <tr><td>D&amp;A</td><td class="r red">-4.7¢</td><td class="r green">0¢</td></tr>
+          <tr><td>= Operating Income</td><td class="r">4.2¢</td><td class="r green">~30¢</td></tr>
+          <tr><td>Interest</td><td class="r red">-1.9¢</td><td class="r green">0¢</td></tr>
+          <tr><td>Tax</td><td class="r red">-0.4¢</td><td class="r red">-7¢</td></tr>
+          <tr><td><strong>Net Income</strong></td><td class="r">1.8¢</td><td class="r green">~23¢</td></tr>
+        </table>
+        <div style="color:#34d399;font-size:12px;margin-top:12px;font-weight:bold">The fixed cost base (rent, D&amp;A, interest, corporate SGA) is already paid. Each incremental dollar flows at ~30% operating margin.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" id="app-risk">
+  <div class="slide-title">RISK: What Could Go Wrong</div>
+  <div class="slide-subtitle">The bear case is simple: comps never stabilize and the consumer stays weak</div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>Key Risks — Ranked by Severity</h3>
+        <table>
+          <tr><th>#</th><th>Risk</th><th>Severity</th><th>Probability</th></tr>
+          <tr><td>1</td><td>Extended consumer downturn without fiscal support</td><td class="red">HIGH</td><td class="gold">MEDIUM</td></tr>
+          <tr><td>2</td><td>Sephora contract non-renewal in ~2030</td><td class="red">HIGH</td><td class="r">LOW</td></tr>
+          <tr><td>3</td><td>Private brand execution failure</td><td class="gold">MEDIUM</td><td class="gold">MEDIUM</td></tr>
+          <tr><td>4</td><td>Further credit downgrades → covenant triggers</td><td class="gold">MEDIUM</td><td class="gold">MEDIUM</td></tr>
+          <tr><td>5</td><td>E-commerce share shift accelerates</td><td class="gold">MEDIUM</td><td class="gold">MEDIUM</td></tr>
+          <tr><td>6</td><td>Management execution / turnaround stalls</td><td class="gold">MEDIUM</td><td class="gold">MEDIUM</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>Bull / Base / Bear EPS Trajectory</h3>
+        <canvas id="chart-eps-scenarios"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="slide" id="app-debt">
+  <div class="slide-title">FORTIFY: Debt Gets Leaner by 2031</div>
+  <div class="slide-subtitle">HY secured notes roll off 2030, 4.625% notes roll off 2031 — clean IG stack remains</div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>Debt Outstanding Over Time ($M)</h3>
+        <canvas id="chart-debt-stack"></canvas>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>Interest Expense Projection ($M)</h3>
+        <canvas id="chart-interest-proj"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>Covenant Comparison: Now vs Post-2031</h3>
+        <table>
+          <tr><th>Covenant Type</th><th>Now (Secured 10% Notes)</th><th>Post-2031 ($640M IG-Style)</th></tr>
+          <tr><td>Financial Maintenance</td><td class="red">1.75x leverage incurrence test</td><td class="green">NONE</td></tr>
+          <tr><td>Dividend Restrictions</td><td class="red">Yes — leverage test + builder basket</td><td class="green">NONE</td></tr>
+          <tr><td>Asset Sale Proceeds</td><td class="red">100% must repay noteholders</td><td class="gold">Retire senior debt or invest</td></tr>
+          <tr><td>Collateral</td><td class="red">11 DCs pledged, ring-fenced PropCo</td><td class="green">NONE — unsecured</td></tr>
+          <tr><td>Sale-Leaseback</td><td class="red">Blocked while notes outstanding</td><td class="gold">Proceeds to retire sr. debt</td></tr>
+          <tr><td>Leverage Test</td><td class="red">1.75x guaranteed leverage</td><td class="green">NONE</td></tr>
+          <tr><td>Change of Control</td><td class="gold">101% repurchase + sub-IG trigger</td><td class="gold">101% repurchase + sub-IG</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="callout-green callout">Current ratings: Moody's B1 (neg), S&amp;P BB- (neg). After 2031: only $640M remains under the 1996 base indenture — NO financial maintenance, NO dividend limits, NO leverage tests. The sale-leaseback restriction only requires applying proceeds to retire senior debt. This is as clean as it gets.</div>
+</div>
+
+<div class="slide" id="app-stores">
+  <div class="slide-title">MAP Competitor Store Trajectories</div>
+  <div class="slide-subtitle">Net openings and closures: KSS vs department store and discount peers over 5 years</div>
+
+  <div class="row">
+    <div class="col" style="flex:2">
+      <div class="card">
+        <h3>Store Count Trends (FY2020 → FY2025)</h3>
+        <canvas id="chart-comp-stores"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="callout">KSS: -27 stores in FY2025 (from 1,175 to 1,148). Macy's closing 150 stores through 2026. JCPenney emerged from bankruptcy with ~670 (from 846). Department stores are rationalizing — KSS is the most stable large-format fleet.</div>
+</div>
+
+<div class="slide" id="side-sephora">
+  <div class="slide-title">LEVERAGE the Sephora Relationship</div>
+  <div class="slide-subtitle">1,100 Sephora@KSS shops vs ~700 standalone Sephora stores — that is negotiation power</div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>Sephora@KSS Shop Rollout</h3>
+        <canvas id="chart-sephora-shops"></canvas>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>Sephora Revenue at KSS ($M)</h3>
+        <canvas id="chart-sephora-rev"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>Sephora US Physical Footprint</h3>
+        <canvas id="chart-sephora-footprint"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="callout">40% of Sephora@KSS shoppers are new to Kohl's. 50% of baskets include non-beauty items. Contract through ~2030. Sephora has only ~700 standalone stores vs 1,100 at KSS — KSS is 60% of their US physical footprint. Ulta took 30+ years to reach 1,516 stores. LVMH can't replicate this overnight.</div>
+</div>
+
+<div class="slide" id="side-logistics">
+  <div class="slide-title">CONVERT Stores to Last-Mile Fulfillment</div>
+  <div class="slide-subtitle">1,148 stores are distributed logistics nodes — closer to consumers than Amazon DCs</div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>Distribution Network</h3>
+        <table>
+          <tr><th>Facility Type</th><th class="r">Count</th><th class="r">Total SqFt</th></tr>
+          <tr><td>Store Distribution Centers</td><td class="r">9</td><td class="r">4.7M</td></tr>
+          <tr><td>E-Commerce Fulfillment</td><td class="r">6</td><td class="r">7.4M</td></tr>
+          <tr><td>Retail Stores (fulfillment-capable)</td><td class="r green">1,148</td><td class="r green">~101M</td></tr>
+        </table>
+        <div style="color:#555a68;font-size:11px;margin-top:12px">Amazon has ~110 US fulfillment centers. KSS has 1,148 stores within driving distance of most suburban consumers.</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>Optionality: Store-as-DC</h3>
+        <table>
+          <tr><th>Capability</th><th>Status</th></tr>
+          <tr><td>Ship-from-store</td><td class="green">Active</td></tr>
+          <tr><td>BOPIS (Buy Online Pick Up)</td><td class="green">Active</td></tr>
+          <tr><td>Amazon Returns partnership</td><td class="green">Active</td></tr>
+          <tr><td>Store-in-store concepts</td><td class="green">Sephora (1,100)</td></tr>
+          <tr><td>Automated micro-DC conversion</td><td class="gold">Future optionality</td></tr>
+          <tr><td>TJX-style treasure hunt promos</td><td class="gold">Untapped — see below</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>Side Thesis: TJX/Five Below Gamification</h3>
+        <table>
+          <tr><th>TJX Model</th><th>KSS Opportunity</th></tr>
+          <tr><td>Treasure hunt — rotating branded inventory</td><td>Run weekly "Deal Drop" promos with luxury goods at deep discount</td></tr>
+          <tr><td>Customers visit 3x/month to "hunt"</td><td>Use Sephora traffic + surprise deals to drive repeat visits</td></tr>
+          <tr><td>No online transparency — must visit store</td><td>KSS could create an "in-store only" flash deal section</td></tr>
+          <tr><td>TJX comp perception: 88/100 deal score</td><td>KSS perception: 45/100 — massive room to improve</td></tr>
+        </table>
+        <div style="color:var(--cg-sapphire-700);font-size:11px;margin-top:8px">Five Below model: $5 price ceiling creates dopamine-hit pricing psychology. KSS could designate sections with "Under $10" branded goods (Nike socks, Croft &amp; Barrow basics) to drive impulse purchases.</div>
+      </div>
+    </div>
+  </div>
+  <div class="callout">As automation advances, the cost of converting big-box retail space into micro-DCs drops. These 88,000 sqft shells with loading docks and parking are exactly what last-mile logistics needs.</div>
+</div>
+
+<div class="slide" id="worst-stress">
+  <div class="slide-title">STRESS TEST: Maximum Pain Before Bankruptcy</div>
+  <div class="slide-subtitle">Even 30% revenue decline leaves CFO near breakeven with $5B RE backstop</div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>Revenue Shock Scenarios (from FY2025 base)</h3>
+        <table>
+          <tr><th>Shock</th><th class="r">Revenue</th><th class="r">Gross Profit</th><th class="r">Op Income</th><th class="r">CFO (est)</th><th class="r">Int Coverage</th></tr>
+          <tr>
+            <td class="red">-10%</td>
+            <td class="r">$13.3B</td>
+            <td class="r">$4.9B (36.5%)</td>
+            <td class="r red">$-732M</td>
+            <td class="r red">$-32M</td>
+            <td class="r red">-2.5x</td>
+          </tr>
+          <tr>
+            <td class="red">-20%</td>
+            <td class="r">$11.8B</td>
+            <td class="r">$4.2B (35.2%)</td>
+            <td class="r red">$-1221M</td>
+            <td class="r red">$-521M</td>
+            <td class="r red">-4.2x</td>
+          </tr>
+          <tr>
+            <td class="red">-30%</td>
+            <td class="r">$10.3B</td>
+            <td class="r">$3.5B (33.5%)</td>
+            <td class="r red">$-1711M</td>
+            <td class="r red">$-1011M</td>
+            <td class="r red">-5.9x</td>
+          </tr>
+          <tr>
+            <td class="red">-40%</td>
+            <td class="r">$8.9B</td>
+            <td class="r">$2.8B (31.3%)</td>
+            <td class="r red">$-2200M</td>
+            <td class="r red">$-1500M</td>
+            <td class="r red">-7.6x</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>Stress Visualization</h3>
+        <canvas id="chart-stress"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="callout-gold callout">At -20% revenue shock: OpInc turns negative but CFO stays positive (D&amp;A add-back). At -30%: CFO near zero. But $5B RE backstop means solvency is not the question — the question is equity value, not survival. Total debt: $1.4B vs $5B RE + $2.7B inventory.</div>
+</div>
+
+<script>
+// ── Slide Navigation ──
+const slides = document.querySelectorAll('.slide');
+const navBtns = document.querySelectorAll('.nav-btn');
+let currentSlide = 0;
+const chartCache = {};
+
+function goSlide(n) {
+  if (n < 0 || n >= slides.length) return;
+  slides[currentSlide].classList.remove('active');
+  navBtns[currentSlide].classList.remove('active');
+  currentSlide = n;
+  slides[currentSlide].classList.add('active');
+  navBtns[currentSlide].classList.add('active');
+  initChartsForSlide(currentSlide);
+  navBtns[currentSlide].scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goSlide(currentSlide + 1); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); goSlide(currentSlide - 1); }
+});
+
+// ── Chart defaults ──
+Chart.defaults.color = '#383838';
+Chart.defaults.borderColor = '#E2E2E2';
+Chart.defaults.font.family = "'SF Mono','Fira Code',Consolas,monospace";
+Chart.defaults.font.size = 11;
+Chart.defaults.plugins.legend.labels.boxWidth = 12;
+Chart.defaults.plugins.legend.labels.color = '#383838';
+
+// Capital Group Design System Colors
+const CG = {
+  sapphire: { 100:'#DEF5FF', 200:'#B6EAFF', 300:'#70D5FF', 400:'#0DB9FF', 500:'#009CDC', 600:'#0075B5', 700:'#005F9E', 800:'#003A66', 900:'#00294B' },
+  turquoise: { 400:'#00C1BC', 500:'#00A499', 600:'#007E6C', 700:'#00675C' },
+  raspberry: { 400:'#E992C2', 500:'#E06AAA', 600:'#CB2A82', 700:'#A6256E' },
+  copper: { 400:'#C6A796', 500:'#B58976', 600:'#976253' },
+  green: { 500:'#3EA561', 600:'#038049' },
+  red: { 500:'#F45F7C', 600:'#DA1944' },
+  warn: { 300:'#FFB860', 500:'#BD8845' },
+};
+const COLORS = {
+  blue: CG.sapphire[500], blueDark: CG.sapphire[700], blueLight: CG.sapphire[300],
+  green: CG.green[500], greenDark: CG.green[600],
+  red: CG.red[500], redDark: CG.red[600],
+  gold: CG.copper[500], goldLight: CG.copper[400],
+  teal: CG.turquoise[500], tealDark: CG.turquoise[600],
+  pink: CG.raspberry[500], pinkDark: CG.raspberry[700],
+  warn: CG.warn[300], warnDark: CG.warn[500],
+  kss: CG.sapphire[500], amzn: CG.warn[300], wmt: CG.turquoise[400], tgt: CG.red[500],
+  tjx: CG.raspberry[500], dg: CG.copper[500], rost: CG.green[500],
+};
+
+// ── Data ──
+const revLabels = ["FY2014", "FY2015", "FY2016", "FY2017", "FY2018", "FY2019", "FY2020", "FY2021", "FY2022", "FY2023", "FY2024", "FY2025"];
+const revB = [19.02, 19.2, 18.69, 19.09, 20.23, 19.97, 15.96, 19.43, 18.1, 17.48, 16.22, 15.53];
+const ebitdaB = [2.58, 2.49, 2.12, 2.41, 2.33, 2.02, 0.61, 2.52, 1.05, 1.47, 1.18, 1.32];
+const epsValues = [4.24, 3.46, 3.11, 5.12, 4.84, 4.37, -1.06, 6.32, -0.15, 2.85, 0.98, 2.38];
+const cfoB = [2.02, 1.47, 2.15, 1.69, 2.11, 1.66, 1.34, 2.27, 0.28, 1.17, 0.65, 1.38];
+const catNames = ["Women's", "Men's", "Accessories/Sephora", "Home", "Children's", "Footwear"];
+const catFY24 = [3817, 3079, 3060, 2311, 1819, 1299];
+const catFY23 = [4281, 3455, 2813, 2533, 2060, 1444];
+const storeLocs = [{"lat": 61.227928, "lng": -149.746747, "city": "", "state": "AK"}, {"lat": 33.415888, "lng": -86.696664, "city": "Birmingham", "state": "AL"}, {"lat": 33.645567, "lng": -86.627228, "city": "Birmingham", "state": "AL"}, {"lat": 31.264359, "lng": -85.443453, "city": "Dothan", "state": "AL"}, {"lat": 34.838257, "lng": -87.626757, "city": "Florence", "state": "AL"}, {"lat": 33.363158, "lng": -86.851329, "city": "Hoover", "state": "AL"}, {"lat": 34.675003, "lng": -86.539006, "city": "Huntsville", "state": "AL"}, {"lat": 34.757766, "lng": -86.734816, "city": "Madison", "state": "AL"}, {"lat": 30.672323, "lng": -88.22389, "city": "Mobile", "state": "AL"}, {"lat": 32.357024, "lng": -86.160926, "city": "Montgomery", "state": "AL"}, {"lat": 32.615449, "lng": -85.409892, "city": "Opelika", "state": "AL"}, {"lat": 33.609272, "lng": -85.778223, "city": "Oxford", "state": "AL"}, {"lat": 32.458087, "lng": -86.407815, "city": "Prattville", "state": "AL"}, {"lat": 30.662505, "lng": -87.905593, "city": "Spanish Fort", "state": "AL"}, {"lat": 34.603615, "lng": -92.532534, "city": "Bryant", "state": "AR"}, {"lat": 35.089717, "lng": -92.414492, "city": "Conway", "state": "AR"}, {"lat": 36.116904, "lng": -94.153848, "city": "Fayetteville", "state": "AR"}, {"lat": 35.353249, "lng": -94.345596, "city": "Fort Smith", "state": "AR"}, {"lat": 35.816927, "lng": -90.675067, "city": "Jonesboro", "state": "AR"}, {"lat": 34.752653, "lng": -92.429307, "city": "Little Rock", "state": "AR"}, {"lat": 36.33749, "lng": -94.176755, "city": "Rogers", "state": "AR"}, {"lat": 34.827933, "lng": -92.192337, "city": "Sherwood", "state": "AR"}, {"lat": 33.46521, "lng": -112.337403, "city": "Avondale", "state": "AZ"}, {"lat": 35.051558, "lng": -114.593415, "city": "Bullhead City", "state": "AZ"}, {"lat": 32.882551, "lng": -111.678336, "city": "Casa Grande", "state": "AZ"}, {"lat": 33.285858, "lng": -111.843646, "city": "Chandler", "state": "AZ"}, {"lat": 35.180221, "lng": -111.665238, "city": "Flagstaff", "state": "AZ"}, {"lat": 33.377292, "lng": -111.809018, "city": "Gilbert", "state": "AZ"}, {"lat": 33.304844, "lng": -111.758208, "city": "Gilbert", "state": "AZ"}, {"lat": 33.385016, "lng": -111.602807, "city": "Mesa", "state": "AZ"}, {"lat": 33.450348, "lng": -111.704729, "city": "Mesa", "state": "AZ"}, {"lat": 32.34867, "lng": -110.977862, "city": "Oro Valley", "state": "AZ"}, {"lat": 33.715095, "lng": -112.276318, "city": "Peoria", "state": "AZ"}, {"lat": 33.554582, "lng": -112.25809, "city": "Peoria", "state": "AZ"}, {"lat": 33.799953, "lng": -112.132174, "city": "Phoenix", "state": "AZ"}, {"lat": 33.419449, "lng": -112.27429, "city": "Phoenix", "state": "AZ"}, {"lat": 33.303031, "lng": -111.982405, "city": "Phoenix", "state": "AZ"}, {"lat": 33.673825, "lng": -111.971102, "city": "Phoenix", "state": "AZ"}, {"lat": 33.641772, "lng": -112.101893, "city": "Phoenix", "state": "AZ"}, {"lat": 34.589764, "lng": -112.341766, "city": "Prescott Valley", "state": "AZ"}, {"lat": 33.257047, "lng": -111.642625, "city": "Queen Creek", "state": "AZ"}, {"lat": 33.619154, "lng": -111.895267, "city": "Scottsdale", "state": "AZ"}, {"lat": 33.605334, "lng": -112.416813, "city": "Surprise", "state": "AZ"}, {"lat": 33.639359, "lng": -112.362156, "city": "Surprise", "state": "AZ"}, {"lat": 32.35521, "lng": -111.08829, "city": "Tucson", "state": "AZ"}, {"lat": 32.223647, "lng": -110.826295, "city": "Tucson", "state": "AZ"}, {"lat": 32.703885, "lng": -114.608753, "city": "Yuma", "state": "AZ"}, {"lat": 34.19126, "lng": -118.624931, "city": "", "state": "CA"}, {"lat": 33.874293, "lng": -117.734578, "city": "", "state": "CA"}, {"lat": 39.731135, "lng": -121.811272, "city": "", "state": "CA"}, {"lat": 37.758394, "lng": -122.252605, "city": "Alameda", "state": "CA"}, {"lat": 34.079812, "lng": -118.153374, "city": "Alhambra", "state": "CA"}, {"lat": 38.702329, "lng": -121.347233, "city": "Antelope", "state": "CA"}, {"lat": 35.384732, "lng": -119.107106, "city": "Bakersfield", "state": "CA"}, {"lat": 35.306215, "lng": -119.095471, "city": "Bakersfield", "state": "CA"}, {"lat": 33.922415, "lng": -116.95699, "city": "Beaumont", "state": "CA"}, {"lat": 37.958058, "lng": -121.74924, "city": "Brentwood", "state": "CA"}, {"lat": 33.847836, "lng": -117.990557, "city": "Buena Park", "state": "CA"}, {"lat": 37.296566, "lng": -121.940502, "city": "Campbell", "state": "CA"}, {"lat": 36.977019, "lng": -121.96692, "city": "Capitola", "state": "CA"}, {"lat": 33.870268, "lng": -118.05812, "city": "Cerritos", "state": "CA"}, {"lat": 33.991623, "lng": -117.715974, "city": "Chino", "state": "CA"}, {"lat": 32.650392, "lng": -116.965091, "city": "Chula Vista", "state": "CA"}, {"lat": 32.592433, "lng": -117.034831, "city": "Chula Vista", "state": "CA"}, {"lat": 38.676663, "lng": -121.293999, "city": "Citrus Heights", "state": "CA"}, {"lat": 34.028185, "lng": -117.831275, "city": "City of Industry", "state": "CA"}, {"lat": 37.675083, "lng": -122.45883, "city": "Colma", "state": "CA"}, {"lat": 33.825743, "lng": -117.51914, "city": "Corona", "state": "CA"}, {"lat": 33.936385, "lng": -118.118683, "city": "Downey", "state": "CA"}, {"lat": 33.978513, "lng": -117.550872, "city": "Eastvale", "state": "CA"}, {"lat": 32.747031, "lng": -116.929017, "city": "El Cajon", "state": "CA"}, {"lat": 32.768326, "lng": -115.52737, "city": "El Centro", "state": "CA"}, {"lat": 38.407428, "lng": -121.419961, "city": "Elk Grove", "state": "CA"}, {"lat": 33.047384, "lng": -117.260884, "city": "Encinitas", "state": "CA"}, {"lat": 40.777633, "lng": -124.191608, "city": "Eureka", "state": "CA"}, {"lat": 38.672091, "lng": -121.167661, "city": "Folsom", "state": "CA"}, {"lat": 34.149483, "lng": -117.478291, "city": "Fontana", "state": "CA"}, {"lat": 36.805872, "lng": -119.861444, "city": "Fresno", "state": "CA"}, {"lat": 36.843177, "lng": -119.786075, "city": "Fresno", "state": "CA"}, {"lat": 33.887525, "lng": -117.869622, "city": "Fullerton", "state": "CA"}, {"lat": 37.00058, "lng": -121.55063, "city": "Gilroy", "state": "CA"}, {"lat": 34.117105, "lng": -117.833328, "city": "Glendora", "state": "CA"}, {"lat": 36.326703, "lng": -119.671364, "city": "Hanford", "state": "CA"}, {"lat": 33.673349, "lng": -117.956073, "city": "Huntington Beach", "state": "CA"}, {"lat": 33.731723, "lng": -117.993341, "city": "Huntington Beach", "state": "CA"}, {"lat": 33.696447, "lng": -117.764254, "city": "Irvine", "state": "CA"}, {"lat": 33.711808, "lng": -116.287538, "city": "La Quinta", "state": "CA"}, {"lat": 34.113885, "lng": -117.762707, "city": "La Verne", "state": "CA"}, {"lat": 33.565368, "lng": -117.711124, "city": "Laguna Niguel", "state": "CA"}, {"lat": 33.831059, "lng": -118.161512, "city": "Lakewood", "state": "CA"}, {"lat": 37.700303, "lng": -121.765374, "city": "Livermore", "state": "CA"}, {"lat": 38.114173, "lng": -121.280136, "city": "Lodi", "state": "CA"}, {"lat": 37.78562, "lng": -121.258038, "city": "Manteca", "state": "CA"}, {"lat": 36.666708, "lng": -121.81326, "city": "Marina", "state": "CA"}, {"lat": 33.681838, "lng": -117.172242, "city": "Menifee", "state": "CA"}, {"lat": 37.320795, "lng": -120.481949, "city": "Merced", "state": "CA"}, {"lat": 37.417019, "lng": -121.899568, "city": "Milpitas", "state": "CA"}, {"lat": 34.138963, "lng": -118.010332, "city": "Monrovia", "state": "CA"}, {"lat": 34.280146, "lng": -118.863872, "city": "Moorpark", "state": "CA"}, {"lat": 33.938355, "lng": -117.187752, "city": "Moreno Valley", "state": "CA"}, {"lat": 33.56173, "lng": -117.207921, "city": "Murrieta", "state": "CA"}, {"lat": 38.299421, "lng": -122.28698, "city": "Napa", "state": "CA"}, {"lat": 34.182107, "lng": -118.922606, "city": "Newbury Park", "state": "CA"}, {"lat": 34.230156, "lng": -118.560156, "city": "Northridge", "state": "CA"}, {"lat": 33.179298, "lng": -117.29819, "city": "Oceanside", "state": "CA"}, {"lat": 34.075909, "lng": -117.559857, "city": "Ontario", "state": "CA"}, {"lat": 33.795524, "lng": -116.384689, "city": "Palm Desert", "state": "CA"}, {"lat": 34.606793, "lng": -118.144418, "city": "Palmdale", "state": "CA"}, {"lat": 35.614146, "lng": -120.684828, "city": "Paso Robles", "state": "CA"}, {"lat": 38.272183, "lng": -122.666291, "city": "Petaluma", "state": "CA"}, {"lat": 37.943561, "lng": -122.057379, "city": "Pleasant Hill", "state": "CA"}, {"lat": 36.078733, "lng": -119.045028, "city": "Porterville", "state": "CA"}, {"lat": 32.938405, "lng": -117.048759, "city": "Poway", "state": "CA"}, {"lat": 33.640006, "lng": -117.594741, "city": "Rancho Santa Margarita", "state": "CA"}, {"lat": 34.073261, "lng": -117.202819, "city": "Redlands", "state": "CA"}, {"lat": 33.870139, "lng": -118.355003, "city": "Redondo Beach", "state": "CA"}, {"lat": 37.492216, "lng": -122.22432, "city": "Redwood City", "state": "CA"}, {"lat": 37.713418, "lng": -120.954346, "city": "Riverbank", "state": "CA"}, {"lat": 33.906979, "lng": -117.460367, "city": "Riverside", "state": "CA"}, {"lat": 33.889106, "lng": -117.327308, "city": "Riverside", "state": "CA"}, {"lat": 38.789062, "lng": -121.286724, "city": "Roseville", "state": "CA"}, {"lat": 38.451321, "lng": -121.376589, "city": "Sacramento", "state": "CA"}, {"lat": 38.596234, "lng": -121.42378, "city": "Sacramento", "state": "CA"}, {"lat": 38.658496, "lng": -121.50824, "city": "Sacramento", "state": "CA"}, {"lat": 36.718825, "lng": -121.664279, "city": "Salinas", "state": "CA"}, {"lat": 32.742261, "lng": -117.054202, "city": "San Diego", "state": "CA"}, {"lat": 37.248599, "lng": -121.860397, "city": "San Jose", "state": "CA"}, {"lat": 37.701264, "lng": -122.125965, "city": "San Leandro", "state": "CA"}, {"lat": 35.262989, "lng": -120.675073, "city": "San Luis Obispo", "state": "CA"}, {"lat": 33.134821, "lng": -117.123927, "city": "San Marcos", "state": "CA"}, {"lat": 38.003855, "lng": -122.545801, "city": "San Rafael", "state": "CA"}, {"lat": 34.392766, "lng": -118.468546, "city": "Santa Clarita", "state": "CA"}, {"lat": 34.914802, "lng": -120.437061, "city": "Santa Maria", "state": "CA"}, {"lat": 38.480896, "lng": -122.737532, "city": "Santa Rosa", "state": "CA"}, {"lat": 32.840244, "lng": -116.994293, "city": "Santee", "state": "CA"}, {"lat": 33.782337, "lng": -118.074842, "city": "Seal Beach", "state": "CA"}, {"lat": 34.288559, "lng": -118.716003, "city": "Simi Valley", "state": "CA"}, {"lat": 37.975984, "lng": -120.341812, "city": "Sonora", "state": "CA"}, {"lat": 38.055518, "lng": -121.373213, "city": "Stockton", "state": "CA"}, {"lat": 33.478733, "lng": -117.098981, "city": "Temecula", "state": "CA"}, {"lat": 33.794176, "lng": -118.332521, "city": "Torrance", "state": "CA"}, {"lat": 37.51753, "lng": -120.882195, "city": "Turlock", "state": "CA"}, {"lat": 33.747442, "lng": -117.81578, "city": "Tustin", "state": "CA"}, {"lat": 39.155598, "lng": -123.19838, "city": "Ukiah", "state": "CA"}, {"lat": 34.133639, "lng": -117.642195, "city": "Upland", "state": "CA"}, {"lat": 38.37544, "lng": -121.946873, "city": "Vacaville", "state": "CA"}, {"lat": 34.411295, "lng": -118.557715, "city": "Valencia", "state": "CA"}, {"lat": 38.134688, "lng": -122.212931, "city": "Vallejo", "state": "CA"}, {"lat": 34.260837, "lng": -119.225566, "city": "Ventura", "state": "CA"}, {"lat": 34.468007, "lng": -117.353404, "city": "Victorville", "state": "CA"}, {"lat": 33.943503, "lng": -117.997794, "city": "Whittier", "state": "CA"}, {"lat": 39.135062, "lng": -121.638269, "city": "Yuba City", "state": "CA"}, {"lat": 40.592216, "lng": -122.354268, "city": "redding", "state": "CA"}, {"lat": 39.811786, "lng": -105.175699, "city": "Arvada", "state": "CO"}, {"lat": 39.692238, "lng": -104.862842, "city": "Aurora", "state": "CO"}, {"lat": 39.654692, "lng": -104.774823, "city": "Aurora", "state": "CO"}, {"lat": 39.95283, "lng": -104.784168, "city": "Brighton", "state": "CO"}, {"lat": 39.409322, "lng": -104.862112, "city": "Castle Rock", "state": "CO"}, {"lat": 38.902563, "lng": -104.821312, "city": "Colorado Springs", "state": "CO"}, {"lat": 38.876302, "lng": -104.72249, "city": "Colorado Springs", "state": "CO"}, {"lat": 38.79472, "lng": -104.786635, "city": "Colorado Springs", "state": "CO"}, {"lat": 40.521398, "lng": -105.062203, "city": "Fort Collins", "state": "CO"}, {"lat": 39.72252, "lng": -105.187338, "city": "Golden", "state": "CO"}, {"lat": 39.096788, "lng": -108.605104, "city": "Grand Junction", "state": "CO"}, {"lat": 40.394352, "lng": -104.747938, "city": "Greeley", "state": "CO"}, {"lat": 40.009657, "lng": -105.10544, "city": "Lafayette", "state": "CO"}, {"lat": 39.660257, "lng": -105.079151, "city": "Lakewood", "state": "CO"}, {"lat": 39.562053, "lng": -105.107699, "city": "Littleton", "state": "CO"}, {"lat": 39.558849, "lng": -104.902993, "city": "Lone Tree", "state": "CO"}, {"lat": 40.145, "lng": -105.133633, "city": "Longmont", "state": "CO"}, {"lat": 40.405873, "lng": -105.032268, "city": "Loveland", "state": "CO"}, {"lat": 39.063802, "lng": -104.850658, "city": "Monument", "state": "CO"}, {"lat": 39.508281, "lng": -104.76527, "city": "Parker", "state": "CO"}, {"lat": 38.331451, "lng": -104.622329, "city": "Pueblo", "state": "CO"}, {"lat": 39.916229, "lng": -104.938444, "city": "Thornton", "state": "CO"}, {"lat": 39.912194, "lng": -105.054391, "city": "Westminster", "state": "CO"}, {"lat": 41.643855, "lng": -72.728474, "city": "Berlin", "state": "CT"}, {"lat": 41.272953, "lng": -72.830817, "city": "Branford", "state": "CT"}, {"lat": 41.435768, "lng": -73.411346, "city": "Brookfield", "state": "CT"}, {"lat": 41.823248, "lng": -72.885917, "city": "Canton", "state": "CT"}, {"lat": 41.83824, "lng": -71.874714, "city": "Dayville", "state": "CT"}, {"lat": 42.000159, "lng": -72.582455, "city": "Enfield", "state": "CT"}, {"lat": 41.369076, "lng": -72.067097, "city": "Groton", "state": "CT"}, {"lat": 41.376101, "lng": -72.917323, "city": "Hamden", "state": "CT"}, {"lat": 41.58504, "lng": -71.989499, "city": "Lisbon", "state": "CT"}, {"lat": 41.813968, "lng": -72.512089, "city": "Manchester", "state": "CT"}, {"lat": 41.099513, "lng": -73.444267, "city": "Norwalk", "state": "CT"}, {"lat": 41.288803, "lng": -72.416173, "city": "Old Saybrook", "state": "CT"}, {"lat": 41.272318, "lng": -72.988337, "city": "Orange", "state": "CT"}, {"lat": 41.676282, "lng": -72.844346, "city": "Plainville", "state": "CT"}, {"lat": 41.674903, "lng": -72.653806, "city": "Rocky Hill", "state": "CT"}, {"lat": 41.232547, "lng": -73.153163, "city": "Trumbull", "state": "CT"}, {"lat": 41.505579, "lng": -72.807573, "city": "Wallingford", "state": "CT"}, {"lat": 41.540349, "lng": -72.965266, "city": "Waterbury", "state": "CT"}, {"lat": 41.733892, "lng": -72.202176, "city": "Willimantic", "state": "CT"}, {"lat": 39.172794, "lng": -75.517892, "city": "Dover", "state": "DE"}, {"lat": 39.447863, "lng": -75.73403, "city": "Middletown", "state": "DE"}, {"lat": 39.820992, "lng": -75.549318, "city": "Wilmington", "state": "DE"}, {"lat": 39.727157, "lng": -75.65428, "city": "Wilmington", "state": "DE"}, {"lat": 27.224625, "lng": -82.490087, "city": "", "state": "FL"}, {"lat": 25.785912, "lng": -80.363815, "city": "", "state": "FL"}, {"lat": 28.667824, "lng": -81.421993, "city": "Altamonte Springs", "state": "FL"}, {"lat": 26.545568, "lng": -80.092331, "city": "Boynton Beach", "state": "FL"}, {"lat": 27.919654, "lng": -82.327031, "city": "Brandon", "state": "FL"}, {"lat": 28.479111, "lng": -82.476468, "city": "Brooksville", "state": "FL"}, {"lat": 26.649928, "lng": -81.985806, "city": "Cape Coral", "state": "FL"}, {"lat": 28.021347, "lng": -82.732994, "city": "Clearwater", "state": "FL"}, {"lat": 28.524743, "lng": -81.733298, "city": "Clermont", "state": "FL"}, {"lat": 26.316498, "lng": -80.200598, "city": "Coconut Creek", "state": "FL"}, {"lat": 26.240723, "lng": -80.24686, "city": "Coral Springs", "state": "FL"}, {"lat": 28.820513, "lng": -81.698736, "city": "Eustis", "state": "FL"}, {"lat": 30.099255, "lng": -81.720276, "city": "Fleming Island", "state": "FL"}, {"lat": 26.607047, "lng": -81.807097, "city": "Fort Myers", "state": "FL"}, {"lat": 30.448227, "lng": -86.640128, "city": "Fort Walton Beach", "state": "FL"}, {"lat": 29.623689, "lng": -82.373468, "city": "Gainesville", "state": "FL"}, {"lat": 26.034734, "lng": -80.195167, "city": "Hollywood", "state": "FL"}, {"lat": 25.480326, "lng": -80.443601, "city": "Homestead", "state": "FL"}, {"lat": 30.199541, "lng": -81.828961, "city": "Jacksonville", "state": "FL"}, {"lat": 30.140882, "lng": -81.551935, "city": "Jacksonville", "state": "FL"}, {"lat": 27.23874, "lng": -80.271696, "city": "Jensen Beach", "state": "FL"}, {"lat": 25.690005, "lng": -80.384222, "city": "Kendall", "state": "FL"}, {"lat": 28.343317, "lng": -81.423788, "city": "Kissimmee", "state": "FL"}, {"lat": 28.001652, "lng": -81.978781, "city": "Lakeland", "state": "FL"}, {"lat": 28.186209, "lng": -82.393025, "city": "Lutz", "state": "FL"}, {"lat": 28.129488, "lng": -82.505993, "city": "Lutz", "state": "FL"}, {"lat": 25.976754, "lng": -80.308948, "city": "Miramar", "state": "FL"}, {"lat": 26.221601, "lng": -81.772546, "city": "Naples", "state": "FL"}, {"lat": 28.277999, "lng": -82.676472, "city": "New Port Richey", "state": "FL"}, {"lat": 29.143276, "lng": -82.186293, "city": "Ocala", "state": "FL"}, {"lat": 28.918816, "lng": -81.28365, "city": "Orange City", "state": "FL"}, {"lat": 28.46152, "lng": -81.269696, "city": "Orlando", "state": "FL"}, {"lat": 28.552647, "lng": -81.208386, "city": "Orlando", "state": "FL"}, {"lat": 28.616082, "lng": -81.260153, "city": "Oviedo", "state": "FL"}, {"lat": 29.550743, "lng": -81.238625, "city": "Palm Coast", "state": "FL"}, {"lat": 30.194999, "lng": -85.648986, "city": "Panama City", "state": "FL"}, {"lat": 30.529892, "lng": -87.227104, "city": "Pensacola", "state": "FL"}, {"lat": 26.113202, "lng": -80.252347, "city": "Plantation", "state": "FL"}, {"lat": 27.013425, "lng": -82.135638, "city": "Port Charlotte", "state": "FL"}, {"lat": 29.105558, "lng": -81.035098, "city": "Port Orange", "state": "FL"}, {"lat": 27.815638, "lng": -82.756152, "city": "Saint Petersburg", "state": "FL"}, {"lat": 28.794582, "lng": -81.33332, "city": "Sanford", "state": "FL"}, {"lat": 30.432843, "lng": -84.248592, "city": "Tallahassee", "state": "FL"}, {"lat": 28.239652, "lng": -80.726968, "city": "Viera", "state": "FL"}, {"lat": 28.037262, "lng": -80.666358, "city": "West Melbourne", "state": "FL"}, {"lat": 30.62746, "lng": -81.543969, "city": "Yulee", "state": "FL"}, {"lat": 33.722162, "lng": -84.734662, "city": "", "state": "GA"}, {"lat": 30.845783, "lng": -83.314859, "city": "", "state": "GA"}, {"lat": 34.037498, "lng": -84.682117, "city": "Acworth", "state": "GA"}, {"lat": 31.620001, "lng": -84.206954, "city": "Albany", "state": "GA"}, {"lat": 33.921912, "lng": -83.443743, "city": "Athens", "state": "GA"}, {"lat": 33.852694, "lng": -84.606528, "city": "Austell", "state": "GA"}, {"lat": 34.234145, "lng": -84.455825, "city": "Canton", "state": "GA"}, {"lat": 34.175257, "lng": -84.780677, "city": "Cartersville", "state": "GA"}, {"lat": 32.543905, "lng": -84.94324, "city": "Columbus", "state": "GA"}, {"lat": 33.646763, "lng": -83.991966, "city": "Conyers", "state": "GA"}, {"lat": 34.188443, "lng": -84.133949, "city": "Cumming", "state": "GA"}, {"lat": 34.07494, "lng": -83.909555, "city": "Dacula", "state": "GA"}, {"lat": 34.786735, "lng": -84.997147, "city": "Dalton", "state": "GA"}, {"lat": 33.528315, "lng": -82.118864, "city": "Evans", "state": "GA"}, {"lat": 33.478505, "lng": -84.447691, "city": "Fayetteville", "state": "GA"}, {"lat": 34.179775, "lng": -83.911284, "city": "Flowery Branch", "state": "GA"}, {"lat": 33.88523, "lng": -84.742297, "city": "Hiram", "state": "GA"}, {"lat": 32.884388, "lng": -83.767191, "city": "Macon", "state": "GA"}, {"lat": 33.97927, "lng": -84.426352, "city": "Marietta", "state": "GA"}, {"lat": 33.420966, "lng": -84.191222, "city": "McDonough", "state": "GA"}, {"lat": 34.105239, "lng": -84.268749, "city": "Milton", "state": "GA"}, {"lat": 33.399202, "lng": -84.740182, "city": "Newnan", "state": "GA"}, {"lat": 34.253273, "lng": -85.160924, "city": "Rome", "state": "GA"}, {"lat": 34.055878, "lng": -84.380708, "city": "Roswell", "state": "GA"}, {"lat": 33.867861, "lng": -84.018504, "city": "Snellville", "state": "GA"}, {"lat": 33.543506, "lng": -84.285618, "city": "Stockbridge", "state": "GA"}, {"lat": 34.071343, "lng": -84.170353, "city": "Suwanee", "state": "GA"}, {"lat": 32.619259, "lng": -83.69375, "city": "Warner Robins", "state": "GA"}, {"lat": 34.082727, "lng": -84.545, "city": "Woodstock", "state": "GA"}, {"lat": 42.046819, "lng": -93.622744, "city": "Ames", "state": "IA"}, {"lat": 41.711315, "lng": -93.577788, "city": "Ankeny", "state": "IA"}, {"lat": 42.510656, "lng": -92.429234, "city": "Cedar Falls", "state": "IA"}, {"lat": 41.947865, "lng": -91.723193, "city": "Cedar Rapids", "state": "IA"}, {"lat": 42.026263, "lng": -91.635461, "city": "Cedar Rapids", "state": "IA"}, {"lat": 41.818691, "lng": -90.240086, "city": "Clinton", "state": "IA"}, {"lat": 41.602763, "lng": -93.757292, "city": "Clive", "state": "IA"}, {"lat": 41.697721, "lng": -91.609862, "city": "Coralville", "state": "IA"}, {"lat": 41.222698, "lng": -95.84046, "city": "Council Bluffs", "state": "IA"}, {"lat": 41.559436, "lng": -90.529156, "city": "Davenport", "state": "IA"}, {"lat": 41.63292, "lng": -93.700871, "city": "Des Moines", "state": "IA"}, {"lat": 42.521356, "lng": -90.743161, "city": "Dubuque", "state": "IA"}, {"lat": 42.499662, "lng": -94.155865, "city": "Fort Dodge", "state": "IA"}, {"lat": 41.017403, "lng": -92.446515, "city": "Ottumwa", "state": "IA"}, {"lat": 42.447997, "lng": -96.342133, "city": "Sioux City", "state": "IA"}, {"lat": 40.816245, "lng": -91.152258, "city": "West Burlington", "state": "IA"}, {"lat": 41.564127, "lng": -93.797334, "city": "West Des Moines", "state": "IA"}, {"lat": 43.468578, "lng": -111.982564, "city": "Ammon", "state": "ID"}, {"lat": 43.608402, "lng": -116.27604, "city": "Boise", "state": "ID"}, {"lat": 47.742468, "lng": -116.794678, "city": "Coeur d Alene", "state": "ID"}, {"lat": 43.634589, "lng": -116.357904, "city": "Meridian", "state": "ID"}, {"lat": 43.613119, "lng": -116.588804, "city": "Nampa", "state": "ID"}, {"lat": 38.308419, "lng": -88.961873, "city": "", "state": "IL"}, {"lat": 40.946192, "lng": -90.365127, "city": "", "state": "IL"}, {"lat": 41.949939, "lng": -88.115244, "city": "", "state": "IL"}, {"lat": 42.164285, "lng": -88.339439, "city": "Algonquin", "state": "IL"}, {"lat": 38.920941, "lng": -90.162834, "city": "Alton", "state": "IL"}, {"lat": 42.140909, "lng": -87.992101, "city": "Arlington Heights", "state": "IL"}, {"lat": 41.761612, "lng": -88.207825, "city": "Aurora", "state": "IL"}, {"lat": 41.855573, "lng": -88.342462, "city": "Batavia", "state": "IL"}, {"lat": 40.485361, "lng": -88.958313, "city": "Bloomington", "state": "IL"}, {"lat": 41.705478, "lng": -88.119888, "city": "Bolingbrook", "state": "IL"}, {"lat": 41.75538, "lng": -87.745444, "city": "Burbank", "state": "IL"}, {"lat": 37.732426, "lng": -89.182866, "city": "Carbondale", "state": "IL"}, {"lat": 40.138499, "lng": -88.241614, "city": "Champaign", "state": "IL"}, {"lat": 41.920444, "lng": -87.671802, "city": "Chicago", "state": "IL"}, {"lat": 41.714623, "lng": -87.781823, "city": "Chicago Ridge", "state": "IL"}, {"lat": 38.691888, "lng": -89.981356, "city": "Collinsville", "state": "IL"}, {"lat": 41.654137, "lng": -87.746222, "city": "Crestwood", "state": "IL"}, {"lat": 41.459083, "lng": -87.57324, "city": "Crete", "state": "IL"}, {"lat": 42.229083, "lng": -88.303324, "city": "Crystal Lake", "state": "IL"}, {"lat": 40.18959, "lng": -87.627556, "city": "Danville", "state": "IL"}, {"lat": 41.947617, "lng": -88.723567, "city": "DeKalb", "state": "IL"}, {"lat": 41.835733, "lng": -88.027305, "city": "Downers Grove", "state": "IL"}, {"lat": 40.670361, "lng": -89.576928, "city": "East Peoria", "state": "IL"}, {"lat": 38.789026, "lng": -89.948934, "city": "Edwardsville", "state": "IL"}, {"lat": 39.143878, "lng": -88.564572, "city": "Effingham", "state": "IL"}, {"lat": 41.891485, "lng": -87.960039, "city": "Elmhurst", "state": "IL"}, {"lat": 38.589197, "lng": -89.986942, "city": "Fairview Heights", "state": "IL"}, {"lat": 39.916605, "lng": -88.960809, "city": "Forsyth", "state": "IL"}, {"lat": 41.500896, "lng": -87.885424, "city": "Frankfort", "state": "IL"}, {"lat": 40.977283, "lng": -90.360563, "city": "Galesburg", "state": "IL"}, {"lat": 42.102256, "lng": -87.811563, "city": "Glenview", "state": "IL"}, {"lat": 42.386725, "lng": -87.955383, "city": "Gurnee", "state": "IL"}, {"lat": 41.778913, "lng": -87.86157, "city": "Hodgkins", "state": "IL"}, {"lat": 41.568514, "lng": -87.63868, "city": "Homewood", "state": "IL"}, {"lat": 42.209303, "lng": -88.113164, "city": "Lake Zurich", "state": "IL"}, {"lat": 41.64452, "lng": -88.003161, "city": "Lemont", "state": "IL"}, {"lat": 42.010647, "lng": -87.714854, "city": "Lincolnwood", "state": "IL"}, {"lat": 42.366824, "lng": -89.029987, "city": "Loves Park", "state": "IL"}, {"lat": 42.360967, "lng": -88.264315, "city": "McHenry", "state": "IL"}, {"lat": 41.468919, "lng": -90.525564, "city": "Moline", "state": "IL"}, {"lat": 42.039104, "lng": -87.797622, "city": "Morton Grove", "state": "IL"}, {"lat": 42.038421, "lng": -87.942563, "city": "Mount Prospect", "state": "IL"}, {"lat": 41.956935, "lng": -87.807723, "city": "Norridge", "state": "IL"}, {"lat": 41.849502, "lng": -87.806073, "city": "North Riverside", "state": "IL"}, {"lat": 41.610718, "lng": -87.850722, "city": "Orland Park", "state": "IL"}, {"lat": 41.701071, "lng": -88.307093, "city": "Oswego", "state": "IL"}, {"lat": 40.77414, "lng": -89.653207, "city": "Peoria", "state": "IL"}, {"lat": 41.370635, "lng": -89.123837, "city": "Peru", "state": "IL"}, {"lat": 41.567721, "lng": -88.198107, "city": "Plainfield", "state": "IL"}, {"lat": 41.668422, "lng": -88.206492, "city": "Plainfield", "state": "IL"}, {"lat": 39.932086, "lng": -91.31843, "city": "Quincy", "state": "IL"}, {"lat": 42.265208, "lng": -88.997297, "city": "Rockford", "state": "IL"}, {"lat": 41.615815, "lng": -88.120355, "city": "Romeoville", "state": "IL"}, {"lat": 42.381316, "lng": -88.076721, "city": "Round Lake Beach", "state": "IL"}, {"lat": 42.03715, "lng": -88.046008, "city": "Schaumburg", "state": "IL"}, {"lat": 42.027761, "lng": -88.142135, "city": "Schaumburg", "state": "IL"}, {"lat": 41.987944, "lng": -88.34344, "city": "South Elgin", "state": "IL"}, {"lat": 39.766103, "lng": -89.709405, "city": "Springfield", "state": "IL"}, {"lat": 41.810403, "lng": -89.657688, "city": "Sterling", "state": "IL"}, {"lat": 41.549718, "lng": -87.798533, "city": "Tinley Park", "state": "IL"}, {"lat": 42.230642, "lng": -87.939058, "city": "Vernon Hills", "state": "IL"}, {"lat": 41.860748, "lng": -88.141656, "city": "Wheaton", "state": "IL"}, {"lat": 41.749319, "lng": -88.014404, "city": "Woodridge", "state": "IL"}, {"lat": 42.290181, "lng": -88.425321, "city": "Woodstock", "state": "IL"}, {"lat": 41.664939, "lng": -88.463938, "city": "Yorkville", "state": "IL"}, {"lat": 39.860586, "lng": -85.970564, "city": "", "state": "IN"}, {"lat": 41.676113, "lng": -84.997453, "city": "Angola", "state": "IN"}, {"lat": 39.172583, "lng": -86.572168, "city": "Bloomington", "state": "IN"}, {"lat": 39.861474, "lng": -86.406355, "city": "Brownsburg", "state": "IN"}, {"lat": 39.932571, "lng": -86.229268, "city": "Carmel", "state": "IN"}, {"lat": 40.001491, "lng": -86.124088, "city": "Carmel", "state": "IN"}, {"lat": 39.206796, "lng": -85.881864, "city": "Columbus", "state": "IN"}, {"lat": 37.980136, "lng": -87.624767, "city": "Evansville", "state": "IN"}, {"lat": 37.977602, "lng": -87.468658, "city": "Evansville", "state": "IN"}, {"lat": 41.07235, "lng": -85.203432, "city": "Fort Wayne", "state": "IN"}, {"lat": 41.120926, "lng": -85.128223, "city": "Fort Wayne", "state": "IN"}, {"lat": 41.127361, "lng": -85.008157, "city": "Fort Wayne", "state": "IN"}, {"lat": 39.486886, "lng": -86.067138, "city": "Franklin", "state": "IN"}, {"lat": 41.621866, "lng": -85.903066, "city": "Goshen", "state": "IN"}, {"lat": 39.817475, "lng": -85.766103, "city": "Greenfield", "state": "IN"}, {"lat": 41.525571, "lng": -87.467858, "city": "Highland", "state": "IN"}, {"lat": 39.924772, "lng": -86.024197, "city": "Indianapolis", "state": "IN"}, {"lat": 39.908965, "lng": -86.108484, "city": "Indianapolis", "state": "IN"}, {"lat": 39.797139, "lng": -86.258161, "city": "Indianapolis", "state": "IN"}, {"lat": 39.668209, "lng": -86.086078, "city": "Indianapolis", "state": "IN"}, {"lat": 38.425067, "lng": -86.939882, "city": "Jasper", "state": "IN"}, {"lat": 38.320983, "lng": -85.708575, "city": "Jeffersonville", "state": "IN"}, {"lat": 40.464091, "lng": -86.103527, "city": "Kokomo", "state": "IN"}, {"lat": 40.39136, "lng": -86.849701, "city": "Lafayette", "state": "IN"}, {"lat": 40.519021, "lng": -85.676773, "city": "Marion", "state": "IN"}, {"lat": 41.470487, "lng": -87.314492, "city": "Merrillville", "state": "IN"}, {"lat": 41.678237, "lng": -86.897675, "city": "Michigan City", "state": "IN"}, {"lat": 41.700815, "lng": -86.186302, "city": "Mishawaka", "state": "IN"}, {"lat": 40.22545, "lng": -85.37205, "city": "Muncie", "state": "IN"}, {"lat": 38.342111, "lng": -85.801564, "city": "New Albany", "state": "IN"}, {"lat": 40.03138, "lng": -85.99871, "city": "Noblesville", "state": "IN"}, {"lat": 39.718036, "lng": -86.353109, "city": "Plainfield", "state": "IN"}, {"lat": 41.547564, "lng": -87.164088, "city": "Portage", "state": "IN"}, {"lat": 39.832943, "lng": -84.848573, "city": "Richmond", "state": "IN"}, {"lat": 41.625589, "lng": -86.233444, "city": "South Bend", "state": "IN"}, {"lat": 39.398128, "lng": -87.402659, "city": "Terre Haute", "state": "IN"}, {"lat": 41.46425, "lng": -87.028227, "city": "Valparaiso", "state": "IN"}, {"lat": 38.657622, "lng": -87.503638, "city": "Vincennes", "state": "IN"}, {"lat": 41.278182, "lng": -85.855174, "city": "Warsaw", "state": "IN"}, {"lat": 37.579369, "lng": -97.276258, "city": "Derby", "state": "KS"}, {"lat": 38.073422, "lng": -97.906149, "city": "Hutchinson", "state": "KS"}, {"lat": 39.132, "lng": -94.82825, "city": "Kansas City", "state": "KS"}, {"lat": 38.925322, "lng": -95.25672, "city": "Lawrence", "state": "KS"}, {"lat": 38.885245, "lng": -94.773658, "city": "Olathe", "state": "KS"}, {"lat": 38.916413, "lng": -94.663942, "city": "Overland Park", "state": "KS"}, {"lat": 38.793781, "lng": -97.61513, "city": "Salina", "state": "KS"}, {"lat": 39.010592, "lng": -94.766051, "city": "Shawnee", "state": "KS"}, {"lat": 39.037076, "lng": -95.764698, "city": "Topeka", "state": "KS"}, {"lat": 37.675589, "lng": -97.423235, "city": "Wichita", "state": "KS"}, {"lat": 38.483292, "lng": -82.656847, "city": "Ashland", "state": "KY"}, {"lat": 36.95436, "lng": -86.434551, "city": "Bowling Green", "state": "KY"}, {"lat": 37.744307, "lng": -85.890001, "city": "Elizabethtown", "state": "KY"}, {"lat": 39.010814, "lng": -84.64291, "city": "Florence", "state": "KY"}, {"lat": 38.176655, "lng": -84.818192, "city": "Frankfort", "state": "KY"}, {"lat": 38.225847, "lng": -84.533225, "city": "Georgetown", "state": "KY"}, {"lat": 38.025262, "lng": -84.417077, "city": "Lexington", "state": "KY"}, {"lat": 37.105861, "lng": -84.088633, "city": "London", "state": "KY"}, {"lat": 38.133493, "lng": -85.577224, "city": "Louisville", "state": "KY"}, {"lat": 38.247404, "lng": -85.615985, "city": "Louisville", "state": "KY"}, {"lat": 38.300702, "lng": -85.555939, "city": "Louisville", "state": "KY"}, {"lat": 38.090355, "lng": -85.665697, "city": "Louisville", "state": "KY"}, {"lat": 37.940546, "lng": -84.551437, "city": "Nicholasville", "state": "KY"}, {"lat": 37.750096, "lng": -87.05577, "city": "Owensboro", "state": "KY"}, {"lat": 37.075046, "lng": -88.697434, "city": "Paducah", "state": "KY"}, {"lat": 37.755113, "lng": -84.273395, "city": "Richmond", "state": "KY"}, {"lat": 38.855658, "lng": -84.612663, "city": "Walton", "state": "KY"}, {"lat": 30.376757, "lng": -91.060055, "city": "Baton Rouge", "state": "LA"}, {"lat": 30.44666, "lng": -90.12962, "city": "Covington", "state": "LA"}, {"lat": 30.157616, "lng": -92.052533, "city": "Lafayette", "state": "LA"}, {"lat": 30.199538, "lng": -93.2263, "city": "Lake Charles", "state": "LA"}, {"lat": 32.500092, "lng": -92.065646, "city": "Monroe", "state": "LA"}, {"lat": 32.437396, "lng": -93.711583, "city": "Shreveport", "state": "LA"}, {"lat": 30.265117, "lng": -89.758706, "city": "Slidell", "state": "LA"}, {"lat": 42.405932, "lng": -71.092346, "city": "", "state": "MA"}, {"lat": 42.485955, "lng": -71.216618, "city": "Burlington", "state": "MA"}, {"lat": 42.610065, "lng": -71.334662, "city": "Chelmsford", "state": "MA"}, {"lat": 42.551903, "lng": -70.941715, "city": "Danvers", "state": "MA"}, {"lat": 41.646868, "lng": -70.984125, "city": "Dartmouth", "state": "MA"}, {"lat": 42.153599, "lng": -71.203023, "city": "East Walpole", "state": "MA"}, {"lat": 42.302127, "lng": -71.398564, "city": "Framingham", "state": "MA"}, {"lat": 42.524533, "lng": -71.715139, "city": "Leominster", "state": "MA"}, {"lat": 42.010295, "lng": -71.225977, "city": "Mansfield", "state": "MA"}, {"lat": 42.146358, "lng": -71.490025, "city": "Milford", "state": "MA"}, {"lat": 42.194509, "lng": -71.775613, "city": "Millbury", "state": "MA"}, {"lat": 42.293224, "lng": -71.673563, "city": "Northborough", "state": "MA"}, {"lat": 41.92878, "lng": -70.655388, "city": "Plymouth", "state": "MA"}, {"lat": 41.792258, "lng": -71.323182, "city": "Seekonk", "state": "MA"}, {"lat": 42.139188, "lng": -72.518533, "city": "Springfield", "state": "MA"}, {"lat": 42.153626, "lng": -71.066639, "city": "Stoughton", "state": "MA"}, {"lat": 41.876685, "lng": -71.068595, "city": "Taunton", "state": "MA"}, {"lat": 42.128515, "lng": -72.623185, "city": "West Springfield", "state": "MA"}, {"lat": 42.504379, "lng": -71.1249, "city": "Woburn", "state": "MA"}, {"lat": 42.296889, "lng": -71.773285, "city": "Worcester", "state": "MA"}, {"lat": 38.979666, "lng": -76.536514, "city": "Annapolis", "state": "MD"}, {"lat": 39.494065, "lng": -76.324819, "city": "Bel Air", "state": "MD"}, {"lat": 38.948272, "lng": -76.72208, "city": "Bowie", "state": "MD"}, {"lat": 38.7822, "lng": -76.080148, "city": "Easton", "state": "MD"}, {"lat": 39.410324, "lng": -76.946345, "city": "Eldersburg", "state": "MD"}, {"lat": 39.253158, "lng": -76.820204, "city": "Ellicott City", "state": "MD"}, {"lat": 39.570078, "lng": -76.383389, "city": "Forest Hill", "state": "MD"}, {"lat": 39.397645, "lng": -77.413402, "city": "Frederick", "state": "MD"}, {"lat": 39.118114, "lng": -77.203972, "city": "Gaithersburg", "state": "MD"}, {"lat": 39.20075, "lng": -77.25137, "city": "Germantown", "state": "MD"}, {"lat": 39.62141, "lng": -77.776277, "city": "Hagerstown", "state": "MD"}, {"lat": 39.631647, "lng": -78.839917, "city": "LaVale", "state": "MD"}, {"lat": 39.095403, "lng": -76.806173, "city": "Laurel", "state": "MD"}, {"lat": 38.284236, "lng": -76.479444, "city": "Lexington Park", "state": "MD"}, {"lat": 39.430779, "lng": -76.624888, "city": "Lutherville", "state": "MD"}, {"lat": 39.334681, "lng": -76.446134, "city": "Middle River", "state": "MD"}, {"lat": 38.420581, "lng": -75.568196, "city": "Salisbury", "state": "MD"}, {"lat": 39.146974, "lng": -76.650241, "city": "Severn", "state": "MD"}, {"lat": 39.076406, "lng": -76.542089, "city": "Severna Park", "state": "MD"}, {"lat": 39.080858, "lng": -77.079248, "city": "Silver Spring", "state": "MD"}, {"lat": 39.05404, "lng": -76.957031, "city": "Silver Spring", "state": "MD"}, {"lat": 38.618365, "lng": -76.925592, "city": "Waldorf", "state": "MD"}, {"lat": 39.563158, "lng": -76.965375, "city": "Westminster", "state": "MD"}, {"lat": 44.123072, "lng": -70.236252, "city": "Auburn", "state": "ME"}, {"lat": 44.349603, "lng": -69.785651, "city": "Augusta", "state": "ME"}, {"lat": 44.829978, "lng": -68.756952, "city": "Bangor", "state": "ME"}, {"lat": 43.478571, "lng": -70.505043, "city": "Biddeford", "state": "ME"}, {"lat": 43.678255, "lng": -70.33116, "city": "Westbrook", "state": "ME"}, {"lat": 46.46551, "lng": -84.379861, "city": "", "state": "MI"}, {"lat": 41.876575, "lng": -84.022483, "city": "", "state": "MI"}, {"lat": 42.818701, "lng": -86.085223, "city": "", "state": "MI"}, {"lat": 42.239924, "lng": -83.76057, "city": "Ann Arbor", "state": "MI"}, {"lat": 42.263672, "lng": -85.178503, "city": "Battle Creek", "state": "MI"}, {"lat": 42.505155, "lng": -83.762561, "city": "Brighton", "state": "MI"}, {"lat": 42.270143, "lng": -83.501818, "city": "Canton", "state": "MI"}, {"lat": 42.323945, "lng": -83.479443, "city": "Canton", "state": "MI"}, {"lat": 42.670114, "lng": -82.834032, "city": "Chesterfield Township", "state": "MI"}, {"lat": 42.98648, "lng": -83.776106, "city": "Flint", "state": "MI"}, {"lat": 43.03842, "lng": -82.459378, "city": "Fort Gratiot", "state": "MI"}, {"lat": 45.029309, "lng": -84.723769, "city": "Gaylord", "state": "MI"}, {"lat": 42.936448, "lng": -83.644432, "city": "Grand Blanc", "state": "MI"}, {"lat": 42.879128, "lng": -85.757379, "city": "Grandville", "state": "MI"}, {"lat": 42.26931, "lng": -84.428647, "city": "Jackson", "state": "MI"}, {"lat": 42.294383, "lng": -85.65143, "city": "Kalamazoo", "state": "MI"}, {"lat": 42.918896, "lng": -85.591604, "city": "Kentwood", "state": "MI"}, {"lat": 42.708936, "lng": -83.311206, "city": "Lake Orion", "state": "MI"}, {"lat": 42.743408, "lng": -84.64615, "city": "Lansing", "state": "MI"}, {"lat": 43.045308, "lng": -83.326972, "city": "Lapeer", "state": "MI"}, {"lat": 42.430386, "lng": -83.341655, "city": "Livonia", "state": "MI"}, {"lat": 46.551264, "lng": -87.451291, "city": "Marquette", "state": "MI"}, {"lat": 43.658619, "lng": -84.238121, "city": "Midland", "state": "MI"}, {"lat": 41.955892, "lng": -83.399951, "city": "Monroe", "state": "MI"}, {"lat": 43.569974, "lng": -84.756304, "city": "Mount Pleasant", "state": "MI"}, {"lat": 42.433625, "lng": -83.436898, "city": "Northville", "state": "MI"}, {"lat": 42.494364, "lng": -83.481308, "city": "Novi", "state": "MI"}, {"lat": 42.724912, "lng": -84.411161, "city": "Okemos", "state": "MI"}, {"lat": 42.228662, "lng": -85.591686, "city": "Portage", "state": "MI"}, {"lat": 42.638445, "lng": -83.126558, "city": "Rochester Hills", "state": "MI"}, {"lat": 43.480856, "lng": -83.977995, "city": "Saginaw", "state": "MI"}, {"lat": 42.711286, "lng": -83.031301, "city": "Shelby Township", "state": "MI"}, {"lat": 42.61941, "lng": -82.991125, "city": "Sterling Heights", "state": "MI"}, {"lat": 42.201048, "lng": -83.24881, "city": "Taylor", "state": "MI"}, {"lat": 44.735563, "lng": -85.646964, "city": "Traverse City", "state": "MI"}, {"lat": 42.543537, "lng": -83.189691, "city": "Troy", "state": "MI"}, {"lat": 43.021285, "lng": -85.684369, "city": "Walker", "state": "MI"}, {"lat": 42.531796, "lng": -83.362594, "city": "West Bloomfield", "state": "MI"}, {"lat": 42.340109, "lng": -83.387725, "city": "Westland", "state": "MI"}, {"lat": 42.650481, "lng": -83.514935, "city": "White Lake", "state": "MI"}, {"lat": 42.141581, "lng": -83.234145, "city": "Woodhaven", "state": "MI"}, {"lat": 44.83349, "lng": -93.599685, "city": "", "state": "MN"}, {"lat": 44.734809, "lng": -93.203576, "city": "Apple Valley", "state": "MN"}, {"lat": 46.353312, "lng": -94.240228, "city": "Baxter", "state": "MN"}, {"lat": 47.494763, "lng": -94.900861, "city": "Bemidji", "state": "MN"}, {"lat": 45.158313, "lng": -93.231647, "city": "Blaine", "state": "MN"}, {"lat": 44.860919, "lng": -93.306166, "city": "Bloomington", "state": "MN"}, {"lat": 44.751232, "lng": -93.289948, "city": "Burnsville", "state": "MN"}, {"lat": 45.575822, "lng": -93.196734, "city": "Cambridge", "state": "MN"}, {"lat": 44.835447, "lng": -92.960887, "city": "Cottage Grove", "state": "MN"}, {"lat": 46.812481, "lng": -92.167902, "city": "Duluth", "state": "MN"}, {"lat": 44.829433, "lng": -93.161802, "city": "Eagan", "state": "MN"}, {"lat": 44.853538, "lng": -93.423675, "city": "Eden Prairie", "state": "MN"}, {"lat": 45.184623, "lng": -93.107327, "city": "Lino Lakes", "state": "MN"}, {"lat": 44.160877, "lng": -93.947784, "city": "Mankato", "state": "MN"}, {"lat": 45.101378, "lng": -93.447641, "city": "Maple Grove", "state": "MN"}, {"lat": 45.031717, "lng": -93.023629, "city": "Maplewood", "state": "MN"}, {"lat": 44.099313, "lng": -93.253901, "city": "Owatonna", "state": "MN"}, {"lat": 45.031809, "lng": -93.448157, "city": "Plymouth", "state": "MN"}, {"lat": 43.984527, "lng": -92.45944, "city": "Rochester", "state": "MN"}, {"lat": 45.198642, "lng": -93.558318, "city": "Rogers", "state": "MN"}, {"lat": 45.015752, "lng": -93.169507, "city": "Roseville", "state": "MN"}, {"lat": 44.937395, "lng": -93.387471, "city": "Saint Louis Park", "state": "MN"}, {"lat": 44.776032, "lng": -93.504077, "city": "Shakopee", "state": "MN"}, {"lat": 45.551199, "lng": -94.217989, "city": "Waite Park", "state": "MN"}, {"lat": 45.104924, "lng": -95.039687, "city": "Willmar", "state": "MN"}, {"lat": 44.928338, "lng": -92.962701, "city": "Woodbury", "state": "MN"}, {"lat": 38.438042, "lng": -90.379829, "city": "Arnold", "state": "MO"}, {"lat": 38.816604, "lng": -94.518111, "city": "Belton", "state": "MO"}, {"lat": 39.023141, "lng": -94.244943, "city": "Blue Springs", "state": "MO"}, {"lat": 36.668394, "lng": -93.226271, "city": "Branson", "state": "MO"}, {"lat": 37.2958, "lng": -89.585345, "city": "Cape Girardeau", "state": "MO"}, {"lat": 38.911042, "lng": -92.328376, "city": "Columbia", "state": "MO"}, {"lat": 38.673886, "lng": -90.452207, "city": "Creve Coeur", "state": "MO"}, {"lat": 38.505685, "lng": -90.447306, "city": "Fenton", "state": "MO"}, {"lat": 39.049689, "lng": -94.358601, "city": "Independence", "state": "MO"}, {"lat": 38.580522, "lng": -92.221783, "city": "Jefferson City", "state": "MO"}, {"lat": 39.250103, "lng": -94.595276, "city": "Kansas City", "state": "MO"}, {"lat": 39.247838, "lng": -94.461914, "city": "Kansas City", "state": "MO"}, {"lat": 38.175457, "lng": -92.610726, "city": "Lake Ozark", "state": "MO"}, {"lat": 38.927961, "lng": -94.411536, "city": "Lees Summit", "state": "MO"}, {"lat": 38.595537, "lng": -90.518125, "city": "Manchester", "state": "MO"}, {"lat": 38.77949, "lng": -90.696522, "city": "O'Fallon", "state": "MO"}, {"lat": 37.96521, "lng": -91.762978, "city": "Rolla", "state": "MO"}, {"lat": 39.820332, "lng": -94.811829, "city": "Saint Joseph", "state": "MO"}, {"lat": 38.557933, "lng": -90.385905, "city": "Saint Louis", "state": "MO"}, {"lat": 38.745303, "lng": -90.593687, "city": "Saint Peters", "state": "MO"}, {"lat": 37.143899, "lng": -93.260658, "city": "Springfield", "state": "MO"}, {"lat": 38.534199, "lng": -90.977932, "city": "Washington", "state": "MO"}, {"lat": 32.341267, "lng": -90.066361, "city": "", "state": "MS"}, {"lat": 30.453308, "lng": -88.902129, "city": "", "state": "MS"}, {"lat": 31.323956, "lng": -89.378212, "city": "Hattiesburg", "state": "MS"}, {"lat": 34.963932, "lng": -89.9691, "city": "Southaven", "state": "MS"}, {"lat": 34.312531, "lng": -88.70402, "city": "Tupelo", "state": "MS"}, {"lat": 45.753283, "lng": -108.61321, "city": "Billings", "state": "MT"}, {"lat": 45.669566, "lng": -111.076447, "city": "Bozeman", "state": "MT"}, {"lat": 48.230514, "lng": -114.333781, "city": "Kalispell", "state": "MT"}, {"lat": 46.83566, "lng": -114.036229, "city": "Missoula", "state": "MT"}, {"lat": 35.097739, "lng": -80.987385, "city": "", "state": "NC"}, {"lat": 35.746988, "lng": -78.881572, "city": "Apex", "state": "NC"}, {"lat": 35.574696, "lng": -82.513553, "city": "Asheville", "state": "NC"}, {"lat": 36.070433, "lng": -79.512728, "city": "Burlington", "state": "NC"}, {"lat": 35.754028, "lng": -78.745716, "city": "Cary", "state": "NC"}, {"lat": 35.37404, "lng": -80.733684, "city": "Concord", "state": "NC"}, {"lat": 35.949183, "lng": -78.991392, "city": "Durham", "state": "NC"}, {"lat": 35.064281, "lng": -78.957307, "city": "Fayetteville", "state": "NC"}, {"lat": 35.593569, "lng": -78.764108, "city": "Fuquay-Varina", "state": "NC"}, {"lat": 35.693661, "lng": -78.579892, "city": "Garner", "state": "NC"}, {"lat": 36.119856, "lng": -79.84515, "city": "Greensboro", "state": "NC"}, {"lat": 36.058022, "lng": -79.907358, "city": "Greensboro", "state": "NC"}, {"lat": 35.568091, "lng": -77.405347, "city": "Greenville", "state": "NC"}, {"lat": 35.699791, "lng": -81.306916, "city": "Hickory", "state": "NC"}, {"lat": 35.445756, "lng": -80.862411, "city": "Huntersville", "state": "NC"}, {"lat": 34.786868, "lng": -77.405651, "city": "Jacksonville", "state": "NC"}, {"lat": 36.109563, "lng": -80.105325, "city": "Kernersville", "state": "NC"}, {"lat": 35.799286, "lng": -78.512339, "city": "Knightdale", "state": "NC"}, {"lat": 35.137094, "lng": -80.711253, "city": "Matthews", "state": "NC"}, {"lat": 35.595674, "lng": -80.854991, "city": "Mooresville", "state": "NC"}, {"lat": 35.906646, "lng": -78.600009, "city": "Raleigh", "state": "NC"}, {"lat": 35.915529, "lng": -78.778613, "city": "Raleigh", "state": "NC"}, {"lat": 35.170794, "lng": -79.421104, "city": "Southern Pines", "state": "NC"}, {"lat": 35.986699, "lng": -78.530537, "city": "Wake Forest", "state": "NC"}, {"lat": 36.148895, "lng": -81.191448, "city": "Wilkesboro", "state": "NC"}, {"lat": 34.242292, "lng": -77.863611, "city": "Wilmington", "state": "NC"}, {"lat": 36.068666, "lng": -80.317714, "city": "Winston Salem", "state": "NC"}, {"lat": 46.831523, "lng": -100.809157, "city": "Bismarck", "state": "ND"}, {"lat": 46.859767, "lng": -96.861385, "city": "Fargo", "state": "ND"}, {"lat": 47.88736, "lng": -97.076372, "city": "Grand Forks", "state": "ND"}, {"lat": 40.919408, "lng": -98.379555, "city": "Grand Island", "state": "NE"}, {"lat": 40.722575, "lng": -99.081906, "city": "Kearney", "state": "NE"}, {"lat": 40.723772, "lng": -96.680491, "city": "Lincoln", "state": "NE"}, {"lat": 40.816769, "lng": -96.60737, "city": "Lincoln", "state": "NE"}, {"lat": 41.224268, "lng": -96.132714, "city": "Omaha", "state": "NE"}, {"lat": 41.251042, "lng": -96.022547, "city": "Omaha", "state": "NE"}, {"lat": 41.294615, "lng": -96.125987, "city": "Omaha", "state": "NE"}, {"lat": 41.17052, "lng": -96.020314, "city": "Papillion", "state": "NE"}, {"lat": 43.047917, "lng": -71.45836, "city": "Hooksett", "state": "NH"}, {"lat": 42.93217, "lng": -72.296809, "city": "Keene", "state": "NH"}, {"lat": 42.766227, "lng": -71.496735, "city": "Nashua", "state": "NH"}, {"lat": 43.093424, "lng": -70.803438, "city": "Newington", "state": "NH"}, {"lat": 42.821239, "lng": -71.106799, "city": "Plaistow", "state": "NH"}, {"lat": 43.291646, "lng": -70.995296, "city": "Rochester", "state": "NH"}, {"lat": 42.767739, "lng": -71.221814, "city": "Salem", "state": "NH"}, {"lat": 42.884776, "lng": -70.872419, "city": "Seabrook", "state": "NH"}, {"lat": 43.452067, "lng": -71.580244, "city": "Tilton", "state": "NH"}, {"lat": 43.629439, "lng": -72.325044, "city": "West Lebanon", "state": "NH"}, {"lat": 40.505518, "lng": -74.849299, "city": "", "state": "NJ"}, {"lat": 40.649586, "lng": -74.409935, "city": "", "state": "NJ"}, {"lat": 39.453411, "lng": -74.629835, "city": "", "state": "NJ"}, {"lat": 40.551318, "lng": -74.427744, "city": "", "state": "NJ"}, {"lat": 40.061036, "lng": -74.144331, "city": "Brick", "state": "NJ"}, {"lat": 39.937178, "lng": -75.025944, "city": "Cherry Hill", "state": "NJ"}, {"lat": 40.829495, "lng": -74.142975, "city": "Clifton", "state": "NJ"}, {"lat": 40.454029, "lng": -74.401461, "city": "East Brunswick", "state": "NJ"}, {"lat": 39.849671, "lng": -74.186353, "city": "Forked River", "state": "NJ"}, {"lat": 40.818504, "lng": -74.840804, "city": "Hackettstown", "state": "NJ"}, {"lat": 40.518351, "lng": -74.626081, "city": "Hillsborough", "state": "NJ"}, {"lat": 40.417667, "lng": -74.159918, "city": "Holmdel", "state": "NJ"}, {"lat": 40.134166, "lng": -74.222201, "city": "Howell", "state": "NJ"}, {"lat": 40.727539, "lng": -74.03694, "city": "Jersey City", "state": "NJ"}, {"lat": 40.643695, "lng": -74.22896, "city": "Linden", "state": "NJ"}, {"lat": 39.696577, "lng": -74.265711, "city": "Manahawkin", "state": "NJ"}, {"lat": 39.788546, "lng": -75.17899, "city": "Mantua", "state": "NJ"}, {"lat": 39.896068, "lng": -74.931415, "city": "Marlton", "state": "NJ"}, {"lat": 40.388432, "lng": -74.099303, "city": "Middletown", "state": "NJ"}, {"lat": 39.42046, "lng": -75.041976, "city": "Millville", "state": "NJ"}, {"lat": 40.843954, "lng": -74.467225, "city": "Morris Plains", "state": "NJ"}, {"lat": 41.06843, "lng": -74.751595, "city": "Newton", "state": "NJ"}, {"lat": 40.248665, "lng": -74.040168, "city": "Ocean", "state": "NJ"}, {"lat": 40.447695, "lng": -74.295029, "city": "Old Bridge", "state": "NJ"}, {"lat": 40.915095, "lng": -74.057547, "city": "Paramus", "state": "NJ"}, {"lat": 40.683105, "lng": -75.152654, "city": "Phillipsburg", "state": "NJ"}, {"lat": 41.073056, "lng": -74.139918, "city": "Ramsey", "state": "NJ"}, {"lat": 40.791839, "lng": -74.052251, "city": "Secaucus", "state": "NJ"}, {"lat": 39.961966, "lng": -74.204263, "city": "Toms River", "state": "NJ"}, {"lat": 40.194692, "lng": -74.639685, "city": "Trenton", "state": "NJ"}, {"lat": 39.824338, "lng": -74.931305, "city": "Voorhees", "state": "NJ"}, {"lat": 40.945544, "lng": -74.271269, "city": "Wayne", "state": "NJ"}, {"lat": 40.035253, "lng": -74.8214, "city": "Westampton", "state": "NJ"}, {"lat": 40.885847, "lng": -74.212213, "city": "Woodland Park", "state": "NJ"}, {"lat": 35.209581, "lng": -106.655083, "city": "Albuquerque", "state": "NM"}, {"lat": 32.344774, "lng": -106.768767, "city": "Las Cruces", "state": "NM"}, {"lat": 35.630808, "lng": -106.026016, "city": "Santa Fe", "state": "NM"}, {"lat": 39.131663, "lng": -119.767788, "city": "Carson City", "state": "NV"}, {"lat": 40.838099, "lng": -115.788012, "city": "Elko", "state": "NV"}, {"lat": 36.067607, "lng": -115.043639, "city": "Henderson", "state": "NV"}, {"lat": 36.028854, "lng": -115.061316, "city": "Henderson", "state": "NV"}, {"lat": 36.03981, "lng": -115.197432, "city": "Las Vegas", "state": "NV"}, {"lat": 36.156218, "lng": -115.060751, "city": "Las Vegas", "state": "NV"}, {"lat": 36.157825, "lng": -115.283288, "city": "Las Vegas", "state": "NV"}, {"lat": 36.283068, "lng": -115.284454, "city": "Las Vegas", "state": "NV"}, {"lat": 36.280941, "lng": -115.132565, "city": "North Las Vegas", "state": "NV"}, {"lat": 39.532564, "lng": -119.867599, "city": "Reno", "state": "NV"}, {"lat": 39.418272, "lng": -119.755312, "city": "Reno", "state": "NV"}, {"lat": 39.582619, "lng": -119.746811, "city": "Sparks", "state": "NV"}, {"lat": 40.661788, "lng": -73.717079, "city": "", "state": "NY"}, {"lat": 42.729141, "lng": -73.85078, "city": "Albany", "state": "NY"}, {"lat": 42.963931, "lng": -74.190606, "city": "Amsterdam", "state": "NY"}, {"lat": 40.737226, "lng": -73.226809, "city": "Bay Shore", "state": "NY"}, {"lat": 41.419214, "lng": -73.627449, "city": "Brewster", "state": "NY"}, {"lat": 40.593315, "lng": -74.000707, "city": "Brooklyn", "state": "NY"}, {"lat": 42.99841, "lng": -78.698213, "city": "Buffalo", "state": "NY"}, {"lat": 42.945024, "lng": -78.871201, "city": "Buffalo", "state": "NY"}, {"lat": 43.038933, "lng": -78.820182, "city": "Buffalo", "state": "NY"}, {"lat": 41.312705, "lng": -74.132755, "city": "Central Valley", "state": "NY"}, {"lat": 42.859916, "lng": -73.773015, "city": "Clifton Park", "state": "NY"}, {"lat": 40.814191, "lng": -73.291267, "city": "Commack", "state": "NY"}, {"lat": 40.761953, "lng": -73.310196, "city": "Deer Park", "state": "NY"}, {"lat": 42.872713, "lng": -78.693314, "city": "Depew", "state": "NY"}, {"lat": 43.035922, "lng": -76.018486, "city": "Fayetteville", "state": "NY"}, {"lat": 40.740341, "lng": -73.785522, "city": "Fresh Meadows", "state": "NY"}, {"lat": 42.157855, "lng": -76.860289, "city": "Horseheads", "state": "NY"}, {"lat": 42.281527, "lng": -73.750867, "city": "Hudson", "state": "NY"}, {"lat": 42.420366, "lng": -76.522245, "city": "Ithaca", "state": "NY"}, {"lat": 40.778784, "lng": -73.566592, "city": "Jericho", "state": "NY"}, {"lat": 41.958817, "lng": -73.986364, "city": "Kingston", "state": "NY"}, {"lat": 40.825152, "lng": -73.10981, "city": "Lake Ronkonkoma", "state": "NY"}, {"lat": 43.187113, "lng": -76.251687, "city": "Liverpool", "state": "NY"}, {"lat": 40.676797, "lng": -73.44056, "city": "Massapequa Park", "state": "NY"}, {"lat": 41.454025, "lng": -74.379325, "city": "Middletown", "state": "NY"}, {"lat": 41.095265, "lng": -74.002318, "city": "Nanuet", "state": "NY"}, {"lat": 43.090914, "lng": -75.317132, "city": "New Hartford", "state": "NY"}, {"lat": 41.498556, "lng": -74.066698, "city": "Newburgh", "state": "NY"}, {"lat": 40.622768, "lng": -73.641979, "city": "Oceanside", "state": "NY"}, {"lat": 42.792415, "lng": -78.785083, "city": "Orchard Park", "state": "NY"}, {"lat": 44.700669, "lng": -73.490512, "city": "Plattsburgh", "state": "NY"}, {"lat": 43.217259, "lng": -77.737486, "city": "Rochester", "state": "NY"}, {"lat": 43.089934, "lng": -77.633226, "city": "Rochester", "state": "NY"}, {"lat": 43.095398, "lng": -73.745982, "city": "Saratoga Springs", "state": "NY"}, {"lat": 40.803327, "lng": -72.861435, "city": "Shirley", "state": "NY"}, {"lat": 40.628112, "lng": -74.164437, "city": "Staten Island", "state": "NY"}, {"lat": 42.095342, "lng": -75.996495, "city": "Vestal", "state": "NY"}, {"lat": 43.017149, "lng": -77.435692, "city": "Victor", "state": "NY"}, {"lat": 41.613366, "lng": -73.91117, "city": "Wappingers Falls", "state": "NY"}, {"lat": 43.971234, "lng": -75.960576, "city": "Watertown", "state": "NY"}, {"lat": 43.21351, "lng": -77.450793, "city": "Webster", "state": "NY"}, {"lat": 40.977424, "lng": -73.829125, "city": "Yonkers", "state": "NY"}, {"lat": 39.491038, "lng": -84.334834, "city": "", "state": "OH"}, {"lat": 39.146612, "lng": -84.425046, "city": "", "state": "OH"}, {"lat": 41.163205, "lng": -81.859162, "city": "", "state": "OH"}, {"lat": 40.990075, "lng": -81.489662, "city": "Akron", "state": "OH"}, {"lat": 40.903178, "lng": -81.137936, "city": "Alliance", "state": "OH"}, {"lat": 41.353364, "lng": -81.388687, "city": "Aurora", "state": "OH"}, {"lat": 41.463211, "lng": -82.015187, "city": "Avon", "state": "OH"}, {"lat": 39.770733, "lng": -84.046775, "city": "Beavercreek", "state": "OH"}, {"lat": 39.227607, "lng": -84.395985, "city": "Blue Ash", "state": "OH"}, {"lat": 39.347668, "lng": -82.97337, "city": "Chillicothe", "state": "OH"}, {"lat": 39.103244, "lng": -84.278996, "city": "Cincinnati", "state": "OH"}, {"lat": 39.303578, "lng": -84.517854, "city": "Cincinnati", "state": "OH"}, {"lat": 39.290549, "lng": -84.307194, "city": "Cincinnati", "state": "OH"}, {"lat": 39.195744, "lng": -84.659126, "city": "Cincinnati", "state": "OH"}, {"lat": 40.056691, "lng": -82.865783, "city": "Columbus", "state": "OH"}, {"lat": 40.028667, "lng": -83.025478, "city": "Columbus", "state": "OH"}, {"lat": 40.089469, "lng": -83.094582, "city": "Columbus", "state": "OH"}, {"lat": 39.64332, "lng": -84.108001, "city": "Dayton", "state": "OH"}, {"lat": 41.316539, "lng": -84.358664, "city": "Defiance", "state": "OH"}, {"lat": 40.29174, "lng": -83.036343, "city": "Delaware", "state": "OH"}, {"lat": 39.388343, "lng": -84.511028, "city": "Fairfield", "state": "OH"}, {"lat": 41.459278, "lng": -81.849588, "city": "Fairview Park", "state": "OH"}, {"lat": 41.057526, "lng": -83.597525, "city": "Findlay", "state": "OH"}, {"lat": 39.880212, "lng": -83.036209, "city": "Grove City", "state": "OH"}, {"lat": 41.541116, "lng": -81.453727, "city": "Highland Heights", "state": "OH"}, {"lat": 39.989416, "lng": -83.154715, "city": "Hilliard", "state": "OH"}, {"lat": 41.61795, "lng": -83.685244, "city": "Holland", "state": "OH"}, {"lat": 39.875525, "lng": -84.140115, "city": "Huber Heights", "state": "OH"}, {"lat": 41.094113, "lng": -81.38639, "city": "Kent", "state": "OH"}, {"lat": 39.736798, "lng": -82.642205, "city": "Lancaster", "state": "OH"}, {"lat": 40.162666, "lng": -83.015575, "city": "Lewis Center", "state": "OH"}, {"lat": 40.769119, "lng": -84.153576, "city": "Lima", "state": "OH"}, {"lat": 41.427694, "lng": -82.208748, "city": "Lorain", "state": "OH"}, {"lat": 41.308043, "lng": -81.518622, "city": "Macedonia", "state": "OH"}, {"lat": 40.585215, "lng": -83.081478, "city": "Marion", "state": "OH"}, {"lat": 41.684371, "lng": -81.296342, "city": "Mentor", "state": "OH"}, {"lat": 39.599559, "lng": -84.230081, "city": "Miamisburg", "state": "OH"}, {"lat": 39.199585, "lng": -84.230347, "city": "Milford", "state": "OH"}, {"lat": 40.084574, "lng": -82.419679, "city": "Newark", "state": "OH"}, {"lat": 40.860107, "lng": -81.42926, "city": "North Canton", "state": "OH"}, {"lat": 40.766788, "lng": -82.588554, "city": "Ontario", "state": "OH"}, {"lat": 41.377978, "lng": -81.737284, "city": "Parma", "state": "OH"}, {"lat": 41.543831, "lng": -83.593787, "city": "Perrysburg", "state": "OH"}, {"lat": 39.916858, "lng": -82.783171, "city": "Pickerington", "state": "OH"}, {"lat": 40.555104, "lng": -84.387582, "city": "Saint Marys", "state": "OH"}, {"lat": 41.40479, "lng": -82.663782, "city": "Sandusky", "state": "OH"}, {"lat": 39.380461, "lng": -84.218299, "city": "South Lebanon", "state": "OH"}, {"lat": 39.945085, "lng": -83.831878, "city": "Springfield", "state": "OH"}, {"lat": 41.15477, "lng": -81.410285, "city": "Stow", "state": "OH"}, {"lat": 41.311492, "lng": -81.822394, "city": "Strongsville", "state": "OH"}, {"lat": 41.694116, "lng": -83.635866, "city": "Toledo", "state": "OH"}, {"lat": 40.05745, "lng": -84.238816, "city": "Troy", "state": "OH"}, {"lat": 41.040144, "lng": -81.692515, "city": "Wadsworth", "state": "OH"}, {"lat": 41.212344, "lng": -80.74451, "city": "Warren", "state": "OH"}, {"lat": 39.350992, "lng": -84.361554, "city": "West Chester", "state": "OH"}, {"lat": 40.10236, "lng": -82.921746, "city": "Westerville", "state": "OH"}, {"lat": 40.846201, "lng": -81.948361, "city": "Wooster", "state": "OH"}, {"lat": 41.022532, "lng": -80.64746, "city": "Youngstown", "state": "OH"}, {"lat": 39.991697, "lng": -82.035113, "city": "Zanesville", "state": "OH"}, {"lat": 35.669355, "lng": -97.511921, "city": "Edmond", "state": "OK"}, {"lat": 34.613065, "lng": -98.387799, "city": "Lawton", "state": "OK"}, {"lat": 35.437461, "lng": -97.394093, "city": "Midwest City", "state": "OK"}, {"lat": 35.314298, "lng": -97.493445, "city": "Moore", "state": "OK"}, {"lat": 35.561392, "lng": -97.652001, "city": "Oklahoma City", "state": "OK"}, {"lat": 36.295266, "lng": -95.834688, "city": "Owasso", "state": "OK"}, {"lat": 36.063164, "lng": -95.85331, "city": "Tulsa", "state": "OK"}, {"lat": 36.025593, "lng": -95.947394, "city": "Tulsa", "state": "OK"}, {"lat": 35.479903, "lng": -97.757435, "city": "Yukon", "state": "OK"}, {"lat": 44.639698, "lng": -123.064215, "city": "Albany", "state": "OR"}, {"lat": 45.493221, "lng": -122.790346, "city": "Beaverton", "state": "OR"}, {"lat": 44.082186, "lng": -121.302188, "city": "Bend", "state": "OR"}, {"lat": 45.431877, "lng": -122.575665, "city": "Clackamas", "state": "OR"}, {"lat": 45.535463, "lng": -122.900925, "city": "Hillsboro", "state": "OR"}, {"lat": 42.345729, "lng": -122.878133, "city": "Medford", "state": "OR"}, {"lat": 44.943862, "lng": -123.035569, "city": "Salem", "state": "OR"}, {"lat": 45.364934, "lng": -122.849469, "city": "Sherwood", "state": "OR"}, {"lat": 44.075021, "lng": -123.044201, "city": "Springfield", "state": "OR"}, {"lat": 45.529778, "lng": -122.431281, "city": "Wood Village", "state": "OR"}, {"lat": 40.190859, "lng": -80.225491, "city": "", "state": "PA"}, {"lat": 40.483658, "lng": -78.388626, "city": "Altoona", "state": "PA"}, {"lat": 40.104225, "lng": -74.947152, "city": "Bensalem", "state": "PA"}, {"lat": 40.346998, "lng": -80.05139, "city": "Bethel Park", "state": "PA"}, {"lat": 40.167466, "lng": -75.28743, "city": "Blue Bell", "state": "PA"}, {"lat": 40.879486, "lng": -79.947973, "city": "Butler", "state": "PA"}, {"lat": 40.194056, "lng": -77.158232, "city": "Carlisle", "state": "PA"}, {"lat": 39.941927, "lng": -77.628016, "city": "Chambersburg", "state": "PA"}, {"lat": 40.688469, "lng": -80.081529, "city": "Cranberry Township", "state": "PA"}, {"lat": 41.46972, "lng": -75.635051, "city": "Dickson City", "state": "PA"}, {"lat": 40.271793, "lng": -75.12665, "city": "Doylestown", "state": "PA"}, {"lat": 40.718133, "lng": -75.282193, "city": "Easton", "state": "PA"}, {"lat": 42.057902, "lng": -80.082978, "city": "Erie", "state": "PA"}, {"lat": 40.027987, "lng": -75.63447, "city": "Exton", "state": "PA"}, {"lat": 40.620764, "lng": -79.946845, "city": "Gibsonia", "state": "PA"}, {"lat": 39.826982, "lng": -76.983864, "city": "Hanover", "state": "PA"}, {"lat": 40.312332, "lng": -76.799318, "city": "Harrisburg", "state": "PA"}, {"lat": 39.968367, "lng": -75.298257, "city": "Havertown", "state": "PA"}, {"lat": 41.226917, "lng": -80.452611, "city": "Hermitage", "state": "PA"}, {"lat": 40.023081, "lng": -76.209203, "city": "Lancaster", "state": "PA"}, {"lat": 40.067826, "lng": -76.340287, "city": "Lancaster", "state": "PA"}, {"lat": 40.262848, "lng": -75.314463, "city": "Lansdale", "state": "PA"}, {"lat": 40.319768, "lng": -76.427142, "city": "Lebanon", "state": "PA"}, {"lat": 40.248131, "lng": -77.011854, "city": "Mechanicsburg", "state": "PA"}, {"lat": 39.916386, "lng": -75.426596, "city": "Media", "state": "PA"}, {"lat": 40.682017, "lng": -80.31001, "city": "Monaca", "state": "PA"}, {"lat": 40.43229, "lng": -79.796774, "city": "Monroeville", "state": "PA"}, {"lat": 39.917337, "lng": -75.32983, "city": "Morton", "state": "PA"}, {"lat": 40.318723, "lng": -79.683839, "city": "North Huntingdon", "state": "PA"}, {"lat": 40.062801, "lng": -75.235284, "city": "Philadelphia", "state": "PA"}, {"lat": 40.446605, "lng": -80.159932, "city": "Pittsburgh", "state": "PA"}, {"lat": 40.527355, "lng": -80.007706, "city": "Pittsburgh", "state": "PA"}, {"lat": 40.704371, "lng": -76.189457, "city": "Pottsville", "state": "PA"}, {"lat": 40.445607, "lng": -75.362533, "city": "Quakertown", "state": "PA"}, {"lat": 40.356567, "lng": -75.986101, "city": "Reading", "state": "PA"}, {"lat": 40.195651, "lng": -75.528742, "city": "Royersford", "state": "PA"}, {"lat": 40.840854, "lng": -76.836866, "city": "Selinsgrove", "state": "PA"}, {"lat": 40.815412, "lng": -77.904685, "city": "State College", "state": "PA"}, {"lat": 41.001091, "lng": -75.264938, "city": "Stroudsburg", "state": "PA"}, {"lat": 39.996173, "lng": -75.756217, "city": "Thorndale", "state": "PA"}, {"lat": 40.550293, "lng": -75.590278, "city": "Trexlertown", "state": "PA"}, {"lat": 40.208563, "lng": -75.106965, "city": "Warminster", "state": "PA"}, {"lat": 40.34032, "lng": -79.950622, "city": "West Mifflin", "state": "PA"}, {"lat": 40.636553, "lng": -75.483071, "city": "Whitehall", "state": "PA"}, {"lat": 41.232744, "lng": -75.863868, "city": "Wilkes-Barre", "state": "PA"}, {"lat": 41.239039, "lng": -77.004162, "city": "Williamsport", "state": "PA"}, {"lat": 40.196521, "lng": -74.864249, "city": "Yardley", "state": "PA"}, {"lat": 39.972269, "lng": -76.770419, "city": "York", "state": "PA"}, {"lat": 39.988414, "lng": -76.681312, "city": "York", "state": "PA"}, {"lat": 41.607002, "lng": -71.451422, "city": "North Kingstown", "state": "RI"}, {"lat": 41.981531, "lng": -71.508881, "city": "North Smithfield", "state": "RI"}, {"lat": 41.875653, "lng": -71.517069, "city": "Smithfield", "state": "RI"}, {"lat": 41.718894, "lng": -71.4793, "city": "Warwick", "state": "RI"}, {"lat": 34.552323, "lng": -82.674899, "city": "Anderson", "state": "SC"}, {"lat": 32.813246, "lng": -80.040193, "city": "Charleston", "state": "SC"}, {"lat": 34.065523, "lng": -81.167365, "city": "Columbia", "state": "SC"}, {"lat": 34.115593, "lng": -80.880218, "city": "Columbia", "state": "SC"}, {"lat": 34.828775, "lng": -82.5467, "city": "Easley", "state": "SC"}, {"lat": 34.188495, "lng": -79.838679, "city": "Florence", "state": "SC"}, {"lat": 34.824899, "lng": -82.287277, "city": "Greenville", "state": "SC"}, {"lat": 34.203352, "lng": -82.192464, "city": "Greenwood", "state": "SC"}, {"lat": 34.941949, "lng": -82.26336, "city": "Greer", "state": "SC"}, {"lat": 34.00096, "lng": -81.216682, "city": "Lexington", "state": "SC"}, {"lat": 32.863718, "lng": -79.784151, "city": "Mount Pleasant", "state": "SC"}, {"lat": 33.649075, "lng": -78.984879, "city": "Myrtle Beach", "state": "SC"}, {"lat": 33.843808, "lng": -78.66265, "city": "North Myrtle Beach", "state": "SC"}, {"lat": 34.943862, "lng": -80.95853, "city": "Rock Hill", "state": "SC"}, {"lat": 34.715128, "lng": -82.255, "city": "Simpsonville", "state": "SC"}, {"lat": 34.93716, "lng": -81.999387, "city": "Spartanburg", "state": "SC"}, {"lat": 33.040839, "lng": -80.15515, "city": "Summerville", "state": "SC"}, {"lat": 45.461329, "lng": -98.441302, "city": "Aberdeen", "state": "SD"}, {"lat": 44.106182, "lng": -103.226462, "city": "Rapid City", "state": "SD"}, {"lat": 43.510253, "lng": -96.768859, "city": "Sioux Falls", "state": "SD"}, {"lat": 43.540142, "lng": -96.655292, "city": "Sioux Falls", "state": "SD"}, {"lat": 35.877112, "lng": -84.165538, "city": "", "state": "TN"}, {"lat": 35.023046, "lng": -85.156038, "city": "Chattanooga", "state": "TN"}, {"lat": 36.592295, "lng": -87.295355, "city": "Clarksville", "state": "TN"}, {"lat": 35.217827, "lng": -84.865591, "city": "Cleveland", "state": "TN"}, {"lat": 36.154358, "lng": -85.523393, "city": "Cookeville", "state": "TN"}, {"lat": 35.936767, "lng": -86.819511, "city": "Franklin", "state": "TN"}, {"lat": 35.666214, "lng": -88.861425, "city": "Jackson", "state": "TN"}, {"lat": 36.342486, "lng": -82.408772, "city": "Johnson City", "state": "TN"}, {"lat": 36.552552, "lng": -82.493069, "city": "Kingsport", "state": "TN"}, {"lat": 35.926852, "lng": -84.031561, "city": "Knoxville", "state": "TN"}, {"lat": 36.22073, "lng": -83.260026, "city": "Morristown", "state": "TN"}, {"lat": 35.84318, "lng": -86.443706, "city": "Murfreesboro", "state": "TN"}, {"lat": 36.183613, "lng": -86.63462, "city": "Nashville", "state": "TN"}, {"lat": 35.981251, "lng": -86.56834, "city": "Smyrna", "state": "TN"}, {"lat": 35.738723, "lng": -86.941064, "city": "Spring Hill", "state": "TN"}, {"lat": 30.066412, "lng": -95.429457, "city": "", "state": "TX"}, {"lat": 33.057474, "lng": -97.017674, "city": "", "state": "TX"}, {"lat": 29.924207, "lng": -95.603374, "city": "", "state": "TX"}, {"lat": 32.406151, "lng": -99.786398, "city": "Abilene", "state": "TX"}, {"lat": 35.183279, "lng": -101.940293, "city": "Amarillo", "state": "TX"}, {"lat": 32.658001, "lng": -97.136442, "city": "Arlington", "state": "TX"}, {"lat": 30.420547, "lng": -97.66998, "city": "Austin", "state": "TX"}, {"lat": 30.478805, "lng": -97.796199, "city": "Austin", "state": "TX"}, {"lat": 29.797042, "lng": -94.978625, "city": "Baytown", "state": "TX"}, {"lat": 30.120803, "lng": -94.170124, "city": "Beaumont", "state": "TX"}, {"lat": 25.970589, "lng": -97.517467, "city": "Brownsville", "state": "TX"}, {"lat": 32.568479, "lng": -97.322917, "city": "Burleson", "state": "TX"}, {"lat": 33.022314, "lng": -96.914076, "city": "Carrollton", "state": "TX"}, {"lat": 32.596132, "lng": -96.936472, "city": "Cedar Hill", "state": "TX"}, {"lat": 30.617472, "lng": -96.318771, "city": "College Station", "state": "TX"}, {"lat": 30.344957, "lng": -95.479842, "city": "Conroe", "state": "TX"}, {"lat": 30.213706, "lng": -95.460187, "city": "Conroe", "state": "TX"}, {"lat": 27.68653, "lng": -97.381369, "city": "Corpus Christi", "state": "TX"}, {"lat": 29.881943, "lng": -95.68157, "city": "Cypress", "state": "TX"}, {"lat": 32.856983, "lng": -96.754001, "city": "Dallas", "state": "TX"}, {"lat": 33.232009, "lng": -97.163879, "city": "Denton", "state": "TX"}, {"lat": 28.703394, "lng": -100.480953, "city": "Eagle Pass", "state": "TX"}, {"lat": 31.782798, "lng": -106.412504, "city": "El Paso", "state": "TX"}, {"lat": 31.725969, "lng": -106.306712, "city": "El Paso", "state": "TX"}, {"lat": 31.867237, "lng": -106.576806, "city": "El Paso", "state": "TX"}, {"lat": 33.033966, "lng": -97.066929, "city": "Flower Mound", "state": "TX"}, {"lat": 32.685685, "lng": -97.407158, "city": "Fort Worth", "state": "TX"}, {"lat": 33.137468, "lng": -96.802045, "city": "Frisco", "state": "TX"}, {"lat": 32.946238, "lng": -96.617813, "city": "Garland", "state": "TX"}, {"lat": 30.62871, "lng": -97.695132, "city": "Georgetown", "state": "TX"}, {"lat": 32.678081, "lng": -97.004934, "city": "Grand Prairie", "state": "TX"}, {"lat": 26.184444, "lng": -97.723832, "city": "Harlingen", "state": "TX"}, {"lat": 29.673719, "lng": -95.457296, "city": "Houston", "state": "TX"}, {"lat": 30.011499, "lng": -95.592791, "city": "Houston", "state": "TX"}, {"lat": 30.00057, "lng": -95.168574, "city": "Humble", "state": "TX"}, {"lat": 30.018143, "lng": -95.269107, "city": "Humble", "state": "TX"}, {"lat": 32.918459, "lng": -96.960255, "city": "Irving", "state": "TX"}, {"lat": 29.787207, "lng": -95.716651, "city": "Katy", "state": "TX"}, {"lat": 32.898104, "lng": -97.257235, "city": "Keller", "state": "TX"}, {"lat": 30.012398, "lng": -97.866766, "city": "Kyle", "state": "TX"}, {"lat": 29.046148, "lng": -95.464046, "city": "Lake Jackson", "state": "TX"}, {"lat": 32.816345, "lng": -97.416794, "city": "Lake Worth", "state": "TX"}, {"lat": 27.549727, "lng": -99.508224, "city": "Laredo", "state": "TX"}, {"lat": 29.467897, "lng": -95.095328, "city": "League City", "state": "TX"}, {"lat": 30.561926, "lng": -97.848308, "city": "Leander", "state": "TX"}, {"lat": 32.55086, "lng": -94.724502, "city": "Longview", "state": "TX"}, {"lat": 33.503087, "lng": -101.886353, "city": "Lubbock", "state": "TX"}, {"lat": 32.563435, "lng": -97.118016, "city": "Mansfield", "state": "TX"}, {"lat": 26.274321, "lng": -98.215083, "city": "McAllen", "state": "TX"}, {"lat": 33.169722, "lng": -96.63818, "city": "McKinney", "state": "TX"}, {"lat": 32.797483, "lng": -96.629028, "city": "Mesquite", "state": "TX"}, {"lat": 32.011109, "lng": -102.15526, "city": "Midland", "state": "TX"}, {"lat": 26.193076, "lng": -98.284166, "city": "Mission", "state": "TX"}, {"lat": 29.571057, "lng": -95.573026, "city": "Missouri City", "state": "TX"}, {"lat": 29.697919, "lng": -98.093311, "city": "New Braunfels", "state": "TX"}, {"lat": 32.857867, "lng": -97.187111, "city": "North Richland Hills", "state": "TX"}, {"lat": 29.554258, "lng": -95.380611, "city": "Pearland", "state": "TX"}, {"lat": 30.466729, "lng": -97.589311, "city": "Pflugerville", "state": "TX"}, {"lat": 33.054216, "lng": -96.793031, "city": "Plano", "state": "TX"}, {"lat": 33.09957, "lng": -96.735804, "city": "Plano", "state": "TX"}, {"lat": 29.693204, "lng": -95.775607, "city": "Richmond", "state": "TX"}, {"lat": 32.89864, "lng": -96.459452, "city": "Rockwall", "state": "TX"}, {"lat": 30.484846, "lng": -97.683813, "city": "Round Rock", "state": "TX"}, {"lat": 29.605645, "lng": -98.462301, "city": "San Antonio", "state": "TX"}, {"lat": 29.434074, "lng": -98.707457, "city": "San Antonio", "state": "TX"}, {"lat": 29.546868, "lng": -98.669448, "city": "San Antonio", "state": "TX"}, {"lat": 29.563615, "lng": -98.326569, "city": "Selma", "state": "TX"}, {"lat": 33.67997, "lng": -96.604684, "city": "Sherman", "state": "TX"}, {"lat": 32.940168, "lng": -97.104773, "city": "Southlake", "state": "TX"}, {"lat": 30.231621, "lng": -97.814165, "city": "Sunset Valley", "state": "TX"}, {"lat": 31.073183, "lng": -97.371526, "city": "Temple", "state": "TX"}, {"lat": 33.4583, "lng": -94.093827, "city": "Texarkana", "state": "TX"}, {"lat": 32.264839, "lng": -95.310148, "city": "Tyler", "state": "TX"}, {"lat": 28.877735, "lng": -96.999398, "city": "Victoria", "state": "TX"}, {"lat": 31.498309, "lng": -97.153712, "city": "Waco", "state": "TX"}, {"lat": 32.728926, "lng": -97.782429, "city": "Weatherford", "state": "TX"}, {"lat": 33.008873, "lng": -96.590069, "city": "Wylie", "state": "TX"}, {"lat": 40.382463, "lng": -111.817539, "city": "American Fork", "state": "UT"}, {"lat": 40.916872, "lng": -111.889842, "city": "Centerville", "state": "UT"}, {"lat": 41.14116, "lng": -112.060433, "city": "Clinton", "state": "UT"}, {"lat": 40.528983, "lng": -111.88672, "city": "Draper", "state": "UT"}, {"lat": 41.080293, "lng": -111.984224, "city": "Layton", "state": "UT"}, {"lat": 41.762712, "lng": -111.832088, "city": "North Logan", "state": "UT"}, {"lat": 40.273919, "lng": -111.673824, "city": "Orem", "state": "UT"}, {"lat": 40.510618, "lng": -111.977684, "city": "Riverton", "state": "UT"}, {"lat": 40.701841, "lng": -111.85835, "city": "Salt Lake City", "state": "UT"}, {"lat": 37.129899, "lng": -113.521266, "city": "Washington", "state": "UT"}, {"lat": 40.617808, "lng": -111.977768, "city": "West Jordan", "state": "UT"}, {"lat": 40.705216, "lng": -112.022306, "city": "West Valley City", "state": "UT"}, {"lat": 38.125277, "lng": -78.446555, "city": "", "state": "VA"}, {"lat": 38.79933, "lng": -77.316954, "city": "Burke", "state": "VA"}, {"lat": 36.775027, "lng": -76.24908, "city": "Chesapeake", "state": "VA"}, {"lat": 37.353281, "lng": -77.416638, "city": "Chester", "state": "VA"}, {"lat": 37.166873, "lng": -80.428242, "city": "Christiansburg", "state": "VA"}, {"lat": 38.479164, "lng": -77.97509, "city": "Culpeper", "state": "VA"}, {"lat": 38.857373, "lng": -77.379825, "city": "Fairfax", "state": "VA"}, {"lat": 38.218759, "lng": -77.502827, "city": "Fredericksburg", "state": "VA"}, {"lat": 38.303819, "lng": -77.5056, "city": "Fredericksburg", "state": "VA"}, {"lat": 37.65172, "lng": -77.602129, "city": "Glen Allen", "state": "VA"}, {"lat": 38.425232, "lng": -78.841804, "city": "Harrisonburg", "state": "VA"}, {"lat": 38.81796, "lng": -77.643453, "city": "Haymarket", "state": "VA"}, {"lat": 38.770372, "lng": -77.133595, "city": "Kingstowne", "state": "VA"}, {"lat": 39.116146, "lng": -77.53687, "city": "Leesburg", "state": "VA"}, {"lat": 37.34369, "lng": -79.193468, "city": "Lynchburg", "state": "VA"}, {"lat": 38.802996, "lng": -77.527108, "city": "Manassas", "state": "VA"}, {"lat": 37.606878, "lng": -77.354003, "city": "Mechanicsville", "state": "VA"}, {"lat": 37.4214, "lng": -77.632077, "city": "Midlothian", "state": "VA"}, {"lat": 37.126567, "lng": -76.517506, "city": "Newport News", "state": "VA"}, {"lat": 37.503318, "lng": -77.605866, "city": "North Chesterfield", "state": "VA"}, {"lat": 37.223882, "lng": -79.965888, "city": "Roanoke", "state": "VA"}, {"lat": 38.471866, "lng": -77.408206, "city": "Stafford", "state": "VA"}, {"lat": 39.028023, "lng": -77.389478, "city": "Sterling", "state": "VA"}, {"lat": 36.879029, "lng": -76.428349, "city": "Suffolk", "state": "VA"}, {"lat": 36.77523, "lng": -76.0864, "city": "Virginia Beach", "state": "VA"}, {"lat": 36.845623, "lng": -76.132517, "city": "Virginia Beach", "state": "VA"}, {"lat": 38.05543, "lng": -78.945268, "city": "Waynesboro", "state": "VA"}, {"lat": 39.159887, "lng": -78.167956, "city": "Winchester", "state": "VA"}, {"lat": 38.656171, "lng": -77.302645, "city": "Woodbridge", "state": "VA"}, {"lat": 44.218735, "lng": -72.563093, "city": "Berlin", "state": "VT"}, {"lat": 44.46368, "lng": -73.184021, "city": "South Burlington", "state": "VT"}, {"lat": 48.786851, "lng": -122.490698, "city": "Bellingham", "state": "WA"}, {"lat": 47.168367, "lng": -122.160754, "city": "Bonney Lake", "state": "WA"}, {"lat": 48.449823, "lng": -122.336301, "city": "Burlington", "state": "WA"}, {"lat": 47.359687, "lng": -122.113234, "city": "Covington", "state": "WA"}, {"lat": 47.31283, "lng": -122.306575, "city": "Federal Way", "state": "WA"}, {"lat": 47.303605, "lng": -122.577209, "city": "Gig Harbor", "state": "WA"}, {"lat": 47.04224, "lng": -122.836093, "city": "Lacey", "state": "WA"}, {"lat": 47.831463, "lng": -122.266046, "city": "Lynnwood", "state": "WA"}, {"lat": 48.102051, "lng": -122.183138, "city": "Marysville", "state": "WA"}, {"lat": 47.1023, "lng": -122.297637, "city": "Puyallup", "state": "WA"}, {"lat": 47.674393, "lng": -122.104787, "city": "Redmond", "state": "WA"}, {"lat": 46.230193, "lng": -119.229058, "city": "Richland", "state": "WA"}, {"lat": 47.659278, "lng": -122.689344, "city": "Silverdale", "state": "WA"}, {"lat": 47.944817, "lng": -122.107951, "city": "Snohomish", "state": "WA"}, {"lat": 47.703512, "lng": -117.407675, "city": "Spokane", "state": "WA"}, {"lat": 47.666006, "lng": -117.185274, "city": "Spokane Valley", "state": "WA"}, {"lat": 47.217986, "lng": -122.466005, "city": "Tacoma", "state": "WA"}, {"lat": 47.449894, "lng": -122.25851, "city": "Tukwila", "state": "WA"}, {"lat": 46.56606, "lng": -120.478644, "city": "Union Gap", "state": "WA"}, {"lat": 45.616446, "lng": -122.496651, "city": "Vancouver", "state": "WA"}, {"lat": 45.688944, "lng": -122.668305, "city": "Vancouver", "state": "WA"}, {"lat": 43.480249, "lng": -88.824107, "city": "", "state": "WI"}, {"lat": 44.24547, "lng": -88.350621, "city": "Appleton", "state": "WI"}, {"lat": 44.288755, "lng": -88.41914, "city": "Appleton", "state": "WI"}, {"lat": 44.483495, "lng": -88.064089, "city": "Ashwaubenon", "state": "WI"}, {"lat": 43.062032, "lng": -88.068472, "city": "Brookfield", "state": "WI"}, {"lat": 42.689777, "lng": -88.264368, "city": "Burlington", "state": "WI"}, {"lat": 43.05323, "lng": -88.367695, "city": "Delafield", "state": "WI"}, {"lat": 42.630576, "lng": -88.610658, "city": "Delavan", "state": "WI"}, {"lat": 44.77778, "lng": -91.429741, "city": "Eau Claire", "state": "WI"}, {"lat": 43.786403, "lng": -88.479637, "city": "Fond Du Lac", "state": "WI"}, {"lat": 43.120167, "lng": -87.91353, "city": "Glendale", "state": "WI"}, {"lat": 43.322187, "lng": -87.922344, "city": "Grafton", "state": "WI"}, {"lat": 44.485383, "lng": -87.966871, "city": "Green Bay", "state": "WI"}, {"lat": 42.9614, "lng": -88.022458, "city": "Greenfield", "state": "WI"}, {"lat": 42.710802, "lng": -89.000643, "city": "Janesville", "state": "WI"}, {"lat": 43.082825, "lng": -88.759347, "city": "Johnson Creek", "state": "WI"}, {"lat": 43.584869, "lng": -89.814774, "city": "Lake Delton", "state": "WI"}, {"lat": 43.12967, "lng": -89.300713, "city": "Madison", "state": "WI"}, {"lat": 43.056738, "lng": -89.5113, "city": "Madison", "state": "WI"}, {"lat": 44.076033, "lng": -87.706494, "city": "Manitowoc", "state": "WI"}, {"lat": 45.078201, "lng": -87.658198, "city": "Marinette", "state": "WI"}, {"lat": 44.677527, "lng": -90.160788, "city": "Marshfield", "state": "WI"}, {"lat": 43.190894, "lng": -88.133368, "city": "Menomonee Falls", "state": "WI"}, {"lat": 43.038579, "lng": -87.9157, "city": "Milwaukee", "state": "WI"}, {"lat": 42.977048, "lng": -87.949834, "city": "Milwaukee", "state": "WI"}, {"lat": 43.044778, "lng": -89.352231, "city": "Monona", "state": "WI"}, {"lat": 42.721909, "lng": -87.847062, "city": "Mount Pleasant", "state": "WI"}, {"lat": 42.921572, "lng": -88.106152, "city": "Muskego", "state": "WI"}, {"lat": 44.176424, "lng": -88.493945, "city": "Neenah", "state": "WI"}, {"lat": 42.880271, "lng": -87.915803, "city": "Oak Creek", "state": "WI"}, {"lat": 43.874741, "lng": -91.193991, "city": "Onalaska", "state": "WI"}, {"lat": 44.496582, "lng": -89.509576, "city": "Plover", "state": "WI"}, {"lat": 45.634132, "lng": -89.396184, "city": "Rhinelander", "state": "WI"}, {"lat": 45.470909, "lng": -91.751103, "city": "Rice Lake", "state": "WI"}, {"lat": 43.752743, "lng": -87.753143, "city": "Sheboygan", "state": "WI"}, {"lat": 43.137332, "lng": -88.247994, "city": "Sussex", "state": "WI"}, {"lat": 42.992289, "lng": -88.266026, "city": "Waukesha", "state": "WI"}, {"lat": 43.029491, "lng": -88.187881, "city": "Waukesha", "state": "WI"}, {"lat": 44.924332, "lng": -89.655448, "city": "Wausau", "state": "WI"}, {"lat": 42.997479, "lng": -88.049884, "city": "West Allis", "state": "WI"}, {"lat": 43.402884, "lng": -88.183121, "city": "West Bend", "state": "WI"}, {"lat": 39.635592, "lng": -80.006315, "city": "", "state": "WV"}, {"lat": 38.426728, "lng": -82.264541, "city": "Barboursville", "state": "WV"}, {"lat": 37.801029, "lng": -81.176392, "city": "Beckley", "state": "WV"}, {"lat": 38.326374, "lng": -81.716183, "city": "Charleston", "state": "WV"}, {"lat": 39.271395, "lng": -80.283563, "city": "Clarksburg", "state": "WV"}, {"lat": 39.220703, "lng": -81.549717, "city": "Parkersburg", "state": "WV"}, {"lat": 39.323788, "lng": -77.849649, "city": "Ranson", "state": "WV"}, {"lat": 40.055569, "lng": -80.60385, "city": "Triadelphia", "state": "WV"}, {"lat": 42.845515, "lng": -106.250357, "city": "Casper", "state": "WY"}, {"lat": 41.166683, "lng": -104.801231, "city": "Cheyenne", "state": "WY"}];
+const topStatesLabels = ["CA", "TX", "IL", "OH", "FL", "WI", "MI", "PA", "NY", "IN", "MO", "VA", "NJ", "WA", "MD", "MN", "AZ", "CO", "GA", "NC"];
+const topStatesValues = [676, 397, 274, 228, 265, 201, 161, 191, 184, 109, 99, 137, 216, 129, 138, 90, 100, 118, 103, 88];
+const topStatesCounts = [61, 44, 37, 35, 29, 29, 27, 22, 18, 17, 17, 15, 14, 14, 13, 13, 12, 12, 12, 12];
+const plYears = ["FY2019", "FY2020", "FY2021", "FY2022", "FY2023", "FY2024", "FY2025"];
+const plValues = [28.0, 27.0, 26.0, 27.0, 29.0, 30.0, 33.0];
+const plProjYears = ["FY2026E", "FY2027E", "FY2028E", "FY2029E", "FY2030E", "FY2031E"];
+const plProjValues = [35.0, 37.0, 39.0, 40.0, 42.0, 43.0];
+const sephoraYears = ["FY2022", "FY2023", "FY2024", "FY2025"];
+const sephoraShops = [600, 861, 1051, 1100];
+const sephoraRevYears = ["FY2022", "FY2023", "FY2024", "FY2025"];
+const sephoraRevValues = [1200, 1600, 1900, 2050];
+const selectedPrices = [{"product": "iRobot Roomba 694 Robot Vacuum", "category": "HOME/KITCHEN", "kohls": 99.99, "amazon": 179.0, "walmart": 179.99, "target": 179.99}, {"product": "Nike Revolution 8 Men's Running Shoes", "category": "APPAREL/SHOES", "kohls": 48.75, "amazon": 49.97, "walmart": 65.0, "target": null}, {"product": "Ninja Professional Blender BL610", "category": "HOME/KITCHEN", "kohls": 89.99, "amazon": 89.99, "walmart": 89.99, "target": 89.99}, {"product": "Instant Pot Duo 6-Quart 7-in-1 Pressure ", "category": "HOME/KITCHEN", "kohls": 89.99, "amazon": 89.99, "walmart": 89.99, "target": 89.99}, {"product": "KitchenAid Classic Stand Mixer 4.5 qt (K", "category": "HOME/KITCHEN", "kohls": 329.99, "amazon": 329.99, "walmart": 329.99, "target": 399.99}, {"product": "Cuisinart 14-Cup Food Processor (DFP-14B", "category": "HOME/KITCHEN", "kohls": 199.99, "amazon": 199.5, "walmart": 249.95, "target": 319.99}, {"product": "Dyson V8 cordless vacuum", "category": "HOME", "kohls": 329.0, "amazon": 349.93, "walmart": 320.0, "target": 349.99}, {"product": "Cuisinart Stainless Steel 11-Piece Cookw", "category": "OTHER", "kohls": 169.99, "amazon": 159.99, "walmart": 179.99, "target": 209.99}, {"product": "Bissell CrossWave All-in-One Floor Clean", "category": "HOME/KITCHEN", "kohls": 199.99, "amazon": 199.99, "walmart": 179.99, "target": 199.99}, {"product": "Barbie Dreamhouse", "category": "TOYS/MISC", "kohls": 139.99, "amazon": 125.0, "walmart": 195.95, "target": 125.99}, {"product": "Shark Navigator Lift-Away Vacuum NV352", "category": "HOME/KITCHEN", "kohls": 179.99, "amazon": 186.76, "walmart": 159.99, "target": null}, {"product": "Yankee Candle Large Jar (22 oz)", "category": "OTHER", "kohls": 16.99, "amazon": 15.0, "walmart": 19.97, "target": 27.99}];
+const cmbs = [{"name": "Newport Centre", "kss_rent": 5.58, "city": "Jersey City", "state": "NJ"}, {"name": "Madonna Plaza", "kss_rent": 24.23, "city": "San Luis Obispo", "state": "CA"}, {"name": "Kohl's Shelby", "kss_rent": 8.75, "city": "Shelby Township", "state": "MI"}];
+const projYears = ["FY2026E", "FY2027E", "FY2028E", "FY2029E", "FY2030E", "FY2031E"];
+const projRev = [14.63, 14.55, 14.63, 14.77, 14.99, 15.22];
+const projEbitda = [1.17, 1.25, 1.32, 1.39, 1.5, 1.6];
+const projEps = [1.43, 2.14, 2.68, 3.32, 4.16, 5.19];
+const projInterest = [275, 270, 265, 250, 245, 200];
+const debtTranches = [{"maturity": 2025, "coupon": "4.25%", "amount": 353, "label": "4.25% due 2025"}, {"maturity": 2029, "coupon": "7.25%", "amount": 42, "label": "7.25% due 2029"}, {"maturity": 2030, "coupon": "10.00%", "amount": 360, "label": "10.00% due Jun 1, 2030"}, {"maturity": 2031, "coupon": "4.625%", "amount": 500, "label": "4.625% due 2031"}, {"maturity": 2033, "coupon": "6.00%", "amount": 112, "label": "6.00% due 2033"}, {"maturity": 2037, "coupon": "6.88%", "amount": 101, "label": "6.88% due 2037"}, {"maturity": 2045, "coupon": "5.55%", "amount": 427, "label": "5.55% due 2045"}];
+const stressScenarios = [{"shock": -10, "revenue_B": 13.3, "gross_profit_B": 4.9, "gm_pct": 36.5, "operating_income_M": -732, "cfo_M": -32, "interest_coverage": -2.5}, {"shock": -20, "revenue_B": 11.8, "gross_profit_B": 4.2, "gm_pct": 35.2, "operating_income_M": -1221, "cfo_M": -521, "interest_coverage": -4.2}, {"shock": -30, "revenue_B": 10.3, "gross_profit_B": 3.5, "gm_pct": 33.5, "operating_income_M": -1711, "cfo_M": -1011, "interest_coverage": -5.9}, {"shock": -40, "revenue_B": 8.9, "gross_profit_B": 2.8, "gm_pct": 31.3, "operating_income_M": -2200, "cfo_M": -1500, "interest_coverage": -7.6}];
+
+// ── Leisure data ──
+const leisureData = {"1959": 5.92, "1960": 5.95, "1961": 5.99, "1962": 6.09, "1963": 6.24, "1964": 6.4, "1965": 6.52, "1966": 6.95, "1967": 7.07, "1968": 7.17, "1969": 7.24, "1970": 7.27, "1971": 7.16, "1972": 7.32, "1973": 7.42, "1974": 7.41, "1975": 7.48, "1976": 7.51, "1977": 7.45, "1978": 7.47, "1979": 7.5, "1980": 7.28, "1981": 7.32, "1982": 7.31, "1983": 7.42, "1984": 7.62, "1985": 7.64, "1986": 7.81, "1987": 8.03, "1988": 8.21, "1989": 8.27, "1990": 8.26, "1991": 8.27, "1992": 8.26, "1993": 8.5, "1994": 8.77, "1995": 9.06, "1996": 9.18, "1997": 9.2, "1998": 9.26, "1999": 9.39, "2000": 9.36, "2001": 9.15, "2002": 9.11, "2003": 9.1, "2004": 9.22, "2005": 9.18, "2006": 9.22, "2007": 9.2, "2008": 8.95, "2009": 8.73, "2010": 8.62, "2011": 8.43, "2012": 8.46, "2013": 8.52, "2014": 8.53, "2015": 8.61, "2016": 8.74, "2017": 8.8, "2018": 8.84, "2019": 8.94, "2020": 8.97, "2021": 9.47, "2022": 9.44, "2023": 9.48, "2024": 9.42};
+
+// ── Chart Init Functions (lazy) ──
+
+function initChartsForSlide(n) {
+  if (chartCache[n]) return;
+  chartCache[n] = true;
+  const slideId = slides[n].id;
+
+  switch(slideId) {
+    case 'intro-customer': initIntroCustomer(); break;
+    case 'intro-map': initMap(); break;
+    case 'intro-product': initProduct(); break;
+    case 'intro-financials': initFinancials(); break;
+    case 're-hidden': initReHidden(); break;
+    case 're-benchmark': initReBenchmark(); break;
+    case 're-unlock': initReUnlock(); break;
+    case 're-lease': initReLease(); break;
+    case 're-pb': initRePB(); break;
+    case 'ai-price': initAiPrice(); break;
+    case 'ai-brand': initAiBrand(); break;
+    case 'ai-poverty': initAiPoverty(); break;
+    case 'ai-disrupt': initAiDisrupt(); break;
+    case 'con-demographics': initDemographics(); break;
+    case 'con-recession': initRecession(); break;
+    case 'con-anchor': initConAnchor(); break;
+    case 'con-compress': initConCompress(); break;
+    case 'con-unit': initConUnit(); break;
+    case 'app-risk': initAppRisk(); break;
+    case 'app-debt': initAppDebt(); break;
+    case 'app-stores': initAppStores(); break;
+    case 'side-sephora': initSideSephora(); break;
+    case 'worst-stress': initWorstStress(); break;
+  }
+}
+
+function initIntroCustomer() {
+  new Chart(document.getElementById('chart-format'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Strip Centers (951)', 'Freestanding (162)', 'Mall (62)'],
+      datasets: [{ data: [951, 162, 62], backgroundColor: [COLORS.blue, COLORS.green, COLORS.gold] }]
+    },
+    options: { plugins: { legend: { position:'bottom' } } }
+  });
+  new Chart(document.getElementById('chart-ownership'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Owned (405)', 'Leased (522)', 'Ground-Leased (248)'],
+      datasets: [{ data: [405, 522, 248], backgroundColor: [COLORS.green, COLORS.red, COLORS.gold] }]
+    },
+    options: { plugins: { legend: { position:'bottom' } } }
+  });
+}
+
+function initMap() {
+  const map = L.map('store-map').setView([39.5, -98.5], 4);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© CartoDB',
+    subdomains: 'abcd', maxZoom: 16
+  }).addTo(map);
+  storeLocs.forEach(s => {
+    L.circleMarker([s.lat, s.lng], {
+      radius: 3.5, fillColor: '#1d4ed8', color: '#1e3a5f', weight: 0.8, fillOpacity: 0.85
+    }).addTo(map).bindPopup(s.city + ', ' + s.state);
+  });
+}
+
+function initProduct() {
+  new Chart(document.getElementById('chart-rev-cat'), {
+    type: 'bar',
+    data: {
+      labels: catNames,
+      datasets: [{ label: 'FY2024 ($M)', data: catFY24, backgroundColor: catNames.map((n,i) => i===2 ? COLORS.green : COLORS.blue) }]
+    },
+    options: { indexAxis:'y', plugins:{ legend:{ display:false } }, scales:{ x:{ grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+  new Chart(document.getElementById('chart-cat-compare'), {
+    type: 'bar',
+    data: {
+      labels: catNames,
+      datasets: [
+        { label: 'FY2023', data: catFY23, backgroundColor: COLORS.gold+'80' },
+        { label: 'FY2024', data: catFY24, backgroundColor: COLORS.blue }
+      ]
+    },
+    options: { indexAxis:'y', plugins:{ legend:{ position:'bottom' } }, scales:{ x:{ grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+}
+
+function initFinancials() {
+  // Map fiscal year-end to stock price (FY ends late Jan/early Feb)
+  const fyToMonth = { FY2014:'2015-01', FY2015:'2016-01', FY2016:'2017-01', FY2017:'2018-01', FY2018:'2019-01', FY2019:'2020-01', FY2020:'2021-03', FY2021:'2022-01', FY2022:'2023-01', FY2023:'2024-01', FY2024:'2025-01', FY2025:'2026-01' };
+  const kssMonthly = stockPrices?.KSS || {};
+  const stockByFY = revLabels.map(fy => kssMonthly[fyToMonth[fy]] ?? null);
+
+  new Chart(document.getElementById('chart-ebitda-stock'), {
+    type: 'bar',
+    data: {
+      labels: revLabels,
+      datasets: [
+        { label: 'EBITDA ($B)', data: ebitdaB, backgroundColor: ebitdaB.map(v => v >= 1.0 ? COLORS.blue+'90' : COLORS.blue+'50'), yAxisID: 'y', borderRadius: 3, barPercentage: 0.7 },
+        { label: 'KSS Stock ($)', data: stockByFY, type:'line', borderColor: COLORS.red, backgroundColor: COLORS.red+'15', yAxisID: 'y1', tension:0.3, pointRadius:5, pointBackgroundColor: COLORS.red, borderWidth:2.5, fill:true }
+      ]
+    },
+    options: {
+      scales: {
+        y: { position:'left', grid:{ color:'rgba(0,0,0,0.08)' }, title:{ display:true, text:'EBITDA ($B)' }, min:0 },
+        y1: { position:'right', grid:{ display:false }, title:{ display:true, text:'Stock Price ($)' }, min:0 }
+      },
+      plugins: { legend: { position:'bottom' } }
+    }
+  });
+
+  // % change since Jan 2022 bar chart (retail + REITs)
+  if (stockSummary && document.getElementById('chart-stock-pctchg')) {
+    const retailTickers = ['KSS', 'M', 'TJX', 'TGT', 'DG', 'WMT', 'ROST'];
+    const reitTickers = ['KIM', 'BRX', 'NNN', 'REG', 'SPG'];
+    const allTickers = [...retailTickers, ...reitTickers].filter(t => stockSummary[t]);
+    allTickers.sort((a,b) => (stockSummary[a]?.pct_change||0) - (stockSummary[b]?.pct_change||0));
+    new Chart(document.getElementById('chart-stock-pctchg'), {
+      type: 'bar',
+      data: {
+        labels: allTickers,
+        datasets: [{ data: allTickers.map(t => stockSummary[t]?.pct_change || 0),
+          backgroundColor: allTickers.map(t => {
+            if (t === 'KSS') return CG.red[500];
+            const v = stockSummary[t]?.pct_change||0;
+            return v >= 0 ? CG.green[500]+'90' : CG.red[500]+'90';
+          }),
+          borderWidth: allTickers.map(t => t === 'KSS' ? 2 : 0),
+          borderColor: allTickers.map(t => t === 'KSS' ? CG.red[400] : 'transparent')
+        }]
+      },
+      options: { indexAxis:'y', plugins:{ legend:{ display:false } }, scales:{ x:{ title:{ display:true, text:'% Change Since Jan 2022' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+    });
+  }
+}
+
+function initReHidden() {
+  // Waterfall: Mkt Cap → Net Debt → EV → RE Value
+  new Chart(document.getElementById('chart-re-waterfall'), {
+    type: 'bar',
+    data: {
+      labels: ['Market Cap', 'Net Debt', 'Enterprise Value', 'RE Blended Value', 'SLB Proceeds'],
+      datasets: [{ data: [0.9, 0.8, 1.7, 5.0, 4.8],
+        backgroundColor: [COLORS.red, COLORS.gold, CG.warn[300], COLORS.green, COLORS.blue] }]
+    },
+    options: { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'$B' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+  new Chart(document.getElementById('chart-re-methods'), {
+    type: 'bar',
+    data: {
+      labels: ['Income\nApproach', 'REIT Comp', 'Blended', 'SLB Net', 'Market Cap'],
+      datasets: [{ data: [5.3, 4.7, 5.0, 4.8, 0.9],
+        backgroundColor: [COLORS.blue, CG.raspberry[500], COLORS.green, COLORS.teal, COLORS.red] }]
+    },
+    options: { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'$B' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+}
+
+function initReBenchmark() {
+  // REIT ABR comparison
+  const reitData = [
+    { name: 'BRX', abr: 18.77 }, { name: 'KIM', abr: 21.00 }, { name: 'REG', abr: 23.50 },
+    { name: 'KRG', abr: 16.80 }, { name: 'NNN', abr: 12.50 }, { name: 'KSS imputed', abr: 9.18 }
+  ];
+  new Chart(document.getElementById('chart-reit-abr'), {
+    type: 'bar',
+    data: {
+      labels: reitData.map(r => r.name),
+      datasets: [{ data: reitData.map(r => r.abr), backgroundColor: reitData.map(r => r.name.includes('KSS') ? COLORS.green : COLORS.blue) }]
+    },
+    options: { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'ABR $/SF' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+  new Chart(document.getElementById('chart-state-re'), {
+    type: 'bar',
+    data: {
+      labels: topStatesLabels,
+      datasets: [{ label: 'RE Value ($M)', data: topStatesValues, backgroundColor: COLORS.blue+'90' }]
+    },
+    options: { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'$M' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+}
+
+function initReUnlock() {
+  // Debt maturity
+  const debtLabels = debtTranches.map(d => d.label);
+  const debtAmounts = debtTranches.map(d => d.amount);
+  const debtColors = debtTranches.map(d => d.maturity === 2030 ? COLORS.red : (d.maturity === 2031 ? COLORS.gold : COLORS.blue));
+  new Chart(document.getElementById('chart-debt-maturity'), {
+    type: 'bar',
+    data: { labels: debtLabels, datasets: [{ data: debtAmounts, backgroundColor: debtColors }] },
+    options: { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'$M' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+  // SLB waterfall
+  const slbSteps = ['RE Book\n$6.5B', '50% Discount\n-$3.2B', 'Base Proceeds\n$3.2B', 'Txn Costs\n-$97M', 'Retire 2031\n-$500M', 'Special Div\n$2.6B', 'Per Share'];
+  const slbValues = [6.5, -3.2, 3.2, -0.1, -0.5, 2.6, 42.37];
+  new Chart(document.getElementById('chart-slb-waterfall'), {
+    type: 'bar',
+    data: {
+      labels: ['RE Book Value', '50% Haircut', 'Base Proceeds', 'Transaction Costs', 'Retire 2031 Notes', 'Net for Dividend', 'Per Share ($)'],
+      datasets: [{ data: [6.5, 3.3, 3.2, 3.1, 2.6, 2.6, 42.37], backgroundColor: [COLORS.blue, COLORS.red, COLORS.green, COLORS.red, COLORS.red, COLORS.green, COLORS.gold] }]
+    },
+    options: { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'$B (last bar = $/share)' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+}
+
+function initReLease() {
+  // CMBS rents
+  const cmbsLabels = cmbs.map(c => c.name + ' (' + c.state + ')');
+  const cmbsRents = cmbs.map(c => c.kss_rent);
+  new Chart(document.getElementById('chart-cmbs-rent'), {
+    type: 'bar',
+    data: {
+      labels: cmbsLabels,
+      datasets: [{ label: 'KSS Rent $/SF', data: cmbsRents, backgroundColor: COLORS.green+'90' }]
+    },
+    options: { indexAxis:'y', plugins:{ legend:{ display:false } }, scales:{ x:{ title:{ display:true, text:'$/SF Annual' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+  // Rent comparison
+  new Chart(document.getElementById('chart-rent-compare'), {
+    type: 'bar',
+    data: {
+      labels: ['KSS Avg', 'BRX Portfolio', 'KIM Portfolio', 'REG Portfolio', 'Newport: H&M', 'Newport: Sephora'],
+      datasets: [{ data: [9.18, 18.77, 21.00, 23.50, 52.66, 80.87], backgroundColor: [COLORS.green, COLORS.blue, COLORS.blue, COLORS.blue, COLORS.orange, COLORS.pink] }]
+    },
+    options: { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'$/SF Annual' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+}
+
+function initRePB() {
+  new Chart(document.getElementById('chart-per-share'), {
+    type: 'bar',
+    data: {
+      labels: ['Current Stock', '2022 PE Bid', 'Book Value', 'RE Value/Share', 'SLB/Share'],
+      datasets: [{ data: [8.06, 53, 35.51, 43.64, 42.37],
+        backgroundColor: [COLORS.red, COLORS.gold, COLORS.blue, COLORS.green, COLORS.cyan] }]
+    },
+    options: { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'$/Share' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+}
+
+function initAiPrice() {
+  const priceLabels = selectedPrices.map(p => p.product);
+  new Chart(document.getElementById('chart-prices'), {
+    type: 'bar',
+    data: {
+      labels: priceLabels,
+      datasets: [
+        { label: "Kohl's", data: selectedPrices.map(p => p.kohls), backgroundColor: COLORS.kss },
+        { label: 'Amazon', data: selectedPrices.map(p => p.amazon), backgroundColor: COLORS.amzn },
+        { label: 'Walmart', data: selectedPrices.map(p => p.walmart), backgroundColor: COLORS.wmt },
+        { label: 'Target', data: selectedPrices.map(p => p.target), backgroundColor: COLORS.tgt }
+      ]
+    },
+    options: { indexAxis:'y', plugins:{ legend:{ position:'bottom' } }, scales:{ x:{ grid:{ color:'rgba(0,0,0,0.08)' }, title:{ display:true, text:'Price ($)' } } } }
+  });
+}
+
+function initAiBrand() {
+  // PL penetration line
+  const allPLYears = [...plYears, ...plProjYears];
+  const actualData = [...plValues, ...plProjYears.map(() => null)];
+  const projData = [...plYears.map(() => null), plValues[plValues.length-1], ...plProjValues];
+  new Chart(document.getElementById('chart-pl-mix'), {
+    type: 'line',
+    data: {
+      labels: allPLYears,
+      datasets: [
+        { label: 'Actual', data: actualData, borderColor: COLORS.blue, backgroundColor: COLORS.blue+'20', fill: true, tension: 0.3, pointRadius: 4 },
+        { label: 'Projected', data: projData, borderColor: COLORS.green, borderDash: [5,5], backgroundColor: COLORS.green+'10', fill: true, tension: 0.3, pointRadius: 4 }
+      ]
+    },
+    options: { scales: { y: { title:{ display:true, text:'% of Net Sales' }, grid:{ color:'rgba(0,0,0,0.08)' }, min: 25, max: 50 } } }
+  });
+  // GM impact
+  const plShiftPts = [0, 1, 2, 3, 5, 8, 10, 13];
+  const gmLift = plShiftPts.map(p => Math.round(p * 12.5));
+  new Chart(document.getElementById('chart-gm-impact'), {
+    type: 'line',
+    data: {
+      labels: plShiftPts.map(p => '+' + p + 'pp'),
+      datasets: [{ label: 'Gross Margin Lift (bps)', data: gmLift, borderColor: COLORS.green, backgroundColor: COLORS.green+'20', fill: true, tension: 0.3 }]
+    },
+    options: { scales: { y: { title:{ display:true, text:'bps GM lift' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+}
+
+const perUnitData = [{"product": "Batteries (AA, Panasonic)", "premium": 329}, {"product": "Alka-Seltzer", "premium": 125}, {"product": "Freezer Bags (store brand)", "premium": 100}, {"product": "Chicken Breasts (Tyson frozen)", "premium": 71}, {"product": "Tampax Pocket Radiant Tampons", "premium": 46}, {"product": "Aspirin / Acetaminophen", "premium": 43}, {"product": "Milk (gallon, whole)", "premium": 26}, {"product": "Dove Sensitive Skin Beauty Bar", "premium": 14}, {"product": "Tide Laundry Detergent (large ", "premium": 12}, {"product": "Clorox Disinfecting Wipes", "premium": 10}];
+
+function initAiPoverty() {
+  if (perUnitData.length && document.getElementById('chart-dg-premium')) {
+    new Chart(document.getElementById('chart-dg-premium'), {
+      type: 'bar',
+      data: {
+        labels: perUnitData.map(d => d.product),
+        datasets: [{ label: 'DG Premium vs Walmart (%)', data: perUnitData.map(d => d.premium),
+          backgroundColor: perUnitData.map(d => d.premium > 50 ? CG.red[600]+'90' : CG.red[500]+'70') }]
+      },
+      options: { indexAxis:'y', plugins:{ legend:{ display:false } }, scales:{ x:{ title:{ display:true, text:'Per-Unit Premium vs Walmart (%)' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+    });
+  }
+}
+
+function initAiDisrupt() {
+  // Data-driven: Y-axis = actual median premium from our price comparison research
+  // X-axis = consumer "deal perception" (inverted: lower = better perceived value)
+  const medianPrem = {"KSS": 37.0, "AMZN": 2.5, "WMT": 0.0, "TGT": 20.2, "KSS_coupon": 16.4};
+  // Deal perception composite scores (0-100) from ACSI, Market Force, YouGov, AlixPartners surveys
+  // Higher = consumers perceive the retailer as offering better deals/value
+  const dealPerception = { TJX: 88, ROST: 85, AMZN: 78, WMT: 72, TGT: 62, FIVE: 60, DG: 55, KSS: 45 };
+  const brands = [
+    { x: 100-dealPerception.KSS, y: medianPrem.KSS || 9, label: 'KSS (sticker)', color: COLORS.kss, r: 14 },
+    { x: 100-dealPerception.KSS, y: medianPrem.KSS_coupon || -7, label: 'KSS (15% coupon)', color: CG.green[500], r: 14 },
+    { x: 100-dealPerception.AMZN, y: medianPrem.AMZN || 3, label: 'Amazon', color: COLORS.amzn, r: 10 },
+    { x: 100-dealPerception.WMT, y: medianPrem.WMT || 0, label: 'Walmart', color: COLORS.wmt, r: 10 },
+    { x: 100-dealPerception.TGT, y: medianPrem.TGT || 12, label: 'Target', color: COLORS.tgt, r: 10 },
+    { x: 100-dealPerception.TJX, y: 15, label: 'TJX', color: COLORS.tjx, r: 10 },
+    { x: 100-dealPerception.DG, y: 30, label: 'Dollar General*', color: COLORS.dg, r: 10 },
+  ];
+  new Chart(document.getElementById('chart-perception'), {
+    type: 'scatter',
+    data: {
+      datasets: brands.map(b => ({
+        label: b.label, data: [{ x: b.x, y: b.y }],
+        backgroundColor: b.color, pointRadius: b.r, pointHoverRadius: b.r + 4
+      }))
+    },
+    options: {
+      scales: {
+        x: { title: { display:true, text: '← Strong Deal Perception                    Weak Deal Perception →' }, min: 0, max: 100, grid:{ color:'rgba(0,0,0,0.08)' } },
+        y: { title: { display:true, text: 'Actual Median Price Premium vs Cheapest (%)' }, grid:{ color:'rgba(0,0,0,0.08)' } }
+      },
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y + '% premium' } }
+      }
+    }
+  });
+}
+
+function initConAnchor() {
+  new Chart(document.getElementById('chart-rev-resilience'), {
+    type: 'bar',
+    data: {
+      labels: revLabels,
+      datasets: [{ label: 'Revenue ($B)', data: revB, backgroundColor: COLORS.blue+'90' }]
+    },
+    options: { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'$B' }, grid:{ color:'rgba(0,0,0,0.08)' }, min:10 } } }
+  });
+  new Chart(document.getElementById('chart-cfo-resilience'), {
+    type: 'bar',
+    data: {
+      labels: revLabels,
+      datasets: [{ label: 'CFO ($B)', data: cfoB, backgroundColor: cfoB.map(v => v >= 0 ? COLORS.green+'90' : COLORS.red+'90') }]
+    },
+    options: { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'$B' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+}
+
+function initConCompress() {
+  // Wage growth by occupation
+  new Chart(document.getElementById('chart-wage-growth'), {
+    type: 'bar',
+    data: {
+      labels: ['Management/\nProfessional', 'Service\nOccupations', 'Production/\nTransport', 'All Workers'],
+      datasets: [{ label: '5-Year Cumulative Wage Growth (%)', data: [22.3, 23.6, 26.0, 24.0],
+        backgroundColor: [CG.red[500]+'90', CG.green[500]+'90', CG.green[500], CG.sapphire[500]+'90'] }]
+    },
+    options: { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'Cumulative Growth (%)' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+}
+
+function initConUnit() {
+  // Waterfall
+  const unitLabels = ['Net Sales', 'COGS', 'Gross Profit', 'SGA', 'D&A', 'Op Income', 'Interest', 'Tax', 'Net Income'];
+  const unitValues = [100, -62.5, 37.5, -34.4, -4.7, 4.2, -1.9, -0.4, 1.8];
+  const unitColors = unitValues.map(v => v >= 0 ? COLORS.green+'90' : COLORS.red+'90');
+  new Chart(document.getElementById('chart-waterfall-unit'), {
+    type: 'bar',
+    data: { labels: unitLabels, datasets: [{ data: unitValues.map(Math.abs), backgroundColor: unitColors }] },
+    options: { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'¢ per $1 Net Sales' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+}
+
+function initAppRisk() {
+  // Bull/Base/Bear EPS
+  const scenLabels = ['FY2025', ...projYears];
+  const bull = [2.38, ...projEps];
+  const base = [2.38, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3];
+  const bear = [2.38, 1.0, 0.8, 0.6, 0.5, 0.4, 0.3];
+  new Chart(document.getElementById('chart-eps-scenarios'), {
+    type: 'line',
+    data: {
+      labels: scenLabels,
+      datasets: [
+        { label: 'Bull', data: bull, borderColor: COLORS.green, tension: 0.3, pointRadius: 4 },
+        { label: 'Base', data: base, borderColor: COLORS.gold, borderDash: [5,5], tension: 0.3, pointRadius: 4 },
+        { label: 'Bear', data: bear, borderColor: COLORS.red, borderDash: [3,3], tension: 0.3, pointRadius: 4 }
+      ]
+    },
+    options: { scales: { y: { title:{ display:true, text:'EPS ($)' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+}
+
+function initAppDebt() {
+  // Debt stack over time
+  const debtYears = ['FY2025', 'FY2026', 'FY2027', 'FY2028', 'FY2029', 'FY2030', 'FY2031', 'FY2032'];
+  const t7_25 = [42, 42, 42, 42, 42, 0, 0, 0]; // 7.25% due 2029
+  const t10 = [360, 360, 360, 360, 360, 360, 0, 0]; // 10% due 2030
+  const t4_6 = [500, 500, 500, 500, 500, 500, 500, 0]; // 4.625% due 2031
+  const t_lg = [640, 640, 640, 640, 640, 640, 640, 640]; // long-dated IG
+  new Chart(document.getElementById('chart-debt-stack'), {
+    type: 'bar',
+    data: {
+      labels: debtYears,
+      datasets: [
+        { label: '7.25% 2029', data: t7_25, backgroundColor: COLORS.gold },
+        { label: '10.0% Sec 2030', data: t10, backgroundColor: COLORS.red },
+        { label: '4.625% 2031', data: t4_6, backgroundColor: COLORS.orange },
+        { label: 'Long-dated (2033-45)', data: t_lg, backgroundColor: COLORS.blue }
+      ]
+    },
+    options: { plugins:{ legend:{ position:'bottom' } }, scales:{ x:{ stacked:true }, y:{ stacked:true, title:{ display:true, text:'$M' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+  // Interest projection
+  const intYears = ['FY2025', ...projYears];
+  const intValues = [288, ...projInterest];
+  new Chart(document.getElementById('chart-interest-proj'), {
+    type: 'line',
+    data: {
+      labels: intYears,
+      datasets: [{ label: 'Interest ($M)', data: intValues, borderColor: COLORS.green, backgroundColor: COLORS.green+'20', fill: true, tension: 0.3, pointRadius: 4 }]
+    },
+    options: { scales: { y: { title:{ display:true, text:'$M' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+}
+
+function initAppStores() {
+  // Competitor store counts — use data if available, else KSS only
+  const compData = {"KSS": {"FY2020": 1162, "FY2021": 1165, "FY2022": 1170, "FY2023": 1174, "FY2024": 1175, "FY2025": 1148}, "M": {"FY2020": 789, "FY2021": 787, "FY2022": 722, "FY2023": 718, "FY2024": 718, "FY2025": 680}, "JWN": {"FY2020": 358, "FY2021": 355, "FY2022": 358, "FY2023": 359, "FY2024": 377, "FY2025": null}, "JCP": {"FY2020": 670, "FY2021": 650, "FY2022": 650, "FY2023": 650, "FY2024": 663, "FY2025": 647}, "TJX": {"FY2020": 4529, "FY2021": 4572, "FY2022": 4689, "FY2023": 4835, "FY2024": 4954, "FY2025": 5085}, "DG": {"FY2020": 16979, "FY2021": 18190, "FY2022": 19147, "FY2023": 19986, "FY2024": 20662, "FY2025": 20901}, "WMT": {"FY2020": 4756, "FY2021": 4743, "FY2022": 4742, "FY2023": 4717, "FY2024": 4606, "FY2025": 4606}, "TGT": {"FY2020": 1897, "FY2021": 1926, "FY2022": 1948, "FY2023": 1956, "FY2024": 1978, "FY2025": 1995}, "ROST": {"FY2020": 1859, "FY2021": 1923, "FY2022": 2015, "FY2023": 2109, "FY2024": 2183, "FY2025": 2273}, "FIVE": {"FY2020": 1020, "FY2021": 1190, "FY2022": 1340, "FY2023": 1544, "FY2024": 1771, "FY2025": 1921}, "BBBY": {"FY2020": 955, "FY2021": 1020, "FY2022": 953, "FY2023": 360, "FY2024": 0, "FY2025": 0}};
+  if (compData) {
+    const tickers = Object.keys(compData);
+    const years = Object.keys(compData[tickers[0]] || {}).sort();
+    const datasets = tickers.map((t, i) => {
+      const colors = [COLORS.blue, COLORS.red, COLORS.green, COLORS.gold, COLORS.purple, COLORS.cyan, COLORS.orange, COLORS.pink];
+      return {
+        label: t,
+        data: years.map(y => compData[t][y] || null),
+        borderColor: colors[i % colors.length],
+        tension: 0.3, pointRadius: 3
+      };
+    });
+    new Chart(document.getElementById('chart-comp-stores'), {
+      type: 'line',
+      data: { labels: years, datasets: datasets },
+      options: { scales: { y: { title:{ display:true, text:'Store Count' }, grid:{ color:'rgba(0,0,0,0.08)' } } }, plugins:{ legend:{ position:'bottom' } } }
+    });
+  } else {
+    // KSS only
+    new Chart(document.getElementById('chart-comp-stores'), {
+      type: 'bar',
+      data: {
+        labels: ["FY2014", "FY2015", "FY2016", "FY2017", "FY2018", "FY2019", "FY2020", "FY2021", "FY2022", "FY2023", "FY2024", "FY2025"],
+        datasets: [{ label: 'KSS Stores', data: [1162, 1164, 1154, 1158, 1159, 1159, 1162, 1165, 1170, 1174, 1175, 1148], backgroundColor: COLORS.blue+'90' }]
+      },
+      options: { scales: { y: { min: 1100, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+    });
+  }
+}
+
+function initSideSephora() {
+  new Chart(document.getElementById('chart-sephora-shops'), {
+    type: 'bar',
+    data: {
+      labels: sephoraYears,
+      datasets: [{ label: 'Sephora@KSS Shops', data: sephoraShops, backgroundColor: CG.raspberry[500]+'90' }]
+    },
+    options: { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'Shop Count' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+  new Chart(document.getElementById('chart-sephora-rev'), {
+    type: 'bar',
+    data: {
+      labels: sephoraRevYears,
+      datasets: [{ label: 'Est Revenue ($M)', data: sephoraRevValues, backgroundColor: CG.green[500]+'90' }]
+    },
+    options: { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'$M' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+  // Footprint comparison
+  new Chart(document.getElementById('chart-sephora-footprint'), {
+    type: 'bar',
+    data: {
+      labels: ['Sephora Standalone', 'Sephora @ Kohl\'s', 'Ulta Beauty'],
+      datasets: [{ data: [700, 1100, 1516],
+        backgroundColor: [CG.raspberry[700], CG.sapphire[500], CG.copper[500]] }]
+    },
+    options: { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'US Store Count' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+}
+
+function initWorstStress() {
+  const shocks = stressScenarios.map(s => s.shock + '%');
+  const oi = stressScenarios.map(s => s.operating_income_M);
+  const cfo = stressScenarios.map(s => s.cfo_M);
+  new Chart(document.getElementById('chart-stress'), {
+    type: 'bar',
+    data: {
+      labels: shocks,
+      datasets: [
+        { label: 'Operating Income ($M)', data: oi, backgroundColor: oi.map(v => v >= 0 ? COLORS.green+'90' : COLORS.red+'90') },
+        { label: 'Est CFO ($M)', data: cfo, backgroundColor: COLORS.blue+'90' }
+      ]
+    },
+    options: { scales: { y: { title:{ display:true, text:'$M' }, grid:{ color:'rgba(0,0,0,0.08)' } } }, plugins:{ legend:{ position:'bottom' } } }
+  });
+}
+
+// ── Stock Price Data ──
+const stockPrices = {"KSS": {"2021-03": 44.1, "2021-04": 43.57, "2021-05": 41.22, "2021-06": 40.94, "2021-07": 37.91, "2021-08": 42.83, "2021-09": 35.14, "2021-10": 36.38, "2021-11": 38.4, "2021-12": 37.02, "2022-01": 44.98, "2022-02": 41.9, "2022-03": 45.54, "2022-04": 44.01, "2022-05": 30.66, "2022-06": 27.14, "2022-07": 22.42, "2022-08": 21.87, "2022-09": 19.35, "2022-10": 23.44, "2022-11": 25.1, "2022-12": 19.76, "2023-01": 25.77, "2023-02": 22.32, "2023-03": 18.74, "2023-04": 17.93, "2023-05": 14.91, "2023-06": 18.76, "2023-07": 23.74, "2023-08": 22.23, "2023-09": 17.49, "2023-10": 19.18, "2023-11": 19.94, "2023-12": 24.39, "2024-01": 22.34, "2024-02": 24.17, "2024-03": 25.28, "2024-04": 21.19, "2024-05": 19.82, "2024-06": 20.35, "2024-07": 19.6, "2024-08": 17.55, "2024-09": 19.09, "2024-10": 17.15, "2024-11": 13.9, "2024-12": 13.03, "2025-01": 12.68, "2025-02": 10.95, "2025-03": 7.85, "2025-04": 6.53, "2025-05": 7.92, "2025-06": 8.26, "2025-07": 10.7, "2025-08": 14.87, "2025-09": 15.17, "2025-10": 16.18, "2025-11": 24.46, "2025-12": 20.3, "2026-01": 17.47, "2026-02": 16.37, "2026-03": 13.04}, "M": {"2021-03": 13.46, "2021-04": 13.78, "2021-05": 15.2, "2021-06": 15.76, "2021-07": 14.13, "2021-08": 18.61, "2021-09": 18.79, "2021-10": 22.16, "2021-11": 23.86, "2021-12": 21.92, "2022-01": 21.56, "2022-02": 21.83, "2022-03": 20.52, "2022-04": 20.5, "2022-05": 20.06, "2022-06": 15.54, "2022-07": 15.08, "2022-08": 14.8, "2022-09": 13.39, "2022-10": 17.98, "2022-11": 20.26, "2022-12": 17.81, "2023-01": 20.53, "2023-02": 17.77, "2023-03": 15.19, "2023-04": 14.32, "2023-05": 11.91, "2023-06": 14.07, "2023-07": 14.69, "2023-08": 10.83, "2023-09": 10.28, "2023-10": 10.94, "2023-11": 14.25, "2023-12": 18.08, "2024-01": 16.57, "2024-02": 15.8, "2024-03": 18.11, "2024-04": 16.84, "2024-05": 17.8, "2024-06": 17.54, "2024-07": 15.93, "2024-08": 14.36, "2024-09": 14.47, "2024-10": 14.31, "2024-11": 15.15, "2024-12": 15.8, "2025-01": 14.7, "2025-02": 13.54, "2025-03": 11.85, "2025-04": 10.92, "2025-05": 11.37, "2025-06": 11.15, "2025-07": 12.26, "2025-08": 12.84, "2025-09": 17.41, "2025-10": 19.13, "2025-11": 21.94, "2025-12": 21.64, "2026-01": 19.8, "2026-02": 19.56, "2026-03": 17.09}, "TJX": {"2021-03": 61.48, "2021-04": 65.99, "2021-05": 62.77, "2021-06": 62.89, "2021-07": 64.19, "2021-08": 67.83, "2021-09": 61.77, "2021-10": 61.31, "2021-11": 64.97, "2021-12": 71.34, "2022-01": 67.63, "2022-02": 62.12, "2022-03": 57.14, "2022-04": 57.8, "2022-05": 59.96, "2022-06": 52.96, "2022-07": 57.99, "2022-08": 59.12, "2022-09": 59.18, "2022-10": 68.69, "2022-11": 76.26, "2022-12": 76.15, "2023-01": 78.31, "2023-02": 73.28, "2023-03": 75.24, "2023-04": 75.68, "2023-05": 73.73, "2023-06": 81.76, "2023-07": 83.44, "2023-08": 89.17, "2023-09": 86.03, "2023-10": 85.25, "2023-11": 85.29, "2023-12": 91.14, "2024-01": 92.21, "2024-02": 96.32, "2024-03": 98.87, "2024-04": 91.72, "2024-05": 100.51, "2024-06": 107.74, "2024-07": 110.6, "2024-08": 114.75, "2024-09": 115.42, "2024-10": 110.99, "2024-11": 123.42, "2024-12": 118.99, "2025-01": 122.91, "2025-02": 122.89, "2025-03": 120.33, "2025-04": 127.13, "2025-05": 125.37, "2025-06": 122.4, "2025-07": 123.43, "2025-08": 135.4, "2025-09": 143.72, "2025-10": 139.34, "2025-11": 151.06, "2025-12": 153.18, "2026-01": 149.39, "2026-02": 161.2, "2026-03": 156.02}, "TGT": {"2021-03": 171.27, "2021-04": 179.22, "2021-05": 196.22, "2021-06": 209.71, "2021-07": 226.46, "2021-08": 214.25, "2021-09": 199.14, "2021-10": 225.99, "2021-11": 212.26, "2021-12": 202.15, "2022-01": 192.53, "2022-02": 174.49, "2022-03": 186.17, "2022-04": 200.58, "2022-05": 142.01, "2022-06": 124.4, "2022-07": 143.91, "2022-08": 141.24, "2022-09": 131.53, "2022-10": 145.59, "2022-11": 148.09, "2022-12": 132.93, "2023-01": 153.54, "2023-02": 150.29, "2023-03": 148.66, "2023-04": 141.58, "2023-05": 117.51, "2023-06": 119.19, "2023-07": 123.31, "2023-08": 114.35, "2023-09": 100.77, "2023-10": 100.97, "2023-11": 121.95, "2023-12": 131.14, "2024-01": 128.06, "2024-02": 140.81, "2024-03": 164.38, "2024-04": 149.33, "2024-05": 144.86, "2024-06": 138.27, "2024-07": 140.48, "2024-08": 143.48, "2024-09": 146.71, "2024-10": 141.23, "2024-11": 124.54, "2024-12": 128.16, "2025-01": 130.75, "2025-02": 117.79, "2025-03": 99.79, "2025-04": 92.46, "2025-05": 89.89, "2025-06": 95.41, "2025-07": 97.2, "2025-08": 92.82, "2025-09": 87.69, "2025-10": 90.64, "2025-11": 88.59, "2025-12": 96.77, "2026-01": 104.41, "2026-02": 112.64, "2026-03": 117.05}, "DG": {"2021-03": 187.4, "2021-04": 198.62, "2021-05": 188.11, "2021-06": 200.56, "2021-07": 215.62, "2021-08": 207.0, "2021-09": 197.0, "2021-10": 205.71, "2021-11": 205.92, "2021-12": 219.44, "2022-01": 193.99, "2022-02": 184.88, "2022-03": 207.52, "2022-04": 221.41, "2022-05": 205.89, "2022-06": 229.34, "2022-07": 232.14, "2022-08": 222.35, "2022-09": 224.63, "2022-10": 238.86, "2022-11": 240.0, "2022-12": 231.15, "2023-01": 219.76, "2023-02": 203.48, "2023-03": 197.99, "2023-04": 208.34, "2023-05": 189.7, "2023-06": 160.17, "2023-07": 159.3, "2023-08": 131.11, "2023-09": 100.16, "2023-10": 112.69, "2023-11": 124.82, "2023-12": 129.42, "2024-01": 125.72, "2024-02": 138.93, "2024-03": 149.21, "2024-04": 133.08, "2024-05": 131.39, "2024-06": 126.9, "2024-07": 115.53, "2024-08": 79.99, "2024-09": 81.53, "2024-10": 77.16, "2024-11": 75.02, "2024-12": 73.61, "2025-01": 68.99, "2025-02": 72.58, "2025-03": 86.03, "2025-04": 91.67, "2025-05": 95.77, "2025-06": 112.64, "2025-07": 103.3, "2025-08": 107.65, "2025-09": 102.29, "2025-10": 97.65, "2025-11": 109.03, "2025-12": 132.21, "2026-01": 142.82, "2026-02": 156.24, "2026-03": 134.85}, "WMT": {"2021-03": 42.3, "2021-04": 43.75, "2021-05": 44.42, "2021-06": 44.28, "2021-07": 44.76, "2021-08": 46.5, "2021-09": 43.92, "2021-10": 47.09, "2021-11": 44.32, "2021-12": 45.59, "2022-01": 44.23, "2022-02": 42.76, "2022-03": 47.12, "2022-04": 48.59, "2022-05": 40.85, "2022-06": 38.76, "2022-07": 42.09, "2022-08": 42.25, "2022-09": 41.52, "2022-10": 45.57, "2022-11": 48.8, "2022-12": 45.39, "2023-01": 46.23, "2023-02": 45.67, "2023-03": 47.38, "2023-04": 48.71, "2023-05": 47.39, "2023-06": 50.91, "2023-07": 51.78, "2023-08": 52.67, "2023-09": 51.99, "2023-10": 53.12, "2023-11": 50.61, "2023-12": 51.24, "2024-01": 53.91, "2024-02": 57.37, "2024-03": 58.89, "2024-04": 58.29, "2024-05": 64.58, "2024-06": 66.73, "2024-07": 67.65, "2024-08": 76.11, "2024-09": 79.81, "2024-10": 80.99, "2024-11": 91.42, "2024-12": 89.3, "2025-01": 97.23, "2025-02": 97.68, "2025-03": 86.96, "2025-04": 96.59, "2025-05": 98.05, "2025-06": 97.35, "2025-07": 97.55, "2025-08": 96.56, "2025-09": 102.85, "2025-10": 100.97, "2025-11": 110.29, "2025-12": 111.18, "2026-01": 119.14, "2026-02": 127.95, "2026-03": 125.99}, "ROST": {"2021-03": 113.16, "2021-04": 123.86, "2021-05": 119.55, "2021-06": 117.29, "2021-07": 116.33, "2021-08": 112.26, "2021-09": 103.21, "2021-10": 107.6, "2021-11": 103.69, "2021-12": 108.62, "2022-01": 93.15, "2022-02": 87.09, "2022-03": 86.2, "2022-04": 95.41, "2022-05": 81.31, "2022-06": 67.16, "2022-07": 78.0, "2022-08": 82.81, "2022-09": 80.89, "2022-10": 92.18, "2022-11": 113.35, "2022-12": 111.81, "2023-01": 114.15, "2023-02": 106.76, "2023-03": 102.5, "2023-04": 103.42, "2023-05": 100.4, "2023-06": 108.65, "2023-07": 111.44, "2023-08": 118.41, "2023-09": 109.8, "2023-10": 113.04, "2023-11": 127.09, "2023-12": 134.9, "2024-01": 137.09, "2024-02": 145.57, "2024-03": 143.42, "2024-04": 126.92, "2024-05": 136.92, "2024-06": 142.37, "2024-07": 140.68, "2024-08": 147.93, "2024-09": 147.83, "2024-10": 137.57, "2024-11": 152.49, "2024-12": 148.94, "2025-01": 148.59, "2025-02": 138.49, "2025-03": 126.12, "2025-04": 137.63, "2025-05": 138.71, "2025-06": 126.32, "2025-07": 135.58, "2025-08": 146.12, "2025-09": 151.32, "2025-10": 158.22, "2025-11": 175.59, "2025-12": 179.35, "2026-01": 188.25, "2026-02": 205.2, "2026-03": 207.96}, "KIM": {"2022-01": 19.98, "2022-02": 19.38, "2022-03": 20.35, "2022-04": 21.03, "2022-05": 19.64, "2022-06": 16.42, "2022-07": 18.52, "2022-08": 17.66, "2022-09": 15.42, "2022-10": 18.09, "2022-11": 19.39, "2022-12": 17.92, "2023-01": 19.21, "2023-02": 17.62, "2023-03": 16.7, "2023-04": 16.6, "2023-05": 15.9, "2023-06": 17.06, "2023-07": 17.75, "2023-08": 16.59, "2023-09": 15.41, "2023-10": 15.91, "2023-11": 17.13, "2023-12": 18.9, "2024-01": 18.21, "2024-02": 17.81, "2024-03": 17.68, "2024-04": 17.0, "2024-05": 17.67, "2024-06": 17.76, "2024-07": 20.08, "2024-08": 21.49, "2024-09": 21.45, "2024-10": 22.14, "2024-11": 23.87, "2024-12": 21.87, "2025-01": 21.17, "2025-02": 20.84, "2025-03": 20.03, "2025-04": 19.06, "2025-05": 20.28, "2025-06": 20.05, "2025-07": 20.5, "2025-08": 21.72, "2025-09": 21.1, "2025-10": 20.17, "2025-11": 20.17, "2025-12": 19.79, "2026-01": 20.85, "2026-02": 23.29, "2026-03": 23.19}, "BRX": {"2022-01": 20.92, "2022-02": 20.92, "2022-03": 21.49, "2022-04": 21.14, "2022-05": 20.49, "2022-06": 16.99, "2022-07": 19.48, "2022-08": 18.27, "2022-09": 15.71, "2022-10": 18.13, "2022-11": 19.98, "2022-12": 19.54, "2023-01": 20.28, "2023-02": 19.74, "2023-03": 18.76, "2023-04": 18.6, "2023-05": 17.68, "2023-06": 19.41, "2023-07": 20.07, "2023-08": 19.63, "2023-09": 18.56, "2023-10": 18.57, "2023-11": 19.46, "2023-12": 21.04, "2024-01": 20.29, "2024-02": 20.69, "2024-03": 21.46, "2024-04": 20.22, "2024-05": 20.84, "2024-06": 21.38, "2024-07": 23.58, "2024-08": 25.67, "2024-09": 26.11, "2024-10": 25.26, "2024-11": 28.46, "2024-12": 26.35, "2025-01": 24.66, "2025-02": 26.74, "2025-03": 25.39, "2025-04": 23.82, "2025-05": 24.57, "2025-06": 25.18, "2025-07": 25.27, "2025-08": 27.37, "2025-09": 27.06, "2025-10": 25.58, "2025-11": 25.83, "2025-12": 25.91, "2026-01": 26.47, "2026-02": 30.27, "2026-03": 29.97}, "NNN": {"2022-01": 35.31, "2022-02": 34.33, "2022-03": 36.21, "2022-04": 35.32, "2022-05": 36.11, "2022-06": 35.05, "2022-07": 38.81, "2022-08": 37.03, "2022-09": 32.88, "2022-10": 34.67, "2022-11": 38.75, "2022-12": 38.25, "2023-01": 39.58, "2023-02": 38.32, "2023-03": 37.33, "2023-04": 36.78, "2023-05": 36.44, "2023-06": 36.66, "2023-07": 36.56, "2023-08": 34.19, "2023-09": 30.67, "2023-10": 31.53, "2023-11": 35.83, "2023-12": 38.02, "2024-01": 35.58, "2024-02": 36.39, "2024-03": 38.22, "2024-04": 36.24, "2024-05": 37.88, "2024-06": 38.63, "2024-07": 40.71, "2024-08": 43.15, "2024-09": 44.53, "2024-10": 39.89, "2024-11": 40.91, "2024-12": 38.0, "2025-01": 36.64, "2025-02": 40.07, "2025-03": 40.26, "2025-04": 38.8, "2025-05": 39.98, "2025-06": 41.34, "2025-07": 39.5, "2025-08": 41.67, "2025-09": 41.34, "2025-10": 39.29, "2025-11": 40.76, "2025-12": 39.06, "2026-01": 41.07, "2026-02": 45.32, "2026-03": 45.23}, "REG": {"2022-01": 60.3, "2022-02": 55.37, "2022-03": 59.95, "2022-04": 58.39, "2022-05": 57.87, "2022-06": 50.32, "2022-07": 55.26, "2022-08": 52.18, "2022-09": 46.19, "2022-10": 52.45, "2022-11": 57.58, "2022-12": 54.17, "2023-01": 58.33, "2023-02": 55.07, "2023-03": 53.56, "2023-04": 54.38, "2023-05": 49.81, "2023-06": 54.68, "2023-07": 58.64, "2023-08": 55.66, "2023-09": 53.19, "2023-10": 54.47, "2023-11": 56.75, "2023-12": 60.56, "2024-01": 57.25, "2024-02": 56.59, "2024-03": 55.32, "2024-04": 54.69, "2024-05": 56.7, "2024-06": 57.44, "2024-07": 62.88, "2024-08": 67.87, "2024-09": 67.45, "2024-10": 67.31, "2024-11": 71.22, "2024-12": 69.66, "2025-01": 68.33, "2025-02": 72.95, "2025-03": 70.16, "2025-04": 69.32, "2025-05": 69.29, "2025-06": 68.4, "2025-07": 69.24, "2025-08": 70.31, "2025-09": 70.69, "2025-10": 67.52, "2025-11": 69.69, "2025-12": 67.6, "2026-01": 72.17, "2026-02": 78.24, "2026-03": 77.39}, "SPG": {"2022-01": 116.53, "2022-02": 108.9, "2022-03": 104.15, "2022-04": 94.61, "2022-05": 91.92, "2022-06": 76.1, "2022-07": 88.44, "2022-08": 83.02, "2022-09": 73.06, "2022-10": 90.24, "2022-11": 98.91, "2022-12": 97.28, "2023-01": 108.01, "2023-02": 102.65, "2023-03": 94.14, "2023-04": 96.7, "2023-05": 89.73, "2023-06": 98.55, "2023-07": 108.1, "2023-08": 98.46, "2023-09": 93.73, "2023-10": 96.93, "2023-11": 110.16, "2023-12": 125.82, "2024-01": 124.05, "2024-02": 132.58, "2024-03": 140.06, "2024-04": 127.4, "2024-05": 137.18, "2024-06": 137.62, "2024-07": 140.94, "2024-08": 153.72, "2024-09": 155.25, "2024-10": 157.3, "2024-11": 170.77, "2024-12": 160.18, "2025-01": 163.58, "2025-02": 175.09, "2025-03": 156.26, "2025-04": 149.92, "2025-05": 155.34, "2025-06": 153.14, "2025-07": 158.07, "2025-08": 174.35, "2025-09": 181.12, "2025-10": 171.64, "2025-11": 181.96, "2025-12": 180.77, "2026-01": 189.13, "2026-02": 201.52, "2026-03": 189.33}, "JWN": {"2021-03": 37.87, "2021-04": 36.68, "2021-05": 35.27, "2021-06": 33.54, "2021-07": 36.57, "2021-08": 33.1, "2021-09": 28.61, "2021-10": 26.45, "2021-11": 28.73, "2021-12": 21.17, "2022-01": 22.62, "2022-02": 22.5, "2022-03": 20.74, "2022-04": 27.11, "2022-05": 25.7, "2022-06": 26.43, "2022-07": 21.13, "2022-08": 23.51, "2022-09": 17.11, "2022-10": 16.73, "2022-11": 20.34, "2022-12": 20.97, "2023-01": 16.14, "2023-02": 19.54, "2023-03": 19.48, "2023-04": 16.27, "2023-05": 15.46, "2023-06": 15.3, "2023-07": 20.47, "2023-08": 23.11, "2023-09": 16.22, "2023-10": 14.94, "2023-11": 13.98, "2023-12": 15.62, "2024-01": 18.45, "2024-02": 18.15, "2024-03": 20.97, "2024-04": 20.27, "2024-05": 19.01, "2024-06": 22.1, "2024-07": 21.5, "2024-08": 21.8, "2024-09": 22.0, "2024-10": 22.2, "2024-11": 22.71, "2024-12": 24.15, "2025-01": 24.15, "2025-02": 24.31, "2025-03": 24.42}};
+const stockSummary = {"KSS": {"jan_2022": 44.98, "current": 13.04, "pct_change": -71.0}, "M": {"jan_2022": 21.56, "current": 17.09, "pct_change": -20.7}, "TJX": {"jan_2022": 67.63, "current": 156.02, "pct_change": 130.7}, "TGT": {"jan_2022": 192.53, "current": 117.05, "pct_change": -39.2}, "DG": {"jan_2022": 193.99, "current": 134.85, "pct_change": -30.5}, "WMT": {"jan_2022": 44.23, "current": 125.99, "pct_change": 184.9}, "ROST": {"jan_2022": 93.15, "current": 207.96, "pct_change": 123.3}, "KIM": {"jan_2022": 19.98, "current": 23.19, "pct_change": 16.1}, "BRX": {"jan_2022": 20.92, "current": 29.97, "pct_change": 43.3}, "NNN": {"jan_2022": 35.31, "current": 45.23, "pct_change": 28.1}, "REG": {"jan_2022": 60.3, "current": 77.39, "pct_change": 28.3}, "SPG": {"jan_2022": 116.53, "current": 189.33, "pct_change": 62.5}, "JWN": {"jan_2022": 22.62, "current": 24.42, "pct_change": 8.0}};
+
+// ── Demographics Data ──
+const demoData = [{"ticker": "DG", "hhi": 40000, "desc": "Core customer earns <$40K/year. 66% of shoppers have HHI <$50K. 73% female, aged"}, {"ticker": "WMT", "hhi": 65000, "desc": "Broad value-seeking families. Traditional core is $40K-$80K but >$100K household"}, {"ticker": "TGT", "hhi": 80000, "desc": "Suburban millennial and Gen Z mothers with college education. 47% middle income "}, {"ticker": "M", "hhi": 82000, "desc": "Trade area median HHI of $82.4K per Placer.ai. 35% earn >$100K. More urban/mall-"}, {"ticker": "TJX", "hhi": 90000, "desc": "Off-price 'treasure hunt' model attracts surprisingly affluent base. ~50% of sho"}, {"ticker": "KSS", "hhi": 95000, "desc": "Middle-class suburban families. 70% female, skews Gen X/Boomer. 90% of stores in"}, {"ticker": "JWN", "hhi": 150000, "desc": "Affluent, college-educated professionals aged 25-54. Core customers have HHI >$1"}];
+
+// ── Recession SSS Data ──
+const gfcSSS = {"KSS": {"FY2007": -0.8, "FY2008": -6.9, "FY2009": -4.4, "FY2010": 4.5}, "M": {"FY2007": -1.4, "FY2008": -4.6, "FY2009": -5.3, "FY2010": 4.6}, "JWN": {"FY2007": 4.5, "FY2008": -8.4, "FY2009": -4.2, "FY2010": 8.1}, "TJX": {"FY2007": 1.0, "FY2008": 1.0, "FY2009": 6.0, "FY2010": 4.0}, "DG": {"FY2007": 2.1, "FY2008": 9.0, "FY2009": 9.5, "FY2010": 4.9}, "WMT": {"FY2007": 1.9, "FY2008": 3.5, "FY2009": -0.8, "FY2010": 0.5}, "TGT": {"FY2007": 3.0, "FY2008": -2.9, "FY2009": -2.5, "FY2010": 2.1}, "ROST": {"FY2007": 2.0, "FY2008": -1.0, "FY2009": 5.0, "FY2010": 6.0}};
+const covidSSS = {"KSS": {"FY2019": -1.3, "FY2020": -21.0, "FY2021": 22.1}, "M": {"FY2019": -0.8, "FY2020": -17.1, "FY2021": 42.9}, "JWN": {"FY2019": -1.7, "FY2020": -20.0, "FY2021": 23.0}, "TJX": {"FY2019": 4.0, "FY2021": 17.0}, "DG": {"FY2019": 3.9, "FY2020": 16.3, "FY2021": -2.8}, "WMT": {"FY2019": 2.8, "FY2020": 8.6, "FY2021": 6.4}, "TGT": {"FY2019": 3.4, "FY2020": 19.3, "FY2021": 12.7}, "ROST": {"FY2019": 3.0, "FY2021": 13.0}};
+
+function initStockChart() {
+  if (!stockPrices) return;
+  // Retail peers line chart
+  const retailTickers = ['KSS', 'M', 'TJX', 'TGT', 'DG', 'WMT', 'ROST'];
+  const retailColors = [COLORS.kss, CG.red[500], CG.raspberry[500], CG.red[600], CG.copper[500], CG.turquoise[400], CG.green[500]];
+  const dates = stockPrices.KSS ? Object.keys(stockPrices.KSS).sort() : [];
+  const retailDatasets = retailTickers.filter(t => stockPrices[t]).map((t, i) => ({
+    label: t, data: dates.map(d => stockPrices[t]?.[d] || null),
+    borderColor: retailColors[i], borderWidth: t === 'KSS' ? 3 : 1.5,
+    tension: 0.3, pointRadius: 0, fill: false
+  }));
+  if (document.getElementById('chart-stock-retail')) {
+    new Chart(document.getElementById('chart-stock-retail'), {
+      type: 'line',
+      data: { labels: dates, datasets: retailDatasets },
+      options: { scales: { y: { title:{ display:true, text:'Stock Price ($)' }, grid:{ color:'rgba(0,0,0,0.08)' } }, x: { ticks: { maxTicksLimit: 12 } } }, plugins:{ legend:{ position:'bottom' } } }
+    });
+  }
+  // REIT performance
+  const reitTickers = ['KIM', 'BRX', 'NNN', 'REG', 'SPG'];
+  const reitColors = [CG.sapphire[400], CG.turquoise[400], CG.copper[400], CG.green[500], CG.raspberry[400]];
+  const reitDates = stockPrices.KIM ? Object.keys(stockPrices.KIM).sort() : [];
+  const reitDatasets = reitTickers.filter(t => stockPrices[t]).map((t, i) => ({
+    label: t, data: reitDates.map(d => stockPrices[t]?.[d] || null),
+    borderColor: reitColors[i], borderWidth: 2, tension: 0.3, pointRadius: 0, fill: false
+  }));
+  if (document.getElementById('chart-stock-reits') && reitDatasets.length) {
+    new Chart(document.getElementById('chart-stock-reits'), {
+      type: 'line',
+      data: { labels: reitDates, datasets: reitDatasets },
+      options: { scales: { y: { title:{ display:true, text:'Stock Price ($)' }, grid:{ color:'rgba(0,0,0,0.08)' } }, x: { ticks: { maxTicksLimit: 10 } } }, plugins:{ legend:{ position:'bottom' } } }
+    });
+  }
+  // % change bar chart
+  if (stockSummary && document.getElementById('chart-stock-pctchg')) {
+    const allTickers = [...retailTickers, ...reitTickers].filter(t => stockSummary[t]);
+    allTickers.sort((a,b) => (stockSummary[a]?.pct_change||0) - (stockSummary[b]?.pct_change||0));
+    new Chart(document.getElementById('chart-stock-pctchg'), {
+      type: 'bar',
+      data: {
+        labels: allTickers,
+        datasets: [{ data: allTickers.map(t => stockSummary[t]?.pct_change || 0),
+          backgroundColor: allTickers.map(t => (stockSummary[t]?.pct_change||0) >= 0 ? CG.green[500]+'90' : CG.red[500]+'90') }]
+      },
+      options: { indexAxis:'y', plugins:{ legend:{ display:false } }, scales:{ x:{ title:{ display:true, text:'% Change Since Jan 2022' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+    });
+  }
+}
+
+function initDemographics() {
+  if (demoData && demoData.length && document.getElementById('chart-demo-hhi')) {
+    const labels = demoData.map(d => d.ticker);
+    const values = demoData.map(d => d.hhi / 1000);
+    const colors = labels.map(t => t === 'KSS' ? CG.sapphire[500] : CG.sapphire[800]);
+    new Chart(document.getElementById('chart-demo-hhi'), {
+      type: 'bar',
+      data: { labels, datasets: [{ label: 'Median HHI ($K)', data: values, backgroundColor: colors }] },
+      options: { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'Median HHI ($K)' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+    });
+  }
+}
+
+function initRecession() {
+  // GFC chart
+  if (Object.keys(gfcSSS).length && document.getElementById('chart-gfc-sss')) {
+    const tickers = Object.keys(gfcSSS);
+    const years = ['FY2007', 'FY2008', 'FY2009', 'FY2010'];
+    const colorMap = { KSS: CG.sapphire[500], M: CG.red[500], JWN: CG.copper[500], TJX: CG.raspberry[500], DG: CG.warn[300], WMT: CG.turquoise[400], TGT: CG.red[600], ROST: CG.green[500] };
+    const datasets = tickers.map(t => ({
+      label: t, data: years.map(y => gfcSSS[t]?.[y] ?? null),
+      borderColor: colorMap[t] || CG.sapphire[700], borderWidth: t === 'KSS' ? 3 : 1.5,
+      tension: 0.3, pointRadius: 4, fill: false
+    }));
+    new Chart(document.getElementById('chart-gfc-sss'), {
+      type: 'line',
+      data: { labels: years, datasets },
+      options: { scales: { y: { title:{ display:true, text:'Comp SSS (%)' }, grid:{ color:'rgba(0,0,0,0.08)' } } }, plugins:{ legend:{ position:'bottom' } } }
+    });
+  }
+  // COVID chart
+  if (Object.keys(covidSSS).length && document.getElementById('chart-covid-sss')) {
+    const tickers = Object.keys(covidSSS);
+    const years = ['FY2019', 'FY2020', 'FY2021'];
+    const colorMap = { KSS: CG.sapphire[500], M: CG.red[500], JWN: CG.copper[500], TJX: CG.raspberry[500], DG: CG.warn[300], WMT: CG.turquoise[400], TGT: CG.red[600], ROST: CG.green[500] };
+    const datasets = tickers.map(t => ({
+      label: t, data: years.map(y => covidSSS[t]?.[y] ?? null),
+      borderColor: colorMap[t] || CG.sapphire[700], borderWidth: t === 'KSS' ? 3 : 1.5,
+      tension: 0.3, pointRadius: 4, fill: false
+    }));
+    new Chart(document.getElementById('chart-covid-sss'), {
+      type: 'line',
+      data: { labels: years, datasets },
+      options: { scales: { y: { title:{ display:true, text:'Comp SSS (%)' }, grid:{ color:'rgba(0,0,0,0.08)' } } }, plugins:{ legend:{ position:'bottom' } } }
+    });
+  }
+}
+
+// ── Init first slide ──
+initChartsForSlide(0);
+</script>
+
+</body>
+</html>
