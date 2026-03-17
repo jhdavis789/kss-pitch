@@ -75,6 +75,9 @@ td.red { color:var(--cg-red-600); }
 td.gold { color:var(--cg-copper-600); }
 td.blue { color:var(--cg-sapphire-600); }
 
+/* ── Source Attribution ── */
+.source { color:var(--cg-gray-600); font-size:10px; margin-top:8px; font-style:italic; line-height:1.4; }
+
 /* ── Map ── */
 #store-map { height:520px; border-radius:10px; border:1px solid var(--cg-gray-200); }
 
@@ -104,31 +107,32 @@ td.blue { color:var(--cg-sapphire-600); }
   <button class="nav-btn" onclick="goSlide(7)">When Debt Rolls Off </button>
   <button class="nav-btn" onclick="goSlide(8)">KSS Pays vs Market R</button>
   <button class="nav-btn" onclick="goSlide(9)">P/B Gap</button>
+  <button class="nav-btn" onclick="goSlide(10)">RE Methodology</button>
   <div class="nav-sep"></div>
   <span class="nav-section">AI DISCOVERY</span>
-  <button class="nav-btn" onclick="goSlide(10)">PRICE CHECK</button>
-  <button class="nav-btn" onclick="goSlide(11)">Private Label Margin</button>
-  <button class="nav-btn" onclick="goSlide(12)">Dollar Store Poverty</button>
-  <button class="nav-btn" onclick="goSlide(13)">Value with AI Shoppi</button>
+  <button class="nav-btn" onclick="goSlide(11)">PRICE CHECK</button>
+  <button class="nav-btn" onclick="goSlide(12)">Private Label Margin</button>
+  <button class="nav-btn" onclick="goSlide(13)">Dollar Store Poverty</button>
+  <button class="nav-btn" onclick="goSlide(14)">Value with AI Shoppi</button>
   <div class="nav-sep"></div>
   <span class="nav-section">CONSUMER</span>
-  <button class="nav-btn" onclick="goSlide(14)">KSS Customer</button>
-  <button class="nav-btn" onclick="goSlide(15)">Performance</button>
-  <button class="nav-btn" onclick="goSlide(16)">the Resilient Consum</button>
-  <button class="nav-btn" onclick="goSlide(17)">Collar, PROTECT Blue</button>
-  <button class="nav-btn" onclick="goSlide(18)">Unit Economics</button>
+  <button class="nav-btn" onclick="goSlide(15)">KSS Customer</button>
+  <button class="nav-btn" onclick="goSlide(16)">Performance</button>
+  <button class="nav-btn" onclick="goSlide(17)">the Resilient Consum</button>
+  <button class="nav-btn" onclick="goSlide(18)">Collar, PROTECT Blue</button>
+  <button class="nav-btn" onclick="goSlide(19)">Unit Economics</button>
   <div class="nav-sep"></div>
   <span class="nav-section">APPENDIX</span>
-  <button class="nav-btn" onclick="goSlide(19)">RISK</button>
-  <button class="nav-btn" onclick="goSlide(20)">FORTIFY</button>
-  <button class="nav-btn" onclick="goSlide(21)">Store Trajectories</button>
+  <button class="nav-btn" onclick="goSlide(20)">RISK</button>
+  <button class="nav-btn" onclick="goSlide(21)">FORTIFY</button>
+  <button class="nav-btn" onclick="goSlide(22)">Store Trajectories</button>
   <div class="nav-sep"></div>
   <span class="nav-section">SIDE THESES</span>
-  <button class="nav-btn" onclick="goSlide(22)">Sephora Relationship</button>
-  <button class="nav-btn" onclick="goSlide(23)">to Last-Mile Fulfill</button>
+  <button class="nav-btn" onclick="goSlide(23)">Sephora Relationship</button>
+  <button class="nav-btn" onclick="goSlide(24)">to Last-Mile Fulfill</button>
   <div class="nav-sep"></div>
   <span class="nav-section">WORST CASE</span>
-  <button class="nav-btn" onclick="goSlide(24)">STRESS TEST</button>
+  <button class="nav-btn" onclick="goSlide(25)">STRESS TEST</button>
 </div>
 
 <div class="kb-hint">← → to navigate</div>
@@ -166,6 +170,7 @@ td.blue { color:var(--cg-sapphire-600); }
   <div class="slide-title">MAP 1,078 Stores Across America</div>
   <div class="slide-subtitle">Strip centers and freestanding boxes — not enclosed malls</div>
   <div id="store-map"></div>
+  <div class="source" style="margin-top:6px">Source: OpenStreetMap (Overpass API), Census Geocoder, KSS 10-K FY2024 (1,175 stores, 49 states) | JAOD Analysis</div>
   <div class="callout" style="margin-top:12px">Top states: CA (116), TX (89), IL (66), OH (60), FL (52), PA (51), NY (50), MI (46), WI (42), IN (42)</div>
 </div>
 
@@ -236,10 +241,18 @@ td.blue { color:var(--cg-sapphire-600); }
         <canvas id="chart-stock-reits"></canvas>
       </div>
     </div>
+  </div>
+  <div class="row">
     <div class="col">
       <div class="card">
-        <h3>% Change Since Jan 2022</h3>
-        <canvas id="chart-stock-pctchg"></canvas>
+        <h3>% Change Since Jan 2022 — All Peers</h3>
+        <canvas id="chart-stock-pctchg" style="max-height:600px;height:500px"></canvas>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>% Change Since Jan 2022 — KSS vs REITs</h3>
+        <canvas id="chart-stock-pctchg-reits" style="max-height:600px;height:500px"></canvas>
       </div>
     </div>
   </div>
@@ -367,6 +380,57 @@ td.blue { color:var(--cg-sapphire-600); }
   </div>
 </div>
 
+<div class="slide" id="re-methodology">
+  <div class="slide-title">TRACE Every Store to Its Deed</div>
+  <div class="slide-subtitle">Bottom-up RE valuation: 28 NNN transactions, 602 county assessor lookups, CMBS filings, 5 REIT benchmarks</div>
+
+  <div class="metrics">
+    <div class="metric"><div class="label">NNN Transactions</div><div class="value blue">28</div><div class="detail">Kohl's-specific closed deals</div></div>
+    <div class="metric"><div class="label">County Lookups</div><div class="value blue">602</div><div class="detail">Parcel-level deed verification</div></div>
+    <div class="metric"><div class="label">CMBS Properties</div><div class="value blue">172</div><div class="detail">SEC EDGAR ABS-EE filings</div></div>
+    <div class="metric"><div class="label">REIT Comps</div><div class="value blue">5</div><div class="detail">BRX, KIM, KRG, REG, NNN</div></div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <h3>Data Pipeline: Store → Ownership → Valuation</h3>
+        <table>
+          <tr><th>Step</th><th>Source</th><th>What It Gives Us</th></tr>
+          <tr><td><strong>1. Store List</strong></td><td>KSS 10-K FY2024</td><td>1,078 addresses, GLA, format (strip/freestanding)</td></tr>
+          <tr><td><strong>2. Ownership</strong></td><td>County assessor portals (49 states)</td><td>Parcel owner entity — Kohls Illinois Inc, Kohls Texas LP, etc. vs third-party LLC</td></tr>
+          <tr><td><strong>3. Lease Verify</strong></td><td>SEC EDGAR CMBS FWP/ABS-EE</td><td>172 stores confirmed leased via CMBS tenant data + actual rent PSF</td></tr>
+          <tr><td><strong>4. Market Rent</strong></td><td>REIT 10-K ABR/SF by metro</td><td>Metro-level rent benchmarks from BRX, KIM, KRG, REG, NNN portfolios</td></tr>
+          <tr><td><strong>5. Discount Cal.</strong></td><td>28 Kohl's NNN transactions</td><td>Actual closed deals calibrate 38% big-box discount to REIT inline rents</td></tr>
+          <tr><td><strong>6. Cap Rate</strong></td><td>Boulder Group + credit spread</td><td>Pre-downgrade 6.50% + 175bps sub-IG spread = 8.25% NNN cap</td></tr>
+          <tr><td><strong>7. Valuation</strong></td><td>Income + REIT comp blend</td><td>Two independent methods averaged per store; ground lease at 70% of fee-simple</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>Kohl's NNN Transaction Comps (Cap Rate %)</h3>
+        <canvas id="chart-nnn-comps"></canvas>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h3>Selected Closed Transactions</h3>
+        <table>
+          <tr><th>Location</th><th class="r">SF</th><th class="r">$/SF</th><th class="r">Cap</th><th>Source</th></tr>
+          <tr><td>Knoxville, TN</td><td class="r">86,584</td><td class="r">$83</td><td class="r">~8.0%</td><td>Marcus & Millichap</td></tr>
+          <tr><td>Forney, TX (new)</td><td class="r">55,000</td><td class="r">$124</td><td class="r">5.65%</td><td>NNNDeal / M&M</td></tr>
+          <tr><td>Katy, TX (new)</td><td class="r">55,000</td><td class="r">$266</td><td class="r">6.73%</td><td>SRS Capital Mkts</td></tr>
+          <tr><td>OH+IN 4-pack</td><td class="r">N/A</td><td class="r">N/A</td><td class="r">7.25%</td><td>Sands Inv Group</td></tr>
+          <tr><td>Westland, MI (GL)</td><td class="r">90,860</td><td class="r">$154</td><td class="r">8.11%</td><td>Marcus & Millichap</td></tr>
+          <tr><td>Menom. Falls, WI (HQ)</td><td class="r">98,500</td><td class="r">$99</td><td class="r">~6.0%</td><td>YAFC / BizTimes</td></tr>
+          <tr><td>Fremont, CA (closed)</td><td class="r">98,000</td><td class="r">$187</td><td class="r">N/A</td><td>Mercury News</td></tr>
+          <tr><td>San Bernardino DC (SLB)</td><td class="r">N/A</td><td class="r">N/A</td><td class="r">~4.5%</td><td>CNBC / 10-K</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="callout">Every ownership classification is traceable to a county assessor parcel record or CMBS filing — not a model assumption. The 8.25% cap rate is conservatively calibrated: post-downgrade Kohl's credit (B+/B2) vs pre-downgrade 6.50% Boulder Group benchmark. Actual NNN transactions confirm 5.6-8.1% range depending on lease term and construction vintage.</div>
+</div>
+
 <div class="slide" id="ai-price">
   <div class="slide-title">PRICE CHECK: KSS Beats on Real Goods</div>
   <div class="slide-subtitle">Verified prices across 54 products vs Amazon, Walmart, Target</div>
@@ -408,7 +472,6 @@ td.blue { color:var(--cg-sapphire-600); }
     </div>
   </div>
   <div class="callout-gold callout">Proprietary brands (Sonoma, FLX, Croft &amp; Barrow, LC Lauren Conrad): 1,000-1,500bps higher gross margin. From 28% (FY2019) to 33% (FY2025) = ~62bps of cumulative GM lift. Target: 43% by FY2031 = another ~125bps.</div>
-  <div class="callout" style="margin-top:10px">Each incremental 100bps of proprietary brand mix generates 10-15bps of GM improvement. KSS is in the very early stages of this rebuild — 1Q proprietary brand mix was 400bps better than 4Q, but still ~20pp below levels two years ago. Management noted it will take time to return to historical levels, and the value-seeking consumer environment supports the shift. This is a multi-year margin tailwind, not a one-quarter story.</div>
 </div>
 
 <div class="slide" id="ai-poverty">
@@ -946,6 +1009,7 @@ function initChartsForSlide(n) {
     case 're-unlock': initReUnlock(); break;
     case 're-lease': initReLease(); break;
     case 're-pb': initRePB(); break;
+    case 're-methodology': initReMethodology(); break;
     case 'ai-price': initAiPrice(); break;
     case 'ai-brand': initAiBrand(); break;
     case 'ai-poverty': initAiPoverty(); break;
@@ -984,13 +1048,13 @@ function initIntroCustomer() {
 
 function initMap() {
   const map = L.map('store-map').setView([39.5, -98.5], 4);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '© CartoDB',
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© CartoDB © OpenStreetMap',
     subdomains: 'abcd', maxZoom: 16
   }).addTo(map);
   storeLocs.forEach(s => {
     L.circleMarker([s.lat, s.lng], {
-      radius: 3, fillColor: COLORS.blue, color: COLORS.blue, weight: 0.5, fillOpacity: 0.7
+      radius: 4, fillColor: CG.sapphire[700], color: CG.sapphire[800], weight: 1, fillOpacity: 0.8
     }).addTo(map).bindPopup(s.city + ', ' + s.state);
   });
 }
@@ -1147,6 +1211,44 @@ function initRePB() {
         backgroundColor: [COLORS.red, COLORS.gold, COLORS.blue, COLORS.green, COLORS.cyan] }]
     },
     options: { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'$/Share' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+}
+
+function initReMethodology() {
+  const nnnDeals = [
+    { loc: 'Forney TX (2023)', cap: 5.65 },
+    { loc: 'Menom. Falls WI', cap: 6.0 },
+    { loc: 'Katy TX (new)', cap: 6.73 },
+    { loc: 'Forsyth IL (GL)', cap: 6.74 },
+    { loc: 'OH+IN 4-pack', cap: 7.25 },
+    { loc: 'Knoxville TN', cap: 8.0 },
+    { loc: 'Westland MI (GL)', cap: 8.11 },
+  ];
+  new Chart(document.getElementById('chart-nnn-comps'), {
+    type: 'bar',
+    data: {
+      labels: nnnDeals.map(d => d.loc),
+      datasets: [{
+        label: 'Cap Rate (%)',
+        data: nnnDeals.map(d => d.cap),
+        backgroundColor: nnnDeals.map(d => d.cap <= 7.0 ? CG.green[500] : d.cap <= 8.0 ? CG.sapphire[500] : CG.copper[500]),
+        borderWidth: 0, borderRadius: 4
+      },{
+        label: 'Our 8.25% Cap Rate',
+        data: nnnDeals.map(() => 8.25),
+        type: 'line', indexAxis: 'y',
+        borderColor: CG.red[600], borderWidth: 2, borderDash: [6,3],
+        pointRadius: 0, fill: false
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } },
+      scales: {
+        x: { min: 4, max: 10, title: { display: true, text: 'NNN Cap Rate (%)' }, grid: { color: 'rgba(0,0,0,0.08)' } },
+        y: { grid: { display: false } }
+      }
+    }
   });
 }
 
@@ -1469,7 +1571,7 @@ function initStockChart() {
       options: { scales: { y: { title:{ display:true, text:'Stock Price ($)' }, grid:{ color:'rgba(0,0,0,0.08)' } }, x: { ticks: { maxTicksLimit: 10 } } }, plugins:{ legend:{ position:'bottom' } } }
     });
   }
-  // % change bar chart
+  // % change bar chart — all peers
   if (stockSummary && document.getElementById('chart-stock-pctchg')) {
     const allTickers = [...retailTickers, ...reitTickers].filter(t => stockSummary[t]);
     allTickers.sort((a,b) => (stockSummary[a]?.pct_change||0) - (stockSummary[b]?.pct_change||0));
@@ -1480,7 +1582,21 @@ function initStockChart() {
         datasets: [{ data: allTickers.map(t => stockSummary[t]?.pct_change || 0),
           backgroundColor: allTickers.map(t => (stockSummary[t]?.pct_change||0) >= 0 ? CG.green[500]+'90' : CG.red[500]+'90') }]
       },
-      options: { indexAxis:'y', plugins:{ legend:{ display:false } }, scales:{ x:{ title:{ display:true, text:'% Change Since Jan 2022' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+      options: { indexAxis:'y', maintainAspectRatio:false, plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label: item => item.raw.toFixed(1) + '%' } } }, scales:{ x:{ title:{ display:true, text:'% Change Since Jan 2022' }, grid:{ color:'rgba(0,0,0,0.08)' } }, y:{ ticks:{ autoSkip:false, font:{ size:13, weight:'bold' } } } } }
+    });
+  }
+  // % change bar chart — KSS vs REITs only
+  if (stockSummary && document.getElementById('chart-stock-pctchg-reits')) {
+    const reitOnly = ['KSS', ...reitTickers].filter(t => stockSummary[t]);
+    reitOnly.sort((a,b) => (stockSummary[a]?.pct_change||0) - (stockSummary[b]?.pct_change||0));
+    new Chart(document.getElementById('chart-stock-pctchg-reits'), {
+      type: 'bar',
+      data: {
+        labels: reitOnly,
+        datasets: [{ data: reitOnly.map(t => stockSummary[t]?.pct_change || 0),
+          backgroundColor: reitOnly.map(t => t === 'KSS' ? COLORS.kss+'90' : (stockSummary[t]?.pct_change||0) >= 0 ? CG.green[500]+'90' : CG.red[500]+'90') }]
+      },
+      options: { indexAxis:'y', maintainAspectRatio:false, plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label: item => item.raw.toFixed(1) + '%' } } }, scales:{ x:{ title:{ display:true, text:'% Change Since Jan 2022' }, grid:{ color:'rgba(0,0,0,0.08)' } }, y:{ ticks:{ autoSkip:false, font:{ size:14, weight:'bold' } } } } }
     });
   }
 }
@@ -1532,6 +1648,74 @@ function initRecession() {
     });
   }
 }
+
+// ── Source Attribution ──
+const SOURCES = {
+  'chart-format': 'Source: KSS 10-K FY2024 | JAOD Analysis',
+  'chart-ownership': 'Source: KSS 10-K FY2024 | JAOD Analysis',
+  'chart-rev-cat': 'Source: KSS 10-K FY2024 | JAOD Analysis',
+  'chart-cat-compare': 'Source: KSS 10-K FY2023-2024 | JAOD Analysis',
+  'chart-rev-ebitda-stock': 'Source: SEC EDGAR XBRL, Yahoo Finance | JAOD Analysis',
+  'chart-eps': 'Source: SEC EDGAR XBRL FY2014-2025 | JAOD Analysis',
+  'chart-stock-retail': 'Source: Yahoo Finance monthly adj close | JAOD Analysis',
+  'chart-stock-reits': 'Source: Yahoo Finance monthly adj close | JAOD Analysis',
+  'chart-stock-pctchg': 'Source: Yahoo Finance (Jan 2022 — Mar 2026) | JAOD Analysis',
+  'chart-re-waterfall': 'Source: REIT comp + income approach valuation | JAOD Analysis',
+  'chart-re-methods': 'Source: BRX/KIM/KRG/REG/NNN benchmarks, 8.25% cap rate | JAOD Analysis',
+  'chart-reit-abr': 'Source: REIT 10-K filings, SEC EDGAR | JAOD Analysis',
+  'chart-state-re': 'Source: Per-store REIT benchmark model | JAOD Analysis',
+  'chart-debt-maturity': 'Source: KSS 10-K FY2024, 8-K (May 2025) | JAOD Analysis',
+  'chart-slb-waterfall': 'Source: KSS supplemental data, 50% discount to book | JAOD Analysis',
+  'chart-cmbs-rent': 'Source: SEC EDGAR CMBS FWP Annex A-1 filings | JAOD Analysis',
+  'chart-rent-compare': 'Source: REIT 10-K ABR/SF, CMBS verified | JAOD Analysis',
+  'chart-per-share': 'Source: Yahoo Finance, SEC filings, REIT comp model | JAOD Analysis',
+  'chart-nnn-comps': 'Source: Marcus & Millichap, Boulder Group, SRS Capital, SIG, NNNDeal.com, public records | JAOD Analysis',
+  'chart-prices': 'Source: Verified sticker prices (Mar 2026), 54 products | JAOD Analysis',
+  'chart-pl-mix': 'Source: KSS 10-K/10-Q filings, Evercore ISI | JAOD Analysis',
+  'chart-gm-impact': 'Source: ISI research (1,000-1,500bps PL premium) | JAOD Analysis',
+  'chart-dg-premium': 'Source: More Perfect Union, BofA, WHEC, Southern Savers | JAOD Analysis',
+  'chart-perception': 'Source: ACSI (41,850 surveys), YouGov, Market Force; Y = 54-product dataset | JAOD Analysis',
+  'chart-demo-hhi': 'Source: Placer.ai, Census, retailer filings | JAOD Analysis',
+  'chart-gfc-sss': 'Source: SEC 10-K filings FY2007-2010 | JAOD Analysis',
+  'chart-covid-sss': 'Source: SEC 10-K filings FY2019-2021 | JAOD Analysis',
+  'chart-rev-resilience': 'Source: SEC EDGAR XBRL FY2014-2025 | JAOD Analysis',
+  'chart-cfo-resilience': 'Source: SEC EDGAR XBRL FY2014-2025 | JAOD Analysis',
+  'chart-wage-growth': 'Source: BLS Employment Cost Index 2020-2025 | JAOD Analysis',
+  'chart-waterfall-unit': 'Source: KSS FY2025 8-K earnings release | JAOD Analysis',
+  'chart-eps-scenarios': 'Source: KSS model projections FY2026E-2031E | JAOD Analysis',
+  'chart-debt-stack': 'Source: KSS 10-K, 8-K indenture filings | JAOD Analysis',
+  'chart-interest-proj': 'Source: KSS debt schedule + projection model | JAOD Analysis',
+  'chart-comp-stores': 'Source: SEC 10-K filings FY2020-2025 | JAOD Analysis',
+  'chart-sephora-shops': 'Source: KSS 10-K, Evercore ISI notes | JAOD Analysis',
+  'chart-sephora-rev': 'Source: KSS earnings, ISI estimates | JAOD Analysis',
+  'chart-sephora-footprint': 'Source: ScrapeHero, Fast Company, KSS filings | JAOD Analysis',
+  'chart-stress': 'Source: KSS FY2025 base + stress model | JAOD Analysis',
+  'chart-leisure': 'Source: BEA/PCE, Our World in Data | JAOD Analysis',
+};
+
+// Inject source lines after all canvases
+document.querySelectorAll('canvas').forEach(c => {
+  const src = SOURCES[c.id];
+  if (src) {
+    const div = document.createElement('div');
+    div.className = 'source';
+    div.textContent = src;
+    c.parentNode.appendChild(div);
+  }
+});
+
+// Also add to tables inside cards that don't have canvases
+document.querySelectorAll('.card').forEach(card => {
+  if (!card.querySelector('canvas') && !card.querySelector('.source')) {
+    const tables = card.querySelectorAll('table');
+    if (tables.length) {
+      const div = document.createElement('div');
+      div.className = 'source';
+      div.textContent = 'JAOD Analysis';
+      card.appendChild(div);
+    }
+  }
+});
 
 // ── Init first slide ──
 initChartsForSlide(0);
