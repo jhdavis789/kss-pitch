@@ -11,18 +11,16 @@
 /* Capital Group Design System Colors */
 :root {
   --cg-sapphire-100: #DEF5FF; --cg-sapphire-200: #B6EAFF; --cg-sapphire-300: #70D5FF;
-  --cg-sapphire-400: #0DB9FF; --cg-sapphire-500: #009CDC; --cg-sapphire-600: #0075B5;
+  --cg-sapphire-400: #0DB9FF; --cg-sapphire-500: #0075B5; --cg-sapphire-600: #0067A0;
   --cg-sapphire-700: #005F9E; --cg-sapphire-800: #003A66; --cg-sapphire-900: #00294B;
-  --cg-turquoise-400: #00C1BC; --cg-turquoise-500: #00A499; --cg-turquoise-600: #007E6C;
+  --cg-turquoise-400: #00B5AD; --cg-turquoise-500: #00A499; --cg-turquoise-600: #007E6C;
   --cg-turquoise-700: #00675C;
-  --cg-raspberry-400: #E992C2; --cg-raspberry-500: #E06AAA; --cg-raspberry-600: #CB2A82;
-  --cg-raspberry-700: #A6256E;
-  --cg-copper-400: #C6A796; --cg-copper-500: #B58976; --cg-copper-600: #976253;
-  --cg-green-500: #3EA561; --cg-green-600: #038049; --cg-green-700: #026A3B;
-  --cg-red-500: #F45F7C; --cg-red-600: #DA1944; --cg-red-700: #B61336;
-  --cg-warn-300: #FFB860; --cg-warn-500: #BD8845; --cg-warn-600: #906735;
+  --cg-berry-400: #D44C7A; --cg-berry-500: #C2185B; --cg-berry-600: #9B1347;
+  --cg-berry-700: #7A0F38;
+  --cg-green-400: #3EA561; --cg-green-500: #038049; --cg-green-600: #006B3D;
+  --cg-red-500: #C2185B; --cg-red-600: #9B1347; --cg-red-700: #7A0F38;
   --cg-gray-50: #F7F7F7; --cg-gray-100: #F1F1F1; --cg-gray-200: #E2E2E2;
-  --cg-gray-400: #ADADAD; --cg-gray-600: #6F6F6F; --cg-gray-800: #383838;
+  --cg-gray-400: #9EA2A2; --cg-gray-600: #6F6F6F; --cg-gray-800: #383838;
   --cg-cream-100: #F4F3F0; --cg-cream-200: #E4E2D9; --cg-cream-800: #393836;
   --cg-prem-800: #153A5A; --cg-prem-900: #00294B; --cg-prem-1000: #001A30;
 }
@@ -50,18 +48,18 @@ body { background:#FFFFFF; color:var(--cg-gray-800); font-family:'Avenir Next LT
 .card h3 { color:var(--cg-sapphire-700); font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:14px; }
 canvas { max-height:380px; }
 .callout { background:var(--cg-sapphire-100); border:1px solid var(--cg-sapphire-300); border-left:4px solid var(--cg-sapphire-600); border-radius:8px; padding:16px 20px; margin-top:18px; color:var(--cg-sapphire-800); font-size:13px; line-height:1.6; }
-.callout-gold { border-left-color:var(--cg-copper-500); color:var(--cg-copper-600); background:rgba(198,167,150,0.12); border-color:var(--cg-copper-400); }
-.callout-green { border-left-color:var(--cg-green-600); color:var(--cg-green-700); background:rgba(62,165,97,0.08); border-color:var(--cg-green-500); }
+.callout-gold { border-left-color:var(--cg-sapphire-900); color:var(--cg-sapphire-900); background:rgba(0,41,75,0.06); border-color:var(--cg-sapphire-800); }
+.callout-green { border-left-color:var(--cg-green-500); color:var(--cg-green-600); background:rgba(3,128,73,0.08); border-color:var(--cg-green-400); }
 
 /* ── Metrics Row ── */
 .metrics { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:24px; }
 .metric { background:var(--cg-gray-50); border:1px solid var(--cg-gray-200); border-radius:8px; padding:16px 20px; flex:1; min-width:160px; }
 .metric .label { color:var(--cg-gray-600); font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1px; }
 .metric .value { color:var(--cg-gray-800); font-size:26px; font-weight:700; margin-top:4px; }
-.metric .value.green { color:var(--cg-green-600); }
-.metric .value.red { color:var(--cg-red-600); }
-.metric .value.blue { color:var(--cg-sapphire-600); }
-.metric .value.gold { color:var(--cg-copper-600); }
+.metric .value.green { color:var(--cg-green-500); }
+.metric .value.red { color:var(--cg-red-500); }
+.metric .value.blue { color:var(--cg-sapphire-500); }
+.metric .value.gold { color:var(--cg-sapphire-900); }
 .metric .detail { color:var(--cg-gray-600); font-size:11px; margin-top:3px; }
 
 /* ── Tables ── */
@@ -70,10 +68,10 @@ th { background:var(--cg-gray-50); color:var(--cg-sapphire-700); text-align:left
 td { padding:9px 12px; border-bottom:1px solid var(--cg-gray-100); color:var(--cg-gray-800); }
 tr:hover { background:var(--cg-sapphire-100); }
 .r { text-align:right; }
-td.green { color:var(--cg-green-600); }
-td.red { color:var(--cg-red-600); }
-td.gold { color:var(--cg-copper-600); }
-td.blue { color:var(--cg-sapphire-600); }
+td.green { color:var(--cg-green-500); }
+td.red { color:var(--cg-red-500); }
+td.gold { color:var(--cg-sapphire-900); }
+td.blue { color:var(--cg-sapphire-500); }
 
 /* ── Source Attribution ── */
 .source { color:var(--cg-gray-600); font-size:10px; margin-top:8px; font-style:italic; line-height:1.4; }
@@ -276,14 +274,20 @@ td.blue { color:var(--cg-sapphire-600); }
   <div class="row">
     <div class="col">
       <div class="card">
-        <h3>Valuation Comparison ($B)</h3>
-        <canvas id="chart-re-waterfall"></canvas>
+        <h3>RE Value by Method ($B)</h3>
+        <canvas id="chart-re-methods"></canvas>
       </div>
     </div>
     <div class="col">
       <div class="card">
-        <h3>RE Value by Method ($B)</h3>
-        <canvas id="chart-re-methods"></canvas>
+        <h3>Value per Square Foot ($/SF)</h3>
+        <canvas id="chart-re-psf"></canvas>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>Implied Value per Share ($)</h3>
+        <canvas id="chart-re-pershare"></canvas>
       </div>
     </div>
   </div>
@@ -1014,27 +1018,30 @@ Chart.defaults.font.size = 11;
 Chart.defaults.plugins.legend.labels.boxWidth = 12;
 Chart.defaults.plugins.legend.labels.color = '#383838';
 
-// Capital Group Design System Colors
+// Capital Group Design System Colors — matched to CG published charts
 const CG = {
-  sapphire: { 100:'#DEF5FF', 200:'#B6EAFF', 300:'#70D5FF', 400:'#0DB9FF', 500:'#009CDC', 600:'#0075B5', 700:'#005F9E', 800:'#003A66', 900:'#00294B' },
-  turquoise: { 400:'#00C1BC', 500:'#00A499', 600:'#007E6C', 700:'#00675C' },
-  raspberry: { 400:'#E992C2', 500:'#E06AAA', 600:'#CB2A82', 700:'#A6256E' },
-  copper: { 400:'#C6A796', 500:'#B58976', 600:'#976253' },
-  green: { 500:'#3EA561', 600:'#038049' },
-  red: { 500:'#F45F7C', 600:'#DA1944' },
-  warn: { 300:'#FFB860', 500:'#BD8845' },
+  sapphire: { 100:'#DEF5FF', 200:'#B6EAFF', 300:'#70D5FF', 400:'#0DB9FF', 500:'#0075B5', 600:'#0067A0', 700:'#005F9E', 800:'#003A66', 900:'#00294B' },
+  turquoise: { 400:'#00B5AD', 500:'#00A499', 600:'#007E6C', 700:'#00675C' },
+  berry: { 300:'#E4729B', 400:'#D44C7A', 500:'#C2185B', 600:'#9B1347', 700:'#7A0F38' },
+  green: { 400:'#3EA561', 500:'#038049', 600:'#006B3D' },
+  gray: { 300:'#C8C8C8', 400:'#9EA2A2', 500:'#6F6F6F', 600:'#4A4A4A' },
+  // Legacy aliases for backward compat
+  raspberry: { 400:'#E4729B', 500:'#D44C7A', 600:'#C2185B', 700:'#9B1347' },
+  copper: { 400:'#9EA2A2', 500:'#00294B', 600:'#003A66' },
+  red: { 500:'#C2185B', 600:'#9B1347' },
+  warn: { 300:'#00B5AD', 500:'#007E6C' },
 };
 const COLORS = {
-  blue: CG.sapphire[500], blueDark: CG.sapphire[700], blueLight: CG.sapphire[300],
-  green: CG.green[500], greenDark: CG.green[600],
-  red: CG.red[500], redDark: CG.red[600],
-  gold: CG.copper[500], goldLight: CG.copper[400],
+  blue: CG.sapphire[500], blueDark: CG.sapphire[900], blueLight: CG.sapphire[300],
+  green: CG.green[400], greenDark: CG.green[500],
+  red: CG.berry[500], redDark: CG.berry[600],
+  gold: CG.sapphire[900], goldLight: CG.gray[400],
   teal: CG.turquoise[500], tealDark: CG.turquoise[600],
-  pink: CG.raspberry[500], pinkDark: CG.raspberry[700],
-  warn: CG.warn[300], warnDark: CG.warn[500],
-  kss: CG.sapphire[500], amzn: CG.warn[300], wmt: CG.turquoise[400], tgt: CG.red[500],
-  tjx: CG.raspberry[500], dg: CG.copper[500], rost: CG.green[500],
-  cyan: CG.turquoise[400], orange: CG.warn[300], purple: CG.raspberry[400],
+  pink: CG.berry[400], pinkDark: CG.berry[700],
+  warn: CG.turquoise[400], warnDark: CG.turquoise[600],
+  kss: CG.sapphire[500], amzn: CG.sapphire[900], wmt: CG.turquoise[500], tgt: CG.berry[500],
+  tjx: CG.berry[400], dg: CG.gray[400], rost: CG.green[400],
+  cyan: CG.turquoise[400], orange: CG.turquoise[400], purple: CG.berry[300],
 };
 
 // ── Data ──
@@ -1171,13 +1178,13 @@ function initFinancials() {
       datasets: [
         { label: 'Revenue ($B)', data: revB, backgroundColor: CG.sapphire[500]+'80', yAxisID: 'y', order: 2 },
         { label: 'EBITDA ($B)', data: ebitdaB, backgroundColor: CG.turquoise[500]+'80', yAxisID: 'y', order: 3 },
-        { label: 'Stock Price ($)', data: fyStockPrices, type:'line', borderColor: CG.copper[400], backgroundColor: 'transparent', yAxisID: 'y1', tension:0.3, pointRadius:5, pointBackgroundColor: CG.copper[400], borderWidth: 2.5, order: 1 }
+        { label: 'Stock Price ($)', data: fyStockPrices, type:'line', borderColor: CG.berry[500], backgroundColor: 'transparent', yAxisID: 'y1', tension:0.3, pointRadius:5, pointBackgroundColor: CG.berry[500], borderWidth: 2.5, order: 1 }
       ]
     },
     options: {
       scales: {
         y: { position:'left', grid:{ color:'rgba(21,58,90,0.3)' }, title:{ display:true, text:'$B (Revenue / EBITDA)', color: CG.sapphire[300] }, ticks:{ color: CG.sapphire[300] } },
-        y1: { position:'right', grid:{ display:false }, title:{ display:true, text:'Stock Price ($)', color: CG.copper[400] }, ticks:{ color: CG.copper[400] }, min: 0 }
+        y1: { position:'right', grid:{ display:false }, title:{ display:true, text:'Stock Price ($)', color: CG.berry[500] }, ticks:{ color: CG.berry[500] }, min: 0 }
       },
       plugins: { legend: { position:'bottom' } }
     }
@@ -1193,41 +1200,27 @@ function initFinancials() {
 }
 
 function initReHidden() {
-  // Waterfall: Mkt Cap → Net Debt → EV → RE Value
-  new Chart(document.getElementById('chart-re-waterfall'), {
-    type: 'bar',
-    data: {
-      labels: ['Market Cap', 'Net Debt', 'Enterprise Value', 'RE Blended Value', 'SLB Proceeds'],
-      datasets: [{ data: [1.5, 0.8, 2.2, 5.0, 4.8],
-        backgroundColor: [COLORS.red, COLORS.gold, CG.warn[300], COLORS.green, COLORS.blue] }]
-    },
-    options: { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'$B' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
-  });
+  // 602 controlled stores, 53M sqft, 112M shares
+  const reLabels = ['Book Value', 'Income\nApproach', 'REIT Comp', 'Blended', 'SLB Net', 'EV (Market)'];
+  const reValuesB = [6.5, 5.3, 4.7, 5.0, 4.8, 2.2];
+  const rePSF = [122, 100, 89, 94, 91, 42];
+  const rePerShare = [58.04, 47.32, 41.96, 44.64, 42.86, 13.04];
+  const reColors = [CG.copper[400], COLORS.blue, CG.raspberry[500], COLORS.green, COLORS.teal, COLORS.red];
+
   new Chart(document.getElementById('chart-re-methods'), {
     type: 'bar',
-    data: {
-      labels: ['Income\nApproach', 'REIT Comp', 'Blended', 'SLB Net', 'Mkt Cap\n+ Net Debt'],
-      datasets: [{
-        label: 'Income / REIT Comp / Blended / SLB',
-        data: [5.3, 4.7, 5.0, 4.8, null],
-        backgroundColor: [COLORS.blue, CG.raspberry[500], COLORS.green, COLORS.teal, null]
-      },{
-        label: 'Market Cap',
-        data: [null, null, null, null, 1.5],
-        backgroundColor: COLORS.red
-      },{
-        label: 'Net Debt',
-        data: [null, null, null, null, 0.8],
-        backgroundColor: CG.warn[300]
-      }]
-    },
-    options: {
-      plugins: { legend: { display: true, position: 'bottom', labels: { filter: item => item.text !== 'Income / REIT Comp / Blended / SLB' } } },
-      scales: {
-        x: { stacked: true },
-        y: { stacked: true, title: { display: true, text: '$B' }, grid: { color: 'rgba(0,0,0,0.08)' } }
-      }
-    }
+    data: { labels: reLabels, datasets: [{ data: reValuesB, backgroundColor: reColors, borderRadius: 3 }] },
+    options: { plugins:{ legend:{display:false} }, scales:{ y:{ title:{display:true,text:'$B'}, grid:{color:'rgba(0,0,0,0.08)'} } } }
+  });
+  new Chart(document.getElementById('chart-re-psf'), {
+    type: 'bar',
+    data: { labels: reLabels, datasets: [{ data: rePSF, backgroundColor: reColors, borderRadius: 3 }] },
+    options: { plugins:{ legend:{display:false} }, scales:{ y:{ title:{display:true,text:'$/SF (53M SF controlled)'}, grid:{color:'rgba(0,0,0,0.08)'} } } }
+  });
+  new Chart(document.getElementById('chart-re-pershare'), {
+    type: 'bar',
+    data: { labels: reLabels, datasets: [{ data: rePerShare, backgroundColor: reColors, borderRadius: 3 }] },
+    options: { plugins:{ legend:{display:false} }, scales:{ y:{ title:{display:true,text:'$/share (112M shares)'}, grid:{color:'rgba(0,0,0,0.08)'} } } }
   });
 }
 
@@ -1572,7 +1565,7 @@ function initAiDisrupt() {
         })),
         {
           label: 'Trend (OLS)', type: 'line', data: regLine,
-          borderColor: CG.gray_400 || '#ADADAD', borderWidth: 1.5, borderDash: [6,4],
+          borderColor: CG.gray[400], borderWidth: 1.5, borderDash: [6,4],
           pointRadius: 0, fill: false
         }
       ]
