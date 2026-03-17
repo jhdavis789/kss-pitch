@@ -436,31 +436,32 @@ td.blue { color:var(--cg-sapphire-600); }
 </div>
 
 <div class="slide" id="ai-price">
-  <div class="slide-title">PRICE CHECK: 54 Products, Head to Head</div>
-  <div class="slide-subtitle">KSS is +21% vs Walmart at sticker — but with a 30% coupon, KSS is cheaper on 69% of products</div>
+  <div class="slide-title">PRICE CHECK: KSS + 30% Coupon vs Everyone</div>
+  <div class="slide-subtitle">51 identical branded products, real prices. KSS with 30% coupon beats Walmart 71%, Amazon 80%, Target 78% of the time.</div>
 
   <div class="metrics">
-    <div class="metric"><div class="label">KSS vs WMT (sticker)</div><div class="value red">+21%</div><div class="detail">Median premium, 54 items</div></div>
-    <div class="metric"><div class="label">With 15% Coupon</div><div class="value gold">+3%</div><div class="detail">44% of items KSS wins</div></div>
-    <div class="metric"><div class="label">With 30% Coupon</div><div class="value green">-15%</div><div class="detail">69% of items KSS wins</div></div>
-    <div class="metric"><div class="label">KSS vs DG</div><div class="value green">Different product</div><div class="detail">DG doesn't carry branded goods</div></div>
+    <div class="metric"><div class="label">vs Walmart (51)</div><div class="value green">71% win</div><div class="detail">Median -16%</div></div>
+    <div class="metric"><div class="label">vs Amazon (51)</div><div class="value green">80% win</div><div class="detail">Median -14%</div></div>
+    <div class="metric"><div class="label">vs Target (41)</div><div class="value green">78% win</div><div class="detail">Median -22%</div></div>
+    <div class="metric"><div class="label">vs TJX (11)</div><div class="value red">18% win</div><div class="detail">Off-price wins on apparel</div></div>
   </div>
 
   <div class="row">
     <div class="col">
       <div class="card">
-        <h3>KSS vs Walmart: % Premium by Product (54 items)</h3>
+        <h3>KSS (30% coupon) vs Walmart: % Premium by Product</h3>
         <canvas id="chart-kss-vs-wmt"></canvas>
       </div>
     </div>
     <div class="col">
       <div class="card">
-        <h3>Coupon Effect: How Many Products KSS Wins</h3>
-        <canvas id="chart-coupon-effect"></canvas>
+        <h3>KSS (30% coupon) Win Rate vs All Competitors</h3>
+        <canvas id="chart-comp-winrate"></canvas>
+        <div style="color:var(--cg-gray-600);font-size:10px;margin-top:8px">Source: kohls.com, walmart.com, amazon.com, target.com, tjmaxx.com, dollargeneral.com, fivebelow.com. All prices as of Mar 2026. TJX/Ross prices are estimates (rotating inventory). DG/Five Below carry limited overlap products.</div>
       </div>
     </div>
   </div>
-  <div class="callout">At sticker, KSS loses to Walmart on 80% of items. But Kohl's customers always have coupons. With 30% off (common promo), KSS is cheaper on 37 of 54 products. AI agents will auto-apply these coupons — flipping the value equation.</div>
+  <div class="callout">KSS with a standard 30% coupon beats Walmart, Amazon, AND Target on the majority of identical branded products. The only retailers that consistently beat KSS-with-coupon are off-price (TJX/Ross) — but those retailers are invisible to AI shopping agents because they don't publish inventory online.</div>
 </div>
 
 <div class="slide" id="ai-brand">
@@ -1025,6 +1026,7 @@ const COLORS = {
   warn: CG.warn[300], warnDark: CG.warn[500],
   kss: CG.sapphire[500], amzn: CG.warn[300], wmt: CG.turquoise[400], tgt: CG.red[500],
   tjx: CG.raspberry[500], dg: CG.copper[500], rost: CG.green[500],
+  cyan: CG.turquoise[400], orange: CG.warn[300], purple: CG.raspberry[400],
 };
 
 // ── Data ──
@@ -1198,17 +1200,21 @@ function initReHidden() {
     data: {
       labels: ['Income\nApproach', 'REIT Comp', 'Blended', 'SLB Net', 'Mkt Cap\n+ Net Debt'],
       datasets: [{
+        label: 'Income / REIT Comp / Blended / SLB',
+        data: [5.3, 4.7, 5.0, 4.8, null],
+        backgroundColor: [COLORS.blue, CG.raspberry[500], COLORS.green, COLORS.teal, null]
+      },{
         label: 'Market Cap',
-        data: [5.3, 4.7, 5.0, 4.8, 1.5],
-        backgroundColor: [COLORS.blue, CG.raspberry[500], COLORS.green, COLORS.teal, COLORS.red]
+        data: [null, null, null, null, 1.5],
+        backgroundColor: COLORS.red
       },{
         label: 'Net Debt',
         data: [null, null, null, null, 0.8],
-        backgroundColor: [null, null, null, null, CG.warn[300]]
+        backgroundColor: CG.warn[300]
       }]
     },
     options: {
-      plugins: { legend: { display: true, position: 'bottom', labels: { filter: item => item.text === 'Market Cap' || item.text === 'Net Debt' } } },
+      plugins: { legend: { display: true, position: 'bottom', labels: { filter: item => item.text !== 'Income / REIT Comp / Blended / SLB' } } },
       scales: {
         x: { stacked: true },
         y: { stacked: true, title: { display: true, text: '$B' }, grid: { color: 'rgba(0,0,0,0.08)' } }
@@ -1369,73 +1375,78 @@ function initReMethodology() {
   });
 }
 
-// KSS vs WMT: 54 products, sorted by premium descending
-const kssVsWmt = [
-  {p:'Melissa & Doug puzzle',prem:159.8},{p:'Black+Decker dustbuster',prem:155.9},{p:'Play-Doh 20-pack',prem:100.3},
-  {p:'Weighted Blanket 15lb',prem:100.3},{p:'Hanes 6pk crew tees',prem:91.1},{p:"Carter's baby 5pk",prem:76.6},
-  {p:'Rubbermaid storage set',prem:76.5},{p:'LEGO Classic Brick Box',prem:76.5},{p:'FotL boxer briefs 6pk',prem:64.8},
-  {p:'Nerf Elite 2.0 blaster',prem:60.4},{p:'Conair Hair Dryer',prem:54.1},{p:'Bath Towels 12pc',prem:53.3},
-  {p:'Crayola 96ct crayons',prem:50.6},{p:'Keurig K-Mini Plus',prem:50.0},{p:'Adidas Track Pants',prem:50.0},
-  {p:"Levi's Trucker Jacket",prem:49.2},{p:"Levi's 505 Jeans",prem:42.9},{p:'Champion Hoodie',prem:40.6},
-  {p:'Skechers Go Walk',prem:37.6},{p:'Lee Relaxed Jeans',prem:37.1},{p:'Adidas Cloudfoam',prem:36.4},
-  {p:'Ninja Creami',prem:36.1},{p:'Fisher-Price toy',prem:33.5},{p:'Skechers Summits',prem:33.4},
-  {p:'Wrangler Jeans',prem:30.5},{p:'Fitbit Inspire 3',prem:25.1},{p:'Keurig K-Duo',prem:22.7},
-  {p:'Brita pitcher 10cup',prem:20.1},{p:'Squishmallow 16"',prem:20.0},{p:'New Balance 411v3',prem:18.2},
-  {p:'LEGO Star Wars',prem:15.4},{p:'UNO card game',prem:14.6},{p:'Dockers Khaki',prem:14.4},
-  {p:'UA Tech 2.0 Tee',prem:13.6},{p:'Shark Navigator',prem:12.5},{p:'Nike Brasilia duffel',prem:12.5},
-  {p:'Bissell CrossWave',prem:11.1},{p:'Monopoly classic',prem:10.1},{p:'Nike Dri-FIT shorts',prem:9.4},
-  {p:'Ninja Air Fryer',prem:5.3},{p:'Hot Wheels 20pk',prem:4.4},{p:'Dyson V8',prem:2.8},
-  {p:'Crock-Pot 7qt',prem:0.1},{p:'Instant Pot Duo',prem:0.0},{p:'Columbia Fleece',prem:0.0},
-  {p:'Ninja Blender',prem:0.0},{p:'KitchenAid Mixer',prem:0.0},{p:'Samsonite 24"',prem:-3.2},
-  {p:'Nike Revolution 8',prem:-3.7},{p:'Cuisinart Cookware',prem:-5.6},{p:'Cuisinart Food Proc',prem:-20.0},
-  {p:'Barbie Dreamhouse',prem:-28.6},{p:'Yankee Candle',prem:-29.2},{p:'iRobot Roomba',prem:-44.4}
+// KSS with 30% coupon vs Walmart: 51 products, sorted by premium (negative = KSS wins)
+// Source: kohls.com, walmart.com, amazon.com, target.com, tjmaxx.com, dollargeneral.com, fivebelow.com (Mar 2026)
+const kssVsWmt30 = [
+  {p:'Yankee Candle 22oz',prem:-50.5},{p:'Barbie Dreamhouse',prem:-50.0},{p:'Cuisinart Food Proc',prem:-44.0},
+  {p:'Nike Revolution 8',prem:-32.6},{p:'Melissa & Doug puzzle',prem:-30.1},{p:'Ninja Blender',prem:-30.0},
+  {p:'Instant Pot Duo',prem:-30.0},{p:'KitchenAid Mixer',prem:-30.0},{p:'Columbia Fleece',prem:-30.0},
+  {p:'Cuisinart Cookware',prem:-28.2},{p:'Dyson V8',prem:-28.0},{p:'Hot Wheels 20pk',prem:-26.9},
+  {p:'Ninja Air Fryer',prem:-26.3},{p:'Bissell CrossWave',prem:-26.3},{p:'Shark Navigator',prem:-25.9},
+  {p:'Nike Dri-FIT shorts',prem:-23.4},{p:'Monopoly classic',prem:-22.9},{p:'Fitbit Inspire 3',prem:-22.2},
+  {p:'New Balance 411v3',prem:-21.3},{p:'Crock-Pot 7qt',prem:-21.2},{p:'Dockers Khaki',prem:-21.2},
+  {p:'Nike Brasilia duffel',prem:-21.2},{p:'UA Tech 2.0 Tee',prem:-20.5},{p:'UNO card game',prem:-19.8},
+  {p:'Samsonite 24"',prem:-17.7},{p:'Squishmallow 16"',prem:-16.0},{p:'Brita pitcher',prem:-15.9},
+  {p:'Keurig K-Duo',prem:-14.1},{p:'Wrangler Jeans',prem:-8.7},{p:'Adidas Track Pants',prem:-6.7},
+  {p:'Skechers Summits',prem:-6.6},{p:'Fisher-Price toy',prem:-6.5},{p:'Ninja Creami',prem:-4.7},
+  {p:'Adidas Cloudfoam',prem:-4.5},{p:'Lee Relaxed Jeans',prem:-2.6},{p:'Champion Hoodie',prem:-1.6},
+  {p:"Levi's 505 Jeans",prem:0.0},{p:'Skechers Go Walk',prem:1.1},{p:"Levi's Trucker Jacket",prem:4.4},
+  {p:'Keurig K-Mini Plus',prem:5.0},{p:'Crayola 96ct',prem:5.4},{p:'Nerf Elite 2.0',prem:12.2},
+  {p:'FotL boxer briefs',prem:15.4},{p:'Conair Hair Dryer',prem:16.8},{p:'LEGO Classic Box',prem:23.5},
+  {p:'Rubbermaid storage',prem:23.6},{p:"Carter's baby 5pk",prem:23.6},{p:'Hanes 6pk crew tees',prem:33.8},
+  {p:'Play-Doh 20-pack',prem:40.2},{p:'Weighted Blanket',prem:40.2},{p:'B+D dustbuster',prem:79.1}
+];
+
+// Win rates across all competitors (KSS with 30% coupon)
+const compWinRates = [
+  {comp:'Amazon',n:51,wins:41,winPct:80.4,medPrem:-13.9},
+  {comp:'Target',n:41,wins:32,winPct:78.0,medPrem:-22.2},
+  {comp:'Walmart',n:51,wins:36,winPct:70.6,medPrem:-16.0},
+  {comp:'TJX*',n:11,wins:2,winPct:18.2,medPrem:16.7},
+  {comp:'Dollar Gen*',n:7,wins:1,winPct:14.3,medPrem:11.8},
+  {comp:'Five Below*',n:7,wins:1,winPct:14.3,medPrem:25.8},
+  {comp:'Ross*',n:8,wins:0,winPct:0.0,medPrem:27.2}
 ];
 
 function initAiPrice() {
-  // Chart 1: KSS vs WMT horizontal bar — top 15 most expensive + 7 cheapest
-  const top15 = kssVsWmt.slice(0, 15);
-  const bot7 = kssVsWmt.slice(-7);
-  const shown = [...top15, {p:'··· 32 more items ···',prem:null}, ...bot7];
+  // Chart 1: KSS (30% coupon) vs WMT — all 51 products horizontal bar
   new Chart(document.getElementById('chart-kss-vs-wmt'), {
     type: 'bar',
     data: {
-      labels: shown.map(d => d.p),
+      labels: kssVsWmt30.map(d => d.p),
       datasets: [{
-        label: 'KSS Premium vs Walmart (%)',
-        data: shown.map(d => d.prem),
-        backgroundColor: shown.map(d => d.prem === null ? 'transparent' : d.prem > 0 ? CG.red[500]+'80' : CG.green[500]+'80'),
+        label: 'KSS (30% off) vs Walmart (%)',
+        data: kssVsWmt30.map(d => d.prem),
+        backgroundColor: kssVsWmt30.map(d => d.prem <= 0 ? CG.green[500]+'80' : CG.red[500]+'80'),
         borderRadius: 2
       }]
     },
     options: {
       indexAxis: 'y',
-      plugins: { legend: { display: false } },
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => (ctx.raw > 0 ? '+' : '') + ctx.raw + '% vs WMT' } } },
       scales: {
-        x: { title: { display: true, text: 'KSS Premium vs Walmart (%)' }, grid: { color: 'rgba(0,0,0,0.08)' } },
-        y: { ticks: { font: { size: 9 } } }
+        x: { title: { display: true, text: '← KSS cheaper          KSS more expensive →' }, grid: { color: 'rgba(0,0,0,0.08)' } },
+        y: { ticks: { font: { size: 8 } } }
       }
     }
   });
 
-  // Chart 2: Coupon effect stacked bar
-  const couponLevels = ['Sticker', '15% off', '20% off', '25% off', '30% off'];
-  const discounts = [0, 0.15, 0.20, 0.25, 0.30];
-  const wins = discounts.map(d => kssVsWmt.filter(i => (1 + i.prem/100) * (1-d) <= 1.0).length);
-  const losses = discounts.map((d, idx) => 54 - wins[idx]);
-  new Chart(document.getElementById('chart-coupon-effect'), {
+  // Chart 2: Win rate vs all competitors
+  new Chart(document.getElementById('chart-comp-winrate'), {
     type: 'bar',
     data: {
-      labels: couponLevels,
+      labels: compWinRates.map(c => c.comp + ' (' + c.n + ')'),
       datasets: [
-        { label: 'KSS Cheaper', data: wins, backgroundColor: CG.green[500] },
-        { label: 'WMT Cheaper', data: losses, backgroundColor: CG.red[500]+'80' }
+        { label: 'KSS Wins', data: compWinRates.map(c => c.wins), backgroundColor: CG.green[500] },
+        { label: 'Comp Wins', data: compWinRates.map(c => c.n - c.wins), backgroundColor: CG.red[500]+'70' }
       ]
     },
     options: {
+      indexAxis: 'y',
       plugins: { legend: { position: 'bottom' } },
       scales: {
-        x: { stacked: true },
-        y: { stacked: true, title: { display: true, text: '# of Products (out of 54)' }, grid: { color: 'rgba(0,0,0,0.08)' }, max: 54 }
+        x: { stacked: true, title: { display: true, text: '# of Products' }, grid: { color: 'rgba(0,0,0,0.08)' } },
+        y: { stacked: true }
       }
     }
   });
