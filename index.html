@@ -112,27 +112,28 @@ td.blue { color:var(--cg-sapphire-600); }
   <span class="nav-section">AI DISCOVERY</span>
   <button class="nav-btn" onclick="goSlide(11)">PRICE CHECK</button>
   <button class="nav-btn" onclick="goSlide(12)">Private Label Margin</button>
-  <button class="nav-btn" onclick="goSlide(13)">Dollar Store Poverty</button>
-  <button class="nav-btn" onclick="goSlide(14)">Value with AI Shoppi</button>
+  <button class="nav-btn" onclick="goSlide(13)">Brand Mix 18yr</button>
+  <button class="nav-btn" onclick="goSlide(14)">Dollar Store Poverty</button>
+  <button class="nav-btn" onclick="goSlide(15)">Value with AI Shoppi</button>
   <div class="nav-sep"></div>
   <span class="nav-section">CONSUMER</span>
-  <button class="nav-btn" onclick="goSlide(15)">KSS Customer</button>
-  <button class="nav-btn" onclick="goSlide(16)">Performance</button>
-  <button class="nav-btn" onclick="goSlide(17)">the Resilient Consum</button>
-  <button class="nav-btn" onclick="goSlide(18)">Collar, PROTECT Blue</button>
-  <button class="nav-btn" onclick="goSlide(19)">Unit Economics</button>
+  <button class="nav-btn" onclick="goSlide(16)">KSS Customer</button>
+  <button class="nav-btn" onclick="goSlide(17)">Performance</button>
+  <button class="nav-btn" onclick="goSlide(18)">the Resilient Consum</button>
+  <button class="nav-btn" onclick="goSlide(19)">Collar, PROTECT Blue</button>
+  <button class="nav-btn" onclick="goSlide(20)">Unit Economics</button>
   <div class="nav-sep"></div>
   <span class="nav-section">APPENDIX</span>
-  <button class="nav-btn" onclick="goSlide(20)">RISK</button>
-  <button class="nav-btn" onclick="goSlide(21)">FORTIFY</button>
-  <button class="nav-btn" onclick="goSlide(22)">Store Trajectories</button>
+  <button class="nav-btn" onclick="goSlide(21)">RISK</button>
+  <button class="nav-btn" onclick="goSlide(22)">FORTIFY</button>
+  <button class="nav-btn" onclick="goSlide(23)">Store Trajectories</button>
   <div class="nav-sep"></div>
   <span class="nav-section">SIDE THESES</span>
-  <button class="nav-btn" onclick="goSlide(23)">Sephora Relationship</button>
-  <button class="nav-btn" onclick="goSlide(24)">to Last-Mile Fulfill</button>
+  <button class="nav-btn" onclick="goSlide(24)">Sephora Relationship</button>
+  <button class="nav-btn" onclick="goSlide(25)">to Last-Mile Fulfill</button>
   <div class="nav-sep"></div>
   <span class="nav-section">WORST CASE</span>
-  <button class="nav-btn" onclick="goSlide(25)">STRESS TEST</button>
+  <button class="nav-btn" onclick="goSlide(26)">STRESS TEST</button>
 </div>
 
 <div class="kb-hint">← → to navigate</div>
@@ -432,25 +433,31 @@ td.blue { color:var(--cg-sapphire-600); }
 </div>
 
 <div class="slide" id="ai-price">
-  <div class="slide-title">PRICE CHECK: KSS Beats on Real Goods</div>
-  <div class="slide-subtitle">Verified prices across 54 products vs Amazon, Walmart, Target</div>
+  <div class="slide-title">PRICE CHECK: 54 Products, Head to Head</div>
+  <div class="slide-subtitle">KSS is +21% vs Walmart at sticker — but with a 30% coupon, KSS is cheaper on 69% of products</div>
 
   <div class="metrics">
-    <div class="metric"><div class="label">KSS Cheapest</div><div class="value green">9%</div><div class="detail">At sticker price</div></div>
-    <div class="metric"><div class="label">Within 5%</div><div class="value blue">13%</div><div class="detail">Competitive range</div></div>
-    <div class="metric"><div class="label">With 15% Coupon</div><div class="value green">31%</div><div class="detail">KSS cheapest</div></div>
-    <div class="metric"><div class="label">Median Premium</div><div class="value">+37.0%</div><div class="detail">vs +20.2% Target</div></div>
+    <div class="metric"><div class="label">KSS vs WMT (sticker)</div><div class="value red">+21%</div><div class="detail">Median premium, 54 items</div></div>
+    <div class="metric"><div class="label">With 15% Coupon</div><div class="value gold">+3%</div><div class="detail">44% of items KSS wins</div></div>
+    <div class="metric"><div class="label">With 30% Coupon</div><div class="value green">-15%</div><div class="detail">69% of items KSS wins</div></div>
+    <div class="metric"><div class="label">KSS vs DG</div><div class="value green">Different product</div><div class="detail">DG doesn't carry branded goods</div></div>
   </div>
 
   <div class="row">
-    <div class="col" style="flex:2">
+    <div class="col">
       <div class="card">
-        <h3>Selected Product Price Comparison ($)</h3>
-        <canvas id="chart-prices"></canvas>
+        <h3>KSS vs Walmart: % Premium by Product (54 items)</h3>
+        <canvas id="chart-kss-vs-wmt"></canvas>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>Coupon Effect: How Many Products KSS Wins</h3>
+        <canvas id="chart-coupon-effect"></canvas>
       </div>
     </div>
   </div>
-  <div class="callout">The 30% off coupon STILL leaves 25-30% product margin. AI shopping agents will tell consumers: "That KitchenAid is $50 cheaper at Kohl's with your coupon."</div>
+  <div class="callout">At sticker, KSS loses to Walmart on 80% of items. But Kohl's customers always have coupons. With 30% off (common promo), KSS is cheaper on 37 of 54 products. AI agents will auto-apply these coupons — flipping the value equation.</div>
 </div>
 
 <div class="slide" id="ai-brand">
@@ -472,6 +479,46 @@ td.blue { color:var(--cg-sapphire-600); }
     </div>
   </div>
   <div class="callout-gold callout">Proprietary brands (Sonoma, FLX, Croft &amp; Barrow, LC Lauren Conrad): 1,000-1,500bps higher gross margin. From 28% (FY2019) to 33% (FY2025) = ~62bps of cumulative GM lift. Target: 43% by FY2031 = another ~125bps.</div>
+</div>
+
+<div class="slide" id="ai-brandmix">
+  <div class="slide-title">CHART 18 Years of Brand Strategy Reversals</div>
+  <div class="slide-subtitle">Private &amp; exclusive brand penetration: 36% → 55% peak → 31% trough → recovery underway. Every data point sourced to SEC filing or earnings call transcript.</div>
+
+  <div class="metrics">
+    <div class="metric"><div class="label">All-Time Peak</div><div class="value green">55%</div><div class="detail">FY2012 Q2 (quarterly)</div></div>
+    <div class="metric"><div class="label">FY2024 Trough</div><div class="value red">31%</div><div class="detail">-21pp from peak</div></div>
+    <div class="metric"><div class="label">FY2025 Recovery</div><div class="value blue">~32%</div><div class="detail">"By Kohl's" campaign launched</div></div>
+    <div class="metric"><div class="label">Margin Rule</div><div class="value gold">10-15 bps</div><div class="detail">GM per 100bps brand gain</div></div>
+  </div>
+
+  <div class="row">
+    <div class="col" style="flex:2">
+      <div class="card">
+        <h3>Private &amp; Exclusive Brand % of Net Sales (FY2007 — FY2025)</h3>
+        <canvas id="chart-brandmix-history" style="max-height:340px"></canvas>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>Key Inflection Points</h3>
+        <table>
+          <tr><th>Year</th><th>Event</th><th class="r">Mix</th></tr>
+          <tr><td>FY2007</td><td>PL build begins</td><td class="r">36%</td></tr>
+          <tr><td>FY2012</td><td class="green">Peak: 52% annual, 55% Q2</td><td class="r green">55%</td></tr>
+          <tr><td>FY2014</td><td class="gold">"Greatness Agenda" — pivot to national brands</td><td class="r gold">50%</td></tr>
+          <tr><td>FY2018</td><td>Nike/UA/Skechers push: national = 61%</td><td class="r">39%</td></tr>
+          <tr><td>FY2021</td><td>Sephora launch + supply chain collapse</td><td class="r">35%</td></tr>
+          <tr><td>FY2024</td><td class="red">All-time low: "disappointed them"</td><td class="r red">31%</td></tr>
+          <tr><td>FY2025</td><td class="blue">New CEO reverses course</td><td class="r blue">~32%</td></tr>
+        </table>
+        <div style="color:var(--cg-gray-600);font-size:11px;margin-top:8px;line-height:1.5">
+          <strong>Source trail:</strong> FY2007-12 quarterly from 10-Q text. FY2013+ annual from 10-K + earnings call transcripts. Every point links to SEC EDGAR filing. See standalone dashboard for clickable sources.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="callout-gold callout">Kohl's gave away 21pp of private brand penetration in 8 years chasing national brand traffic. Each 100bps recovered = 10-15bps gross margin. New CEO Bender: "Proprietary brands are really a focus." Q4 comp improved 120bps as private brands returned. The FY2012 peak proves KSS customers will buy house brands — management just stopped offering them.</div>
 </div>
 
 <div class="slide" id="ai-poverty">
@@ -1012,6 +1059,7 @@ function initChartsForSlide(n) {
     case 're-methodology': initReMethodology(); break;
     case 'ai-price': initAiPrice(); break;
     case 'ai-brand': initAiBrand(); break;
+    case 'ai-brandmix': initAiBrandmix(); break;
     case 'ai-poverty': initAiPoverty(); break;
     case 'ai-disrupt': initAiDisrupt(); break;
     case 'con-demographics': initDemographics(); break;
@@ -1252,20 +1300,75 @@ function initReMethodology() {
   });
 }
 
+// KSS vs WMT: 54 products, sorted by premium descending
+const kssVsWmt = [
+  {p:'Melissa & Doug puzzle',prem:159.8},{p:'Black+Decker dustbuster',prem:155.9},{p:'Play-Doh 20-pack',prem:100.3},
+  {p:'Weighted Blanket 15lb',prem:100.3},{p:'Hanes 6pk crew tees',prem:91.1},{p:"Carter's baby 5pk",prem:76.6},
+  {p:'Rubbermaid storage set',prem:76.5},{p:'LEGO Classic Brick Box',prem:76.5},{p:'FotL boxer briefs 6pk',prem:64.8},
+  {p:'Nerf Elite 2.0 blaster',prem:60.4},{p:'Conair Hair Dryer',prem:54.1},{p:'Bath Towels 12pc',prem:53.3},
+  {p:'Crayola 96ct crayons',prem:50.6},{p:'Keurig K-Mini Plus',prem:50.0},{p:'Adidas Track Pants',prem:50.0},
+  {p:"Levi's Trucker Jacket",prem:49.2},{p:"Levi's 505 Jeans",prem:42.9},{p:'Champion Hoodie',prem:40.6},
+  {p:'Skechers Go Walk',prem:37.6},{p:'Lee Relaxed Jeans',prem:37.1},{p:'Adidas Cloudfoam',prem:36.4},
+  {p:'Ninja Creami',prem:36.1},{p:'Fisher-Price toy',prem:33.5},{p:'Skechers Summits',prem:33.4},
+  {p:'Wrangler Jeans',prem:30.5},{p:'Fitbit Inspire 3',prem:25.1},{p:'Keurig K-Duo',prem:22.7},
+  {p:'Brita pitcher 10cup',prem:20.1},{p:'Squishmallow 16"',prem:20.0},{p:'New Balance 411v3',prem:18.2},
+  {p:'LEGO Star Wars',prem:15.4},{p:'UNO card game',prem:14.6},{p:'Dockers Khaki',prem:14.4},
+  {p:'UA Tech 2.0 Tee',prem:13.6},{p:'Shark Navigator',prem:12.5},{p:'Nike Brasilia duffel',prem:12.5},
+  {p:'Bissell CrossWave',prem:11.1},{p:'Monopoly classic',prem:10.1},{p:'Nike Dri-FIT shorts',prem:9.4},
+  {p:'Ninja Air Fryer',prem:5.3},{p:'Hot Wheels 20pk',prem:4.4},{p:'Dyson V8',prem:2.8},
+  {p:'Crock-Pot 7qt',prem:0.1},{p:'Instant Pot Duo',prem:0.0},{p:'Columbia Fleece',prem:0.0},
+  {p:'Ninja Blender',prem:0.0},{p:'KitchenAid Mixer',prem:0.0},{p:'Samsonite 24"',prem:-3.2},
+  {p:'Nike Revolution 8',prem:-3.7},{p:'Cuisinart Cookware',prem:-5.6},{p:'Cuisinart Food Proc',prem:-20.0},
+  {p:'Barbie Dreamhouse',prem:-28.6},{p:'Yankee Candle',prem:-29.2},{p:'iRobot Roomba',prem:-44.4}
+];
+
 function initAiPrice() {
-  const priceLabels = selectedPrices.map(p => p.product);
-  new Chart(document.getElementById('chart-prices'), {
+  // Chart 1: KSS vs WMT horizontal bar — top 15 most expensive + 7 cheapest
+  const top15 = kssVsWmt.slice(0, 15);
+  const bot7 = kssVsWmt.slice(-7);
+  const shown = [...top15, {p:'··· 32 more items ···',prem:null}, ...bot7];
+  new Chart(document.getElementById('chart-kss-vs-wmt'), {
     type: 'bar',
     data: {
-      labels: priceLabels,
+      labels: shown.map(d => d.p),
+      datasets: [{
+        label: 'KSS Premium vs Walmart (%)',
+        data: shown.map(d => d.prem),
+        backgroundColor: shown.map(d => d.prem === null ? 'transparent' : d.prem > 0 ? CG.red[500]+'80' : CG.green[500]+'80'),
+        borderRadius: 2
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { title: { display: true, text: 'KSS Premium vs Walmart (%)' }, grid: { color: 'rgba(0,0,0,0.08)' } },
+        y: { ticks: { font: { size: 9 } } }
+      }
+    }
+  });
+
+  // Chart 2: Coupon effect stacked bar
+  const couponLevels = ['Sticker', '15% off', '20% off', '25% off', '30% off'];
+  const discounts = [0, 0.15, 0.20, 0.25, 0.30];
+  const wins = discounts.map(d => kssVsWmt.filter(i => (1 + i.prem/100) * (1-d) <= 1.0).length);
+  const losses = discounts.map((d, idx) => 54 - wins[idx]);
+  new Chart(document.getElementById('chart-coupon-effect'), {
+    type: 'bar',
+    data: {
+      labels: couponLevels,
       datasets: [
-        { label: "Kohl's", data: selectedPrices.map(p => p.kohls), backgroundColor: COLORS.kss },
-        { label: 'Amazon', data: selectedPrices.map(p => p.amazon), backgroundColor: COLORS.amzn },
-        { label: 'Walmart', data: selectedPrices.map(p => p.walmart), backgroundColor: COLORS.wmt },
-        { label: 'Target', data: selectedPrices.map(p => p.target), backgroundColor: COLORS.tgt }
+        { label: 'KSS Cheaper', data: wins, backgroundColor: CG.green[500] },
+        { label: 'WMT Cheaper', data: losses, backgroundColor: CG.red[500]+'80' }
       ]
     },
-    options: { indexAxis:'y', plugins:{ legend:{ position:'bottom' } }, scales:{ x:{ grid:{ color:'rgba(0,0,0,0.08)' }, title:{ display:true, text:'Price ($)' } } } }
+    options: {
+      plugins: { legend: { position: 'bottom' } },
+      scales: {
+        x: { stacked: true },
+        y: { stacked: true, title: { display: true, text: '# of Products (out of 54)' }, grid: { color: 'rgba(0,0,0,0.08)' }, max: 54 }
+      }
+    }
   });
 }
 
@@ -1295,6 +1398,41 @@ function initAiBrand() {
       datasets: [{ label: 'Gross Margin Lift (bps)', data: gmLift, borderColor: COLORS.green, backgroundColor: COLORS.green+'20', fill: true, tension: 0.3 }]
     },
     options: { scales: { y: { title:{ display:true, text:'bps GM lift' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+  });
+}
+
+function initAiBrandmix() {
+  const brandYears = ['FY07','FY08','FY09','FY10','FY11','FY12','FY13','FY14','FY15','FY16','FY17','FY18','FY19','FY20','FY21','FY22','FY23','FY24','FY25'];
+  const brandAnnual = [39.2, 42, 44, 48, 50, 52, 52, 50, 48, 46, 42, 39, 38, 37, 35, 35, 34, 31, 32];
+  const bgColors = brandAnnual.map((v, i) => {
+    if (i <= 5) return CG.green[500];
+    if (i <= 11) return CG.copper[500];
+    if (i <= 16) return CG.red[500];
+    if (i === 17) return CG.red[600];
+    return CG.sapphire[500];
+  });
+  new Chart(document.getElementById('chart-brandmix-history'), {
+    type: 'line',
+    data: {
+      labels: brandYears,
+      datasets: [{
+        label: 'Private & Exclusive Brand %',
+        data: brandAnnual,
+        borderColor: CG.sapphire[500], borderWidth: 2.5,
+        pointBackgroundColor: bgColors, pointBorderColor: bgColors,
+        pointRadius: 5, pointHoverRadius: 8,
+        fill: true, backgroundColor: 'rgba(0,156,220,0.06)',
+        tension: 0.3
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { min: 28, max: 58, title: { display: true, text: '% of Net Sales' }, grid: { color: 'rgba(0,0,0,0.08)' },
+          ticks: { callback: v => v + '%', stepSize: 5 } },
+        x: { grid: { color: 'rgba(0,0,0,0.04)' } }
+      }
+    }
   });
 }
 
@@ -1673,6 +1811,7 @@ const SOURCES = {
   'chart-prices': 'Source: Verified sticker prices (Mar 2026), 54 products | JAOD Analysis',
   'chart-pl-mix': 'Source: KSS 10-K/10-Q filings, Evercore ISI | JAOD Analysis',
   'chart-gm-impact': 'Source: ISI research (1,000-1,500bps PL premium) | JAOD Analysis',
+  'chart-brandmix-history': 'Source: SEC EDGAR 10-Q/10-K filings FY2007-2025, earnings call transcripts | JAOD Analysis',
   'chart-dg-premium': 'Source: More Perfect Union, BofA, WHEC, Southern Savers | JAOD Analysis',
   'chart-perception': 'Source: ACSI (41,850 surveys), YouGov, Market Force; Y = 54-product dataset | JAOD Analysis',
   'chart-demo-hhi': 'Source: Placer.ai, Census, retailer filings | JAOD Analysis',
