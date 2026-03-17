@@ -1172,11 +1172,24 @@ function initReHidden() {
   new Chart(document.getElementById('chart-re-methods'), {
     type: 'bar',
     data: {
-      labels: ['Income\nApproach', 'REIT Comp', 'Blended', 'SLB Net', 'Market Cap'],
-      datasets: [{ data: [5.3, 4.7, 5.0, 4.8, 1.5],
-        backgroundColor: [COLORS.blue, CG.raspberry[500], COLORS.green, COLORS.teal, COLORS.red] }]
+      labels: ['Income\nApproach', 'REIT Comp', 'Blended', 'SLB Net', 'Mkt Cap\n+ Net Debt'],
+      datasets: [{
+        label: 'Market Cap',
+        data: [5.3, 4.7, 5.0, 4.8, 1.5],
+        backgroundColor: [COLORS.blue, CG.raspberry[500], COLORS.green, COLORS.teal, COLORS.red]
+      },{
+        label: 'Net Debt',
+        data: [null, null, null, null, 0.8],
+        backgroundColor: [null, null, null, null, CG.warn[300]]
+      }]
     },
-    options: { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'$B' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
+    options: {
+      plugins: { legend: { display: true, position: 'bottom', labels: { filter: item => item.text === 'Market Cap' || item.text === 'Net Debt' } } },
+      scales: {
+        x: { stacked: true },
+        y: { stacked: true, title: { display: true, text: '$B' }, grid: { color: 'rgba(0,0,0,0.08)' } }
+      }
+    }
   });
 }
 
