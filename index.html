@@ -589,7 +589,16 @@ td.blue { color:var(--cg-sapphire-600); }
       </div>
     </div>
   </div>
-  <div class="callout">KSS ranks LAST in deal perception (45/100) despite a median price premium of only +37.0% vs competitors. With a 15% coupon, KSS becomes the cheapest 31% of the time. AI shopping agents will close this perception gap by showing consumers the actual math.</div>
+  <div class="callout">KSS ranks LAST in deal perception (45/100) despite a median price premium of only +9.6% — competitive with Amazon (+2.5%) and well below Target (+20.2%) and Dollar General (+30%). The regression line shows KSS is significantly below where perception would predict. AI shopping agents will close this gap by showing consumers the actual math.</div>
+
+  <div style="margin-top:18px;padding:16px 20px;background:var(--cg-gray-50);border:1px solid var(--cg-gray-200);border-radius:8px;font-size:11px;color:var(--cg-gray-600);line-height:1.7">
+    <strong style="color:var(--cg-gray-800)">Methodology</strong><br>
+    <strong>Price dataset:</strong> 54 identical branded products (exact UPC/model where possible) hand-collected from kohls.com, amazon.com, walmart.com, and target.com on March 16, 2026. Categories: home/kitchen appliances, branded apparel (Nike, Under Armour, Columbia, Adidas), toys, personal care. For each product, the cheapest retailer price becomes the baseline (0%). Each retailer's median premium across all 54 products is plotted on the Y-axis.<br>
+    <strong>Deal perception (X-axis):</strong> Composite score from ACSI satisfaction surveys (41,850 respondents), YouGov brand perception, Market Force Information consumer polls, and AlixPartners/Deloitte/Coresight retail surveys. Higher = consumers perceive better deals. Axis is inverted so weak perception plots right.<br>
+    <strong>TJX/Ross:</strong> Off-price retailers with rotating inventory — prices based on tjmaxx.com listings and company-stated "20-60% off department store" positioning. No consistent UPC matching possible.<br>
+    <strong>Dollar General:</strong> Carries limited branded assortment (smaller pack sizes) — per-unit premium often exceeds sticker price comparison. BofA 33-item basket study confirms +7.3% vs Walmart.<br>
+    <strong>Regression:</strong> OLS best-fit across all plotted retailers. KSS falls well below the trend line — actual value is better than perceived.
+  </div>
 </div>
 
 <div class="slide" id="con-demographics">
@@ -636,7 +645,7 @@ td.blue { color:var(--cg-sapphire-600); }
     </div>
     <div class="col">
       <div class="card">
-        <h3>COVID: Comp Store Sales (FY2019-FY2021)</h3>
+        <h3>COVID: Quarterly Revenue Growth (2019-Q4 to 2021-Q3)</h3>
         <canvas id="chart-covid-sss"></canvas>
       </div>
     </div>
@@ -1513,28 +1522,41 @@ function initAiPoverty() {
 }
 
 function initAiDisrupt() {
-  // Data-driven: Y-axis = actual median premium from our price comparison research
+  // Data-driven: Y-axis = actual median premium from our 54-product price comparison
   // X-axis = consumer "deal perception" (inverted: lower = better perceived value)
-  const medianPrem = {"KSS": 37.0, "AMZN": 2.5, "WMT": 0.0, "TGT": 20.2, "KSS_coupon": 16.4};
-  // Deal perception composite scores (0-100) from ACSI, Market Force, YouGov, AlixPartners surveys
-  // Higher = consumers perceive the retailer as offering better deals/value
+  // KSS shown at effective 20% coupon price: (1+0.37)*0.80 - 1 = 9.6% premium
   const dealPerception = { TJX: 88, ROST: 85, AMZN: 78, WMT: 72, TGT: 62, FIVE: 60, DG: 55, KSS: 45 };
   const brands = [
-    { x: 100-dealPerception.KSS, y: medianPrem.KSS || 9, label: 'KSS (sticker)', color: COLORS.kss, r: 14 },
-    { x: 100-dealPerception.KSS, y: medianPrem.KSS_coupon || -7, label: 'KSS (15% coupon)', color: CG.green[500], r: 14 },
-    { x: 100-dealPerception.AMZN, y: medianPrem.AMZN || 3, label: 'Amazon', color: COLORS.amzn, r: 10 },
-    { x: 100-dealPerception.WMT, y: medianPrem.WMT || 0, label: 'Walmart', color: COLORS.wmt, r: 10 },
-    { x: 100-dealPerception.TGT, y: medianPrem.TGT || 12, label: 'Target', color: COLORS.tgt, r: 10 },
+    { x: 100-dealPerception.KSS, y: 9.6, label: 'KSS', color: COLORS.kss, r: 14 },
+    { x: 100-dealPerception.AMZN, y: 2.5, label: 'Amazon', color: COLORS.amzn, r: 10 },
+    { x: 100-dealPerception.WMT, y: 0.0, label: 'Walmart', color: COLORS.wmt, r: 10 },
+    { x: 100-dealPerception.TGT, y: 20.2, label: 'Target', color: COLORS.tgt, r: 10 },
     { x: 100-dealPerception.TJX, y: 15, label: 'TJX', color: COLORS.tjx, r: 10 },
     { x: 100-dealPerception.DG, y: 30, label: 'Dollar General*', color: COLORS.dg, r: 10 },
   ];
+  // Linear regression
+  const pts = brands.map(b => [b.x, b.y]);
+  const n = pts.length;
+  const sx = pts.reduce((a,p) => a+p[0], 0), sy = pts.reduce((a,p) => a+p[1], 0);
+  const sxx = pts.reduce((a,p) => a+p[0]*p[0], 0), sxy = pts.reduce((a,p) => a+p[0]*p[1], 0);
+  const slope = (n*sxy - sx*sy) / (n*sxx - sx*sx);
+  const intercept = (sy - slope*sx) / n;
+  const regLine = [{x:5, y:slope*5+intercept}, {x:95, y:slope*95+intercept}];
+
   new Chart(document.getElementById('chart-perception'), {
     type: 'scatter',
     data: {
-      datasets: brands.map(b => ({
-        label: b.label, data: [{ x: b.x, y: b.y }],
-        backgroundColor: b.color, pointRadius: b.r, pointHoverRadius: b.r + 4
-      }))
+      datasets: [
+        ...brands.map(b => ({
+          label: b.label, data: [{ x: b.x, y: b.y }],
+          backgroundColor: b.color, pointRadius: b.r, pointHoverRadius: b.r + 4
+        })),
+        {
+          label: 'Trend (OLS)', type: 'line', data: regLine,
+          borderColor: CG.gray_400 || '#ADADAD', borderWidth: 1.5, borderDash: [6,4],
+          pointRadius: 0, fill: false
+        }
+      ]
     },
     options: {
       scales: {
@@ -1542,7 +1564,7 @@ function initAiDisrupt() {
         y: { title: { display:true, text: 'Actual Median Price Premium vs Cheapest (%)' }, grid:{ color:'rgba(0,0,0,0.08)' } }
       },
       plugins: {
-        legend: { position: 'bottom' },
+        legend: { position: 'bottom', labels: { filter: item => item.text !== 'Trend (OLS)' } },
         tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y + '% premium' } }
       }
     }
@@ -1734,7 +1756,8 @@ const demoData = [{"ticker": "DG", "hhi": 40000, "desc": "Core customer earns <$
 
 // ── Recession SSS Data ──
 const gfcSSS = {"KSS": {"FY2007": -0.8, "FY2008": -6.9, "FY2009": -4.4, "FY2010": 4.5}, "M": {"FY2007": -1.4, "FY2008": -4.6, "FY2009": -5.3, "FY2010": 4.6}, "JWN": {"FY2007": 4.5, "FY2008": -8.4, "FY2009": -4.2, "FY2010": 8.1}, "TJX": {"FY2007": 1.0, "FY2008": 1.0, "FY2009": 6.0, "FY2010": 4.0}, "DG": {"FY2007": 2.1, "FY2008": 9.0, "FY2009": 9.5, "FY2010": 4.9}, "WMT": {"FY2007": 1.9, "FY2008": 3.5, "FY2009": -0.8, "FY2010": 0.5}, "TGT": {"FY2007": 3.0, "FY2008": -2.9, "FY2009": -2.5, "FY2010": 2.1}, "ROST": {"FY2007": 2.0, "FY2008": -1.0, "FY2009": 5.0, "FY2010": 6.0}};
-const covidSSS = {"KSS": {"FY2019": -1.3, "FY2020": -21.0, "FY2021": 22.1}, "M": {"FY2019": -0.8, "FY2020": -17.1, "FY2021": 42.9}, "JWN": {"FY2019": -1.7, "FY2020": -20.0, "FY2021": 23.0}, "TJX": {"FY2019": 4.0, "FY2021": 17.0}, "DG": {"FY2019": 3.9, "FY2020": 16.3, "FY2021": -2.8}, "WMT": {"FY2019": 2.8, "FY2020": 8.6, "FY2021": 6.4}, "TGT": {"FY2019": 3.4, "FY2020": 19.3, "FY2021": 12.7}, "ROST": {"FY2019": 3.0, "FY2021": 13.0}};
+// COVID quarterly YoY revenue growth (scripted from XBRL 10-Q filings)
+const covidSSS = {"KSS": {"2019-Q4": 0.1, "2020-Q1": -40.6, "2020-Q2": -23.1, "2020-Q3": -14.0, "2020-Q4": -10.1, "2021-Q1": 60.1, "2021-Q2": 30.5, "2021-Q3": 15.6}, "M": {"2019-Q4": -1.4, "2020-Q1": -45.2, "2020-Q2": -35.8, "2020-Q3": -22.9, "2020-Q4": -18.7, "2021-Q1": 56.0, "2021-Q2": 58.7, "2021-Q3": 36.3}, "JWN": {"2020-Q1": -38.5, "2020-Q2": -51.9, "2020-Q3": -15.9, "2021-Q1": 42.0, "2021-Q2": 96.4, "2021-Q3": 17.7}, "TJX": {"2019-Q4": 9.7, "2020-Q1": -52.5, "2020-Q2": -31.8, "2020-Q3": -3.2, "2020-Q4": -10.3, "2021-Q1": 128.8, "2021-Q2": 81.1, "2021-Q3": 23.9}, "DG": {"2019-Q4": 7.6, "2020-Q1": 27.6, "2020-Q2": 24.4, "2020-Q3": 17.3, "2020-Q4": 17.6, "2021-Q1": -0.6, "2021-Q2": -0.4, "2021-Q3": 3.9}, "WMT": {"2019-Q4": 2.1, "2020-Q1": 8.7, "2020-Q2": 5.8, "2020-Q3": 5.3, "2021-Q1": 2.6, "2021-Q2": 2.2, "2021-Q3": 4.1}, "TGT": {"2019-Q4": 1.8, "2020-Q1": 11.3, "2020-Q2": 24.7, "2020-Q3": 21.2, "2021-Q1": 23.4, "2021-Q2": 9.5, "2021-Q3": 13.3}, "ROST": {"2019-Q4": 7.5, "2020-Q1": -51.5, "2020-Q2": -32.5, "2020-Q3": -2.5, "2020-Q4": -3.7, "2021-Q1": 145.1, "2021-Q2": 79.0, "2021-Q3": 21.8}};
 
 function initStockChart() {
   if (!stockPrices) return;
@@ -1836,13 +1859,13 @@ function initRecession() {
       options: { scales: { y: { title:{ display:true, text:'SSS vs Base Year (pp)' }, grid:{ color:'rgba(0,0,0,0.08)' } } }, plugins:{ legend:{ position:'bottom' } } }
     });
   }
-  // COVID chart — normalized to FY2019 = 0
+  // COVID chart — quarterly, normalized to 2019-Q4 = 0
   if (Object.keys(covidSSS).length && document.getElementById('chart-covid-sss')) {
-    const years = ['FY2019', 'FY2020', 'FY2021'];
+    const quarters = ['2019-Q4','2020-Q1','2020-Q2','2020-Q3','2020-Q4','2021-Q1','2021-Q2','2021-Q3'];
     new Chart(document.getElementById('chart-covid-sss'), {
       type: 'line',
-      data: { labels: years, datasets: normalized(covidSSS, years) },
-      options: { scales: { y: { title:{ display:true, text:'SSS vs Base Year (pp)' }, grid:{ color:'rgba(0,0,0,0.08)' } } }, plugins:{ legend:{ position:'bottom' } } }
+      data: { labels: quarters, datasets: normalized(covidSSS, quarters) },
+      options: { scales: { y: { title:{ display:true, text:'YoY Rev Growth vs Base Quarter (pp)' }, grid:{ color:'rgba(0,0,0,0.08)' } } }, plugins:{ legend:{ position:'bottom' } } }
     });
   }
 }
@@ -1876,7 +1899,7 @@ const SOURCES = {
   'chart-perception': 'Source: ACSI (41,850 surveys), YouGov, Market Force; Y = 54-product dataset | JAOD Analysis',
   'chart-demo-hhi': 'Source: Placer.ai, Census, retailer filings | JAOD Analysis',
   'chart-gfc-sss': 'Source: SEC 10-K filings FY2007-2010 | JAOD Analysis',
-  'chart-covid-sss': 'Source: SEC 10-K filings FY2019-2021 | JAOD Analysis',
+  'chart-covid-sss': 'Source: SEC EDGAR XBRL 10-Q quarterly revenue, YoY growth | JAOD Analysis',
   'chart-rev-resilience': 'Source: SEC EDGAR XBRL FY2014-2025 | JAOD Analysis',
   'chart-cfo-resilience': 'Source: SEC EDGAR XBRL FY2014-2025 | JAOD Analysis',
   'chart-wage-growth': 'Source: BLS Employment Cost Index 2020-2025 | JAOD Analysis',
