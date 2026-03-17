@@ -326,7 +326,7 @@ td.blue { color:var(--cg-sapphire-600); }
       </div>
     </div>
   </div>
-  <div class="callout-gold callout">After 2030: $360M secured notes gone, DC collateral released. After 2031: $500M notes gone. Remaining debt: ~$640M of long-dated bonds. Free to execute SLB or REIT spin-off. Potential special dividend: ~$37.90/share vs $13.04 stock — nearly 3x upside from RE alone.</div>
+  <div class="callout-gold callout">After 2030: $360M secured notes gone, DC collateral released. After 2031: $500M notes gone. Remaining debt: ~$640M of long-dated bonds. Free to execute SLB or REIT spin-off. Conservative scenario (50% discount to book): ~$23/share special dividend vs $8.06 stock. Full blended value scenario: ~$38/share.</div>
 </div>
 
 <div class="slide" id="re-lease">
@@ -1228,12 +1228,13 @@ function initReUnlock() {
     options: { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'$M' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
   });
   // SLB waterfall — all per-share, ~114M shares
-  // RE blended $4.97B = $43.60/sh → 3% txn costs -$1.31 → retire 2031 notes $500M -$4.39 → dividend $37.90
+  // Base case: 50% discount to RE net book $6.49B = $3,244M proceeds
+  // $3,244M / 114 = $28.46/sh → 3% txn costs -$0.85 → retire 2031 notes $500M -$4.39 → dividend $23.22
   const shares = 114;  // millions
-  const rePerShare = 4970 / shares;     // $43.60
-  const txnCost = -(4970 * 0.03) / shares; // -$1.31
+  const rePerShare = 3244 / shares;     // $28.46 (50% discount to $6,488M book)
+  const txnCost = -(3244 * 0.03) / shares; // -$0.85
   const retire2031 = -500 / shares;     // -$4.39
-  const divPerShare = rePerShare + txnCost + retire2031; // $37.90
+  const divPerShare = rePerShare + txnCost + retire2031; // $23.22
 
   // Floating bar waterfall: [bottom, top] for each segment
   const step1 = rePerShare;
@@ -1249,7 +1250,7 @@ function initReUnlock() {
           [step2, step1],
           [step3, step2],
           [0, step3],
-          [0, 13.04]
+          [0, 8.06]
         ],
         backgroundColor: [CG.green[500], CG.red[500], CG.red[500], CG.sapphire[500], CG.copper[500]],
         borderRadius: 4, borderSkipped: false
@@ -1261,7 +1262,7 @@ function initReUnlock() {
         tooltip: { callbacks: { label: ctx => { const v = ctx.raw; return Array.isArray(v) ? '$' + (v[1] - v[0]).toFixed(2) + '/sh' : '$' + v; } } }
       },
       scales: {
-        y: { title: { display: true, text: '$/Share' }, grid: { color: 'rgba(0,0,0,0.08)' }, min: 0, max: 50 },
+        y: { title: { display: true, text: '$/Share' }, grid: { color: 'rgba(0,0,0,0.08)' }, min: 0, max: 35 },
         x: { grid: { display: false } }
       }
     }
@@ -1295,8 +1296,8 @@ function initRePB() {
   new Chart(document.getElementById('chart-per-share'), {
     type: 'bar',
     data: {
-      labels: ['Current Stock', '2022 PE Bid', 'Book Value', 'RE Value/Share', 'SLB Div/Share'],
-      datasets: [{ data: [13.04, 53, 35.51, 43.60, 37.90],
+      labels: ['Current Stock', '2022 PE Bid', 'Book Value', 'RE Value/Share', 'SLB Div/Share (50% disc)'],
+      datasets: [{ data: [8.06, 53, 35.51, 43.60, 23.22],
         backgroundColor: [COLORS.red, COLORS.gold, COLORS.blue, COLORS.green, COLORS.cyan] }]
     },
     options: { plugins:{ legend:{ display:false } }, scales:{ y:{ title:{ display:true, text:'$/Share' }, grid:{ color:'rgba(0,0,0,0.08)' } } } }
